@@ -16,6 +16,7 @@
 package mod.steamnsteel.client.renderer.tileentity;
 
 import com.google.common.base.Objects;
+import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.client.renderer.model.BallMillModel;
 import mod.steamnsteel.tileentity.BallMillTE;
@@ -63,7 +64,7 @@ public class BallMillTESR extends SteamNSteelTESR
 
         GL11.glPushMatrix();
 
-        // Inherent adjustments to model
+        // Inherent adjustments to model, center.
         GL11.glScalef(SCALE.left, SCALE.middle, SCALE.right);
         GL11.glTranslatef(OFFSET.left, OFFSET.middle, OFFSET.right);
 
@@ -73,11 +74,23 @@ public class BallMillTESR extends SteamNSteelTESR
 
         GL11.glRotatef(getAngleFromOrientation(orientation), 0.0F, 1.0F, 0.0F);
 
+        // Shift model to fit on two blocks.
+        GL11.glTranslatef(-0.5F, 0.0F, -0.5F);
+
+        // If block is mirrored, flip faces and scale along -Z
+        if ((metadata & SteamNSteelStructureBlock.flagMirrored) != 0) {
+            GL11.glFrontFace(GL11.GL_CW);
+            GL11.glScalef(1, 1, -1);
+        }
+
         // Bind the texture
         bindTexture(TEXTURE);
 
         // Render
         model.render();
+
+        // Flip faces back to default
+        GL11.glFrontFace(GL11.GL_CCW);
 
         // Close Render Buffer
         GL11.glPopMatrix();

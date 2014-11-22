@@ -16,6 +16,7 @@
 package mod.steamnsteel.client.renderer.tileentity;
 
 import com.google.common.base.Objects;
+import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.block.structure.BlastFurnaceBlock;
 import mod.steamnsteel.client.renderer.model.BlastFurnaceModel;
 import mod.steamnsteel.tileentity.BlastFurnaceTE;
@@ -73,11 +74,20 @@ public class BlastFurnaceTESR extends SteamNSteelTESR
 
         GL11.glRotatef(getAngleFromOrientation(orientation), 0.0F, 1.0F, 0.0F);
 
+        // If block is mirrored, flip faces and scale along -Z
+        if ((metadata & SteamNSteelStructureBlock.flagMirrored) != 0) {
+            GL11.glFrontFace(GL11.GL_CW);
+            GL11.glScalef(1, 1, -1);
+        }
+
         // Bind the texture
         bindTexture(TEXTURE);
 
         // Render
         model.render();
+
+        // Flip faces back to default
+        GL11.glFrontFace(GL11.GL_CCW);
 
         // Close Render Buffer
         GL11.glPopMatrix();
