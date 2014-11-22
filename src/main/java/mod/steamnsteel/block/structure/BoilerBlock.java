@@ -25,6 +25,11 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
 {
     public static final String NAME = "boiler";
 
+    public BoilerBlock()
+    {
+        setBlockName(NAME);
+    }
+
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {

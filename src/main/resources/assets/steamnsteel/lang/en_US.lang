@@ -5,6 +5,10 @@
 # Author: Scott Killen
 #
 
+tile.steamnsteel:ballMill.name=Ball Mill
+tile.steamnsteel:blastFurnace.name=Blast Furnace
+tile.steamnsteel:boiler.name=Boiler
+
 #Blocks
 tile.steamnsteel:blockBrass.name=Brass Block
 tile.steamnsteel:blockBronze.name=Bronze Block

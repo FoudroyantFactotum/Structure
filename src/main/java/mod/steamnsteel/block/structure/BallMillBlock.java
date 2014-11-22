@@ -25,6 +25,11 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
 {
     public static final String NAME = "ballMill";
 
+    public BallMillBlock()
+    {
+        setBlockName(NAME);
+    }
+
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {

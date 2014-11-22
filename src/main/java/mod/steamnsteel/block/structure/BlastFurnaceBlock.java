@@ -25,6 +25,11 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
 {
     public static final String NAME = "blastFurnace";
 
+    public BlastFurnaceBlock()
+    {
+        setBlockName(NAME);
+    }
+
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
