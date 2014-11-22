@@ -15,9 +15,17 @@
  */
 package mod.steamnsteel.block.structure;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.tileentity.BoilerTE;
+import mod.steamnsteel.utility.crafting.JSONStructurePattern;
+import mod.steamnsteel.utility.crafting.StructurePattern;
+import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 
@@ -35,4 +43,20 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
     {
         return new BoilerTE();
     }
+
+    @Override
+    public boolean onBlockActivated(World world, int p_149727_2_, int p_149727_3_, int p_149727_4_, EntityPlayer p_149727_5_, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_)
+    {
+        Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(StructurePattern.class, new JSONStructurePattern()).create();
+        StructurePattern a = new StructurePattern(ImmutableMap.<Character, Block>of(
+                's', ModBlock.blockSteel,
+                'b', ModBlock.blockBrass
+        ), 2, "ss", "sb", "ss", "sb");
+
+        String s = gson.toJson(a);
+        //if (!world.isRemote) Logger.info("\n" + s);
+        getPattern();
+        return false;
+    }
+
 }

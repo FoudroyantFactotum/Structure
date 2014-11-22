@@ -17,6 +17,7 @@ package mod.steamnsteel.block.structure;
 
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.tileentity.BallMillTE;
+import mod.steamnsteel.utility.crafting.StructurePattern;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
@@ -34,5 +35,11 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
     public TileEntity createNewTileEntity(World world, int meta)
     {
         return new BallMillTE();
+    }
+
+    @Override
+    public StructurePattern getPattern()
+    {
+        return null;
     }
 }

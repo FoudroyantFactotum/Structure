@@ -13,33 +13,11 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.block.structure;
+package mod.steamnsteel.block;
 
-import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.tileentity.BlastFurnaceTE;
 import mod.steamnsteel.utility.crafting.StructurePattern;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
 
-public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
+public interface IStructurePatternBlock
 {
-    public static final String NAME = "blastFurnace";
-
-    public BlastFurnaceBlock()
-    {
-        setBlockName(NAME);
-    }
-
-    @Override
-    public TileEntity createNewTileEntity(World world, int meta)
-    {
-        return new BlastFurnaceTE();
-    }
-
-    @Override
-    public StructurePattern getPattern()
-    {
-        return null;
-    }
+    public StructurePattern getPattern();
 }

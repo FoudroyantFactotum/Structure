@@ -15,7 +15,8 @@
  */
 package mod.steamnsteel.block;
 
-public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock
+public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock implements IStructurePatternBlock
 {
     public static final int flagMirrored = 1<<2;
+
 }
