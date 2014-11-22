@@ -21,14 +21,17 @@ import mod.steamnsteel.TheMod;
 import mod.steamnsteel.block.SteamNSteelBlock;
 import mod.steamnsteel.block.SteamNSteelOreBlock;
 import mod.steamnsteel.block.SteamNSteelStorageBlock;
+import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.block.container.PlotoniumChest;
 import mod.steamnsteel.block.machine.CupolaBlock;
 import mod.steamnsteel.block.resource.ore.*;
 import mod.steamnsteel.block.resource.structure.PlotoniumRuinFloor;
 import mod.steamnsteel.block.resource.structure.PlotoniumRuinPillar;
 import mod.steamnsteel.block.resource.structure.PlotoniumRuinWall;
-import mod.steamnsteel.tileentity.CupolaTE;
-import mod.steamnsteel.tileentity.PlotoniumChestTE;
+import mod.steamnsteel.block.structure.BallMillBlock;
+import mod.steamnsteel.block.structure.BlastFurnaceBlock;
+import mod.steamnsteel.block.structure.BoilerBlock;
+import mod.steamnsteel.tileentity.*;
 import net.minecraft.block.Block;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -50,6 +53,10 @@ public final class ModBlock
     public static final SteamNSteelBlock blockTin = new SteamNSteelStorageBlock(TIN_BLOCK);
     public static final SteamNSteelBlock blockZinc = new SteamNSteelStorageBlock(ZINC_BLOCK);
 
+    public static final SteamNSteelStructureBlock ballMill = new BallMillBlock();
+    public static final SteamNSteelStructureBlock blastFurnace = new BlastFurnaceBlock();
+    public static final SteamNSteelStructureBlock boiler = new BoilerBlock();
+
     public static final SteamNSteelBlock chestPlotonium = new PlotoniumChest();
     public static final SteamNSteelBlock cupola = new CupolaBlock();
     public static final SteamNSteelOreBlock oreCopper = new CopperOre();
@@ -68,6 +75,9 @@ public final class ModBlock
 
     public static void registerTileEntities()
     {
+        GameRegistry.registerTileEntity(BallMillTE.class, getTEName(BallMillBlock.NAME));
+        GameRegistry.registerTileEntity(BlastFurnaceTE.class, getTEName(BlastFurnaceBlock.NAME));
+        GameRegistry.registerTileEntity(BoilerTE.class, getTEName(BoilerBlock.NAME));
         GameRegistry.registerTileEntity(CupolaTE.class, getTEName(CupolaBlock.NAME));
         GameRegistry.registerTileEntity(PlotoniumChestTE.class, getTEName(PlotoniumChest.NAME));
     }
@@ -78,6 +88,9 @@ public final class ModBlock
     {
         GameRegistry.registerBlock(chestPlotonium, PlotoniumChest.NAME);
 
+        GameRegistry.registerBlock(ballMill, BallMillBlock.NAME);
+        GameRegistry.registerBlock(blastFurnace, BlastFurnaceBlock.NAME);
+        GameRegistry.registerBlock(boiler, BoilerBlock.NAME);
         GameRegistry.registerBlock(cupola, CupolaBlock.NAME);
 
         registerBlockAndOre(oreCopper, CopperOre.NAME);

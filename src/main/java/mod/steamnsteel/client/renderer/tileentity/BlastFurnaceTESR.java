@@ -13,40 +13,33 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-
 package mod.steamnsteel.client.renderer.tileentity;
 
-
 import com.google.common.base.Objects;
-import mod.steamnsteel.block.machine.CupolaBlock;
-import mod.steamnsteel.client.renderer.model.CupolaModel;
-import mod.steamnsteel.library.ModBlock;
-import mod.steamnsteel.tileentity.CupolaTE;
+import mod.steamnsteel.block.structure.BlastFurnaceBlock;
+import mod.steamnsteel.client.renderer.model.BlastFurnaceModel;
+import mod.steamnsteel.tileentity.BlastFurnaceTE;
 import mod.steamnsteel.utility.Orientation;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.lwjgl.opengl.GL11;
 
-public class CupolaTESR extends SteamNSteelTESR
+public class BlastFurnaceTESR extends SteamNSteelTESR
 {
-    public static final ResourceLocation TEXTURE = getResourceLocation(CupolaBlock.NAME);
+    private static final ResourceLocation TEXTURE = getResourceLocation(BlastFurnaceBlock.NAME);
     private static final ImmutableTriple<Float, Float, Float> SCALE = ImmutableTriple.of(1.0f, 1.0f, 1.0f);
     private static final ImmutableTriple<Float, Float, Float> OFFSET = ImmutableTriple.of(0.5f, 0.0f, 0.5f);
-    private static final ResourceLocation TEXTURE_ACTIVE = getResourceLocation(CupolaBlock.NAME + "_active");
 
-    private final CupolaModel model = new CupolaModel();
+    private final BlastFurnaceModel model = new BlastFurnaceModel();
 
-    @SuppressWarnings("NumericCastThatLosesPrecision")
     @Override
     public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float tick)
     {
-        if (tileEntity instanceof CupolaTE)
+        if (tileEntity instanceof BlastFurnaceTE)
         {
-            final CupolaTE te = (CupolaTE) tileEntity;
+            final BlastFurnaceTE te = (BlastFurnaceTE) tileEntity;
 
             // Open Render buffer
             GL11.glPushMatrix();
@@ -54,32 +47,20 @@ public class CupolaTESR extends SteamNSteelTESR
             // Position Renderer
             GL11.glTranslatef((float) x, (float) y, (float) z);
 
-            renderCupola(te);
+            renderBallMill(te);
 
             // Close Render Buffer
             GL11.glPopMatrix();
         }
     }
 
-    private void renderCupola(CupolaTE te)
+    private void renderBallMill(BlastFurnaceTE te)
     {
-        if (te.isSlave()) return;
-
         final int x = te.xCoord;
         final int y = te.yCoord;
         final int z = te.zCoord;
         final World world = te.getWorldObj();
 
-        // Lighting
-        final float brightness = ModBlock.cupola.getMixedBrightnessForBlock(world, x, y, z);
-        final int skyLight = world.getLightBrightnessForSkyBlocks(x, y, z, 0);
-        final int skyLightLSB = skyLight % 65536;
-        final int skyLightMSB = skyLight / 65536;
-
-        Tessellator.instance.setColorOpaque_F(brightness, brightness, brightness);
-        OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, skyLightLSB, skyLightMSB);
-
-        // Open Render buffer
         GL11.glPushMatrix();
 
         // Inherent adjustments to model
@@ -93,10 +74,7 @@ public class CupolaTESR extends SteamNSteelTESR
         GL11.glRotatef(getAngleFromOrientation(orientation), 0.0F, 1.0F, 0.0F);
 
         // Bind the texture
-        if (te.isActive())
-            bindTexture(TEXTURE_ACTIVE);
-        else
-            bindTexture(TEXTURE);
+        bindTexture(TEXTURE);
 
         // Render
         model.render();

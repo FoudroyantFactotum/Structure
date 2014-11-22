@@ -20,11 +20,9 @@ import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import mod.steamnsteel.client.renderer.item.CupolaItemRenderer;
 import mod.steamnsteel.client.renderer.item.PlotoniumChestItemRenderer;
-import mod.steamnsteel.client.renderer.tileentity.CupolaTESR;
-import mod.steamnsteel.client.renderer.tileentity.PlotoniumChestTESR;
+import mod.steamnsteel.client.renderer.tileentity.*;
 import mod.steamnsteel.library.ModBlock;
-import mod.steamnsteel.tileentity.CupolaTE;
-import mod.steamnsteel.tileentity.PlotoniumChestTE;
+import mod.steamnsteel.tileentity.*;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.MinecraftForgeClient;
 
@@ -52,6 +50,9 @@ public class ClientRenderProxy extends RenderProxy
 
     private void registerTESRs()
     {
+        ClientRegistry.bindTileEntitySpecialRenderer(BallMillTE.class, new BallMillTESR());
+        ClientRegistry.bindTileEntitySpecialRenderer(BlastFurnaceTE.class, new BlastFurnaceTESR());
+        ClientRegistry.bindTileEntitySpecialRenderer(BoilerTE.class, new BoilerTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(CupolaTE.class, new CupolaTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(PlotoniumChestTE.class, new PlotoniumChestTESR());
     }

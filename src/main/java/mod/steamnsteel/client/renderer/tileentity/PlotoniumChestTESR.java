@@ -31,21 +31,6 @@ public class PlotoniumChestTESR extends SteamNSteelTESR
     public static final ResourceLocation TEXTURE = getResourceLocation(PlotoniumChest.NAME);
     private static final ModelChest vanillaChest = new ModelChest();
 
-    private static float getAngleFromOrientation(Orientation orientation)
-    {
-        switch (orientation)
-        {
-            case SOUTH:
-                return 180.0f;
-            case WEST:
-                return 90.0f;
-            case NORTH:
-                return 0.0f;
-            default:
-                return 270.0f;
-        }
-    }
-
     @Override
     public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float tick)
     {

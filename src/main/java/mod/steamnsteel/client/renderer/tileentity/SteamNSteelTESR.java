@@ -17,6 +17,7 @@
 package mod.steamnsteel.client.renderer.tileentity;
 
 import mod.steamnsteel.TheMod;
+import mod.steamnsteel.utility.Orientation;
 import net.minecraft.client.renderer.tileentity.TileEntitySpecialRenderer;
 import net.minecraft.util.ResourceLocation;
 
@@ -34,5 +35,20 @@ abstract class SteamNSteelTESR extends TileEntitySpecialRenderer
     private static String getTexturePath(String name)
     {
         return TEXTURE_LOCATION + name + TEXTURE_FILE_EXTENSION;
+    }
+
+    static float getAngleFromOrientation(Orientation orientation)
+    {
+        switch (orientation)
+        {
+            case SOUTH:
+                return 180.0f;
+            case WEST:
+                return 90.0f;
+            case NORTH:
+                return 0.0f;
+            default:
+                return 270.0f;
+        }
     }
 }
