@@ -16,7 +16,7 @@
 package mod.steamnsteel.block.structure;
 
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.utility.crafting.StructurePattern;
+import mod.steamnsteel.utility.structure.StructurePattern;
 
 public class StructureShapeBlock extends SteamNSteelStructureBlock
 {

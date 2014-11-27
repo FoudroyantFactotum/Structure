@@ -15,15 +15,14 @@
  */
 package mod.steamnsteel.block.structure;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.tileentity.BoilerTE;
-import mod.steamnsteel.utility.crafting.JSONStructurePattern;
-import mod.steamnsteel.utility.crafting.StructurePattern;
-import net.minecraft.block.Block;
+import mod.steamnsteel.utility.Orientation;
+import mod.steamnsteel.utility.log.Logger;
+import mod.steamnsteel.utility.structure.JSONStructurePattern;
+import mod.steamnsteel.utility.structure.StructurePattern;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -45,18 +44,29 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
     }
 
     @Override
-    public boolean onBlockActivated(World world, int p_149727_2_, int p_149727_3_, int p_149727_4_, EntityPlayer p_149727_5_, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_)
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float p_149727_7_, float p_149727_8_, float p_149727_9_)
     {
         Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(StructurePattern.class, new JSONStructurePattern()).create();
-        StructurePattern a = new StructurePattern(ImmutableMap.<Character, Block>of(
-                's', ModBlock.blockSteel,
-                'b', ModBlock.blockBrass
-        ), 2, "ss", "sb", "ss", "sb");
 
-        String s = gson.toJson(a);
-        //if (!world.isRemote) Logger.info("\n" + s);
-        getPattern();
-        return false;
+        String s = gson.toJson(getPattern());
+        if (!world.isRemote) Logger.info("\n" + s);
+        final Orientation orientation = Orientation.getdecodedOrientation(meta);
+
+        /*StructureBlockIterator itr = new StructureBlockIterator(getPattern(), Vec3.createVectorHelper(x,y,z), orientation, false);
+
+        while (itr.hasNext())
+        {
+            final WorldBlockCoord block = itr.next();
+            if (!world.isRemote) Logger.info("" + block);
+            block.setBlock(world, ModBlock.blockPlotonium);
+        }*/
+        return true;
     }
 
+    @Override
+    public StructurePattern getPattern()
+    {
+        //return new StructurePattern(3,4,3);
+        return super.getPattern();
+    }
 }

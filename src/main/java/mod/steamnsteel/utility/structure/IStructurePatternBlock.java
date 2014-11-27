@@ -13,9 +13,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.block;
-
-import mod.steamnsteel.utility.crafting.StructurePattern;
+package mod.steamnsteel.utility.structure;
 
 public interface IStructurePatternBlock
 {

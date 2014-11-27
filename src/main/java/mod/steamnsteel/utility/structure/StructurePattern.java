@@ -13,24 +13,28 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.utility.crafting;
+package mod.steamnsteel.utility.structure;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.Vec3;
 
 import static com.google.common.base.Preconditions.*;
 
 public class StructurePattern
 {
-    ImmutableMap<Character, Block> blocks;
-    final int rowsPerLayer;
-    final ImmutableList<String> pattern;
+    public static final StructurePattern MISSING_STRUCTURE = new StructurePattern(1,1,1);
 
-    public StructurePattern(ImmutableMap<Character, Block> blocks, int rowsPerLayer, String... recRows){
+    ImmutableMap<Character, Block> blocks;
+    ImmutableList<String> pattern;
+    final Vec3 size;
+
+    public StructurePattern(ImmutableMap<Character, Block> blocks, int rowsPerLayer, String... recRows)
+    {
         Builder<String> builder = ImmutableList.builder();
 
         int recRowLength = recRows[0].length();
@@ -44,14 +48,28 @@ public class StructurePattern
         checkState(count % rowsPerLayer == 0, "Recipe must fill defined box " + count);
 
         this.blocks = blocks;
-        this.rowsPerLayer = rowsPerLayer;
         pattern = builder.build();
+
+        size = Vec3.createVectorHelper(
+                recRowLength,
+                pattern.size() / rowsPerLayer,
+                rowsPerLayer);
+    }
+
+    public StructurePattern(int xSize, int ySize, int zSize)
+    {
+        blocks = null;
+        pattern = null;
+
+        size = Vec3.createVectorHelper(xSize,ySize,zSize);
     }
 
     public Block getBlock(int x, int y, int z)
     {
+        if (blocks == null) return Blocks.air;
+
         //TODO check Bounds?
-        final Character c = pattern.get(z + y*rowsPerLayer).charAt(x);
+        final Character c = pattern.get((int) (z + y*size.zCoord)).charAt(x);
         return blocks.get(c);
     }
 
@@ -63,17 +81,16 @@ public class StructurePattern
     public Vec3 getSize()
     {
         return Vec3.createVectorHelper(
-                pattern.get(0).length(),
-                pattern.size()/rowsPerLayer,
-                rowsPerLayer);
+                size.xCoord,
+                size.yCoord,
+                size.zCoord);
     }
 
     public String toString(){
         return Objects.toStringHelper(this)
                 .add("pattern", pattern)
-                .add("rowsPerLayer", rowsPerLayer)
                 .add("blocks", blocks)
-                .add("Size", getSize())
+                .add("Size", size)
                 .toString();
     }
 
@@ -85,7 +102,7 @@ public class StructurePattern
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(pattern) + Objects.hashCode(rowsPerLayer) + Objects.hashCode(blocks);
+        return Objects.hashCode(pattern) + Objects.hashCode(size) + Objects.hashCode(blocks);
     }
 
 

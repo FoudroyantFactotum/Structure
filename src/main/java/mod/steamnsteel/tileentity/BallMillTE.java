@@ -15,6 +15,8 @@
  */
 package mod.steamnsteel.tileentity;
 
-public class BallMillTE extends SteamNSteelTE
+
+public class BallMillTE extends SteamNSteelStructureTE
 {
+
 }

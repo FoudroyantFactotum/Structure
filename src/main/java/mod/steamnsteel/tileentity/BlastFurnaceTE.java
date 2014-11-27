@@ -15,6 +15,6 @@
  */
 package mod.steamnsteel.tileentity;
 
-public class BlastFurnaceTE extends SteamNSteelTE
+public class BlastFurnaceTE extends SteamNSteelStructureTE
 {
 }

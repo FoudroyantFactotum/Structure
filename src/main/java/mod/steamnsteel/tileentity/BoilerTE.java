@@ -15,6 +15,6 @@
  */
 package mod.steamnsteel.tileentity;
 
-public class BoilerTE extends SteamNSteelTE
+public class BoilerTE extends SteamNSteelStructureTE
 {
 }
