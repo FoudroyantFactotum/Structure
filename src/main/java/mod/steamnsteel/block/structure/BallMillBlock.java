@@ -15,15 +15,12 @@
  */
 package mod.steamnsteel.block.structure;
 
-import com.google.common.collect.ImmutableMap;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.tileentity.BallMillTE;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
 import mod.steamnsteel.utility.structure.StructureBlockIterator;
-import mod.steamnsteel.utility.structure.StructurePattern;
-import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -43,15 +40,6 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
     public TileEntity createNewTileEntity(World world, int meta)
     {
         return new BallMillTE();
-    }
-
-    @Override
-    public StructurePattern getPattern()
-    {
-        return new StructurePattern(ImmutableMap.<Character, Block>of(
-                's', ModBlock.blockBrass,
-                'S', ModBlock.blockSteel
-        ), 2, "SsssS", "SsssS", "SsssS", "SsssS");
     }
 
     @Override

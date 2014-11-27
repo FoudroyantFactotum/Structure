@@ -62,11 +62,4 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
         }*/
         return true;
     }
-
-    @Override
-    public StructurePattern getPattern()
-    {
-        //return new StructurePattern(3,4,3);
-        return super.getPattern();
-    }
 }
