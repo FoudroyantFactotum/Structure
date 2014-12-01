@@ -16,25 +16,21 @@
 package mod.steamnsteel.tileentity;
 
 import com.google.common.base.Optional;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.utility.structure.IStructureTE;
-import mod.steamnsteel.utility.structure.StructurePattern;
+import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 
-public class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE
+public class StructureShapeTE extends SteamNSteelTE implements IStructureTE
 {
     private int blockID = -1;
-    private Optional<AxisAlignedBB> renderBounds = Optional.absent();
+    private Optional<Vec3> masterLocation = Optional.absent();
 
     private static final String BLOCK_NUMBER = "blockNumber";
+    private static final String MASTER_LOCATION = "masterLocation";
 
     @Override
     public Packet getDescriptionPacket()
@@ -54,6 +50,13 @@ public class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureT
     public void readFromNBT(NBTTagCompound nbt)
     {
         super.readFromNBT(nbt);
+
+        final int[] mLoc = nbt.getIntArray(MASTER_LOCATION);
+        if (mLoc != null && mLoc.length == 3)
+        {
+            masterLocation = Optional.of(Vec3.createVectorHelper(mLoc[0],mLoc[1],mLoc[2]));
+        }
+
         blockID = nbt.getInteger(BLOCK_NUMBER);
     }
 
@@ -61,49 +64,46 @@ public class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureT
     public void writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
+
+        if (masterLocation.isPresent())
+        {
+            final Vec3 mLoc = masterLocation.get();
+            nbt.setIntArray(MASTER_LOCATION, new int[]{(int)mLoc.xCoord,(int)mLoc.yCoord,(int)mLoc.zCoord});
+        }
+
         nbt.setInteger(BLOCK_NUMBER,blockID);
     }
 
-    @Override
-    @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox()
+    public Block getMasterBlock()
     {
-        if (!renderBounds.isPresent())
-        {
-            final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) getBlockType();
-            final StructurePattern pattern = block.getPattern();
-
-            if (pattern == StructurePattern.MISSING_STRUCTURE)
-            {
-                Logger.info("Missing Pattern for : " + block.getUnlocalizedName());
-                renderBounds = Optional.of(INFINITE_EXTENT_AABB);
-            } else
-            {
-                final Vec3 size = block.getPattern().getSize();
-
-                renderBounds = Optional.of(AxisAlignedBB.getBoundingBox(
-                        xCoord - (int)size.xCoord/2,
-                        yCoord,
-                        zCoord - (int)size.zCoord/2,
-
-                        xCoord + Math.ceil(size.xCoord/2),
-                        yCoord + size.yCoord,
-                        zCoord + Math.ceil(size.zCoord/2)));
-            }
-        }
-
-        return renderBounds.get();
+        final Vec3 mLoc = masterLocation.get();
+        return worldObj.getBlock((int)mLoc.xCoord, (int)mLoc.yCoord, (int)mLoc.zCoord);
     }
 
-    @Override
-    public int getBlockID()
+    public Vec3 getMasterLocation()
     {
-        return blockID;
+        final Vec3 mLoc = masterLocation.get();
+        return Vec3.createVectorHelper(mLoc.xCoord, mLoc.yCoord, mLoc.zCoord);
     }
 
-    @Override
+    public boolean hasMaster()
+    {
+        return masterLocation.isPresent();
+    }
+
+    public StructureShapeTE setMaster(int x, int y, int z)
+    {
+        masterLocation = Optional.of(Vec3.createVectorHelper(x,y,z));
+        return this;
+    }
+
     public void setBlockID(int blkID)
     {
         blockID = blkID < 0 ? -1:blkID;
+    }
+
+    public int getBlockID()
+    {
+        return blockID;
     }
 }

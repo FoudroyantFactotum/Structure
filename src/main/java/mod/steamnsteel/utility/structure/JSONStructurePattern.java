@@ -29,24 +29,29 @@ import static com.google.common.base.Preconditions.*;
 
 public class JSONStructurePattern implements JsonSerializer<StructurePattern>, JsonDeserializer<StructurePattern>
 {
+    public static final Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(StructurePattern.class, new JSONStructurePattern()).create();
+
     private static final String SIZE = "size";
+    private static final String PATTERN = "pattern";
+    private static final String COLLISION_BOXES = "collisionBoxes";
+
     private static final String BLOCK_CHAR = "char";
     private static final String BLOCK_NAME = "block";
     private static final String BLOCK_MAP = "blocks";
-    private static final String PATTERN = "pattern";
 
     @Override
     public JsonElement serialize(StructurePattern src, Type typeOfSrc, JsonSerializationContext context)
     {
         JsonObject result = new JsonObject();
 
+        //Master Block Location
         final JsonArray size = new JsonArray();
         size.add(new JsonPrimitive(src.size.xCoord));
         size.add(new JsonPrimitive(src.size.yCoord));
         size.add(new JsonPrimitive(src.size.zCoord));
         result.add(SIZE, size);
 
-
+        //Block Map
         JsonArray blocks = null;
         if (src.blocks != null)
         {
@@ -64,6 +69,7 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
         }
         result.add(BLOCK_MAP, blocks);
 
+        //Block Recipe
         JsonArray pattern = null;
         if (src.pattern != null)
         {
@@ -72,20 +78,41 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
         }
         result.add(PATTERN, pattern);
 
+        //Collision
+        JsonArray collE = null;
+        if (src.collisionBoxes != null)
+        {
+            collE = new JsonArray();
+            for (float[][] bc:src.collisionBoxes)
+            {
+                final JsonArray collS = new JsonArray();
+                for (float[] c: bc)
+                {
+                    final JsonArray collB = new JsonArray();
+                    for (float cp: c)collB.add(new JsonPrimitive(cp));
+                    collS.add(collB);
+                }
+                collE.add(collS);
+            }
+        }
+        result.add(COLLISION_BOXES, collE);
+
         return result;
     }
 
     @Override
     public StructurePattern deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
-    {
+    {//TODO do validation on json file
         final JsonObject obj = json.getAsJsonObject();
         StructurePattern sp = new StructurePattern(1,1,1);
 
+        //Master Block Location
         final JsonArray size = obj.get(SIZE).getAsJsonArray();
         sp.size.xCoord = size.get(0).getAsInt();
         sp.size.yCoord = size.get(1).getAsInt();
         sp.size.zCoord = size.get(2).getAsInt();
 
+        //Block Map
         final JsonElement jsonBlockMap = obj.get(BLOCK_MAP);
         if (jsonBlockMap != null)
         {
@@ -112,6 +139,7 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
             sp.blocks = builder.build();
         }
 
+        //Block Recipe
         final JsonElement jsonPatternList = obj.get(BLOCK_MAP);
         if (jsonPatternList != null)
         {
@@ -122,6 +150,35 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
 
             sp.pattern = builder.build();
         }
+
+        //Collision
+        final JsonElement jsonCollisionList = obj.get(COLLISION_BOXES);
+        if (jsonPatternList != null)
+        {
+            final JsonArray collS = jsonCollisionList.getAsJsonArray();
+            final float[][][] collSList = new float[collS.size()][][];
+            for (int i=0; i< collS.size(); ++i)
+            {
+                final JsonArray collB = collS.get(i).getAsJsonArray();
+                final float[][] collBList = new float[collB.size()][];
+                for (int ii=0; ii< collB.size(); ++ii)
+                {
+                    final JsonArray collC = collB.get(ii).getAsJsonArray();
+                    final float[] coll = {
+                            collC.get(0).getAsFloat(),
+                            collC.get(1).getAsFloat(),
+                            collC.get(2).getAsFloat(),
+                            collC.get(3).getAsFloat(),
+                            collC.get(4).getAsFloat(),
+                            collC.get(5).getAsFloat()
+                    };
+                    collBList[ii] = coll;
+                }
+                collSList[i] = collBList;
+            }
+            sp.collisionBoxes = collSList;
+        }
+        sp.buildBlockCollisions();
 
         return sp;
     }

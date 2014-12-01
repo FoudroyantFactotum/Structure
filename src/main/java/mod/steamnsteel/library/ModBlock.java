@@ -31,7 +31,9 @@ import mod.steamnsteel.block.resource.structure.PlotoniumRuinWall;
 import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.block.structure.BlastFurnaceBlock;
 import mod.steamnsteel.block.structure.BoilerBlock;
+import mod.steamnsteel.block.structure.StructureShapeBlock;
 import mod.steamnsteel.tileentity.*;
+import mod.steamnsteel.utility.structure.StructureBlockItem;
 import net.minecraft.block.Block;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -56,6 +58,7 @@ public final class ModBlock
     public static final SteamNSteelStructureBlock ballMill = new BallMillBlock();
     public static final SteamNSteelStructureBlock blastFurnace = new BlastFurnaceBlock();
     public static final SteamNSteelStructureBlock boiler = new BoilerBlock();
+    public static final SteamNSteelStructureBlock structureShape = new StructureShapeBlock();
 
     public static final SteamNSteelBlock chestPlotonium = new PlotoniumChest();
     public static final SteamNSteelBlock cupola = new CupolaBlock();
@@ -80,6 +83,7 @@ public final class ModBlock
         GameRegistry.registerTileEntity(BoilerTE.class, getTEName(BoilerBlock.NAME));
         GameRegistry.registerTileEntity(CupolaTE.class, getTEName(CupolaBlock.NAME));
         GameRegistry.registerTileEntity(PlotoniumChestTE.class, getTEName(PlotoniumChest.NAME));
+        GameRegistry.registerTileEntity(StructureShapeTE.class, getTEName(StructureShapeBlock.NAME));
     }
 
     private static String getTEName(String name) { return "tile." + name;}
@@ -88,10 +92,11 @@ public final class ModBlock
     {
         GameRegistry.registerBlock(chestPlotonium, PlotoniumChest.NAME);
 
-        GameRegistry.registerBlock(ballMill, BallMillBlock.NAME);
-        GameRegistry.registerBlock(blastFurnace, BlastFurnaceBlock.NAME);
-        GameRegistry.registerBlock(boiler, BoilerBlock.NAME);
+        GameRegistry.registerBlock(ballMill, StructureBlockItem.class, BallMillBlock.NAME);
+        GameRegistry.registerBlock(blastFurnace, StructureBlockItem.class, BlastFurnaceBlock.NAME);
+        GameRegistry.registerBlock(boiler, StructureBlockItem.class, BoilerBlock.NAME);
         GameRegistry.registerBlock(cupola, CupolaBlock.NAME);
+        GameRegistry.registerBlock(structureShape, StructureShapeBlock.NAME);
 
         registerBlockAndOre(oreCopper, CopperOre.NAME);
         registerBlockAndOre(oreNiter, NiterOre.NAME);

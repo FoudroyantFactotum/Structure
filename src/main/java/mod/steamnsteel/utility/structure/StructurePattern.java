@@ -29,6 +29,7 @@ public class StructurePattern
 {
     public static final StructurePattern MISSING_STRUCTURE = new StructurePattern(1,1,1);
 
+    float[][][] collisionBoxes;
     ImmutableMap<Character, Block> blocks;
     ImmutableList<String> pattern;
     final Vec3 size;
@@ -54,6 +55,8 @@ public class StructurePattern
                 recRowLength,
                 pattern.size() / rowsPerLayer,
                 rowsPerLayer);
+
+        buildBlockCollisions();
     }
 
     public StructurePattern(int xSize, int ySize, int zSize)
@@ -62,6 +65,16 @@ public class StructurePattern
         pattern = null;
 
         size = Vec3.createVectorHelper(xSize,ySize,zSize);
+        buildBlockCollisions();
+    }
+
+    void buildBlockCollisions()
+    {
+        if (collisionBoxes != null) return;
+
+        final float[][] genericCollision = {{0,0,0,1,1,1}};
+        collisionBoxes = new float[(int)(size.xCoord*size.yCoord*size.zCoord)][][];
+        for (int i = 0; i < collisionBoxes.length; ++i) collisionBoxes[i] = genericCollision;
     }
 
     public Block getBlock(int x, int y, int z)
@@ -86,23 +99,30 @@ public class StructurePattern
                 size.zCoord);
     }
 
-    public String toString(){
-        return Objects.toStringHelper(this)
-                .add("pattern", pattern)
-                .add("blocks", blocks)
-                .add("Size", size)
-                .toString();
-    }
-
     public ImmutableMap<Character, Block> getBlockMap()
     {
         return blocks;
     }
 
+    public float[][] getCollisionBoxes(int id)
+    {
+        return collisionBoxes[id];
+    }
+
+    public String toString(){
+        return Objects.toStringHelper(this)
+                .add("pattern", pattern)
+                .add("blocks", blocks)
+                .add("size", size)
+                .add("collisionBoxes", collisionBoxes)
+                .toString();
+    }
+
     @Override
     public int hashCode()
     {
-        return Objects.hashCode(pattern) + Objects.hashCode(size) + Objects.hashCode(blocks);
+        return Objects.hashCode(pattern) + Objects.hashCode(size) + Objects.hashCode(blocks)
+                + Objects.hashCode(collisionBoxes);
     }
 
 

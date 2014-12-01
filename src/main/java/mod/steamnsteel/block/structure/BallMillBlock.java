@@ -16,15 +16,12 @@
 package mod.steamnsteel.block.structure;
 
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.tileentity.BallMillTE;
-import mod.steamnsteel.utility.Orientation;
-import mod.steamnsteel.utility.position.WorldBlockCoord;
-import mod.steamnsteel.utility.structure.StructureBlockIterator;
+import mod.steamnsteel.utility.log.Logger;
+import mod.steamnsteel.utility.structure.JSONStructurePattern;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
 public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
@@ -45,14 +42,8 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer p_149727_5_, int meta, float p_149727_7_, float p_149727_8_, float p_149727_9_)
     {
-        final Orientation orientation = Orientation.getdecodedOrientation(meta);
-        StructureBlockIterator itr = new StructureBlockIterator(getPattern(), Vec3.createVectorHelper(x, y, z), orientation, false);
+        if (!world.isRemote) Logger.info(JSONStructurePattern.gson.toJson(getPattern()));
 
-        while (itr.hasNext())
-        {
-            final WorldBlockCoord block = itr.next();
-            block.setBlock(world, ModBlock.blockPlotonium);
-        }
         return false;
     }
 }

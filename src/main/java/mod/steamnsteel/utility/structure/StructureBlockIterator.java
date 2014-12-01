@@ -48,16 +48,16 @@ public class StructureBlockIterator implements Iterator<WorldBlockCoord>
         this.mirrored = mirrored;
 
         maxSize = ImmutableTriple.of(
-                (int)spSize.xCoord/2,
+                (int)Math.ceil(spSize.xCoord / 2)-1,
                 (int)spSize.yCoord-1,
-                (int)spSize.zCoord/2
+                (int)Math.ceil(spSize.zCoord / 2)-1
         );
 
         minSize = ImmutableTriple.of(
-                maxSize.getLeft()*-1,
-                0,
-                (int)(-1*Math.ceil(spSize.zCoord/2)+1)
-        );//TODO double check minSize correctness It's works but is there better.
+                (int) (-1*spSize.xCoord / 2),
+                (int)0,
+                (int)(-1*spSize.zCoord / 2)
+        );
 
         this.block = Vec3.createVectorHelper(
                 (int)maxSize.getLeft(),
