@@ -19,8 +19,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.tileentity.StructureShapeTE;
-import mod.steamnsteel.utility.Orientation;
-import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.utility.structure.StructurePattern;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -29,10 +27,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-
-import static java.lang.Math.PI;
 
 public class StructureShapeBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
@@ -53,47 +50,18 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z)
     {
-        /*final StructureShapeTE te = (StructureShapeTE)world.getTileEntity(x,y,z);
+        final StructureShapeTE te = (StructureShapeTE)world.getTileEntity(x,y,z);
 
         if (te.hasMaster())
         {
             final Vec3 loc = te.getMasterLocation();
             final Block block = te.getMasterBlock();
 
-            if (block instanceof SteamNSteelStructureBlock)
+            if (block instanceof SteamNSteelStructureBlock && !(block instanceof StructureShapeBlock))
                 return block.getSelectedBoundingBoxFromPool(world, (int)loc.xCoord,(int)loc.yCoord,(int)loc.zCoord);
         }
 
-        return AxisAlignedBB.getBoundingBox(x,y,z,x+1,y+1,z+1);*/
-
-
-        final StructureShapeTE ote = (StructureShapeTE)world.getTileEntity(x,y,z);
-        final Block mte = ote.getMasterBlock();
-        float[][] collB = null;
-
-        if (mte instanceof SteamNSteelStructureBlock){
-            collB = ((SteamNSteelStructureBlock)mte).getPattern().getCollisionBoxes(ote.getBlockID());
-        } else {
-            final float[][] t = {{0,0,0 ,1,1,1}};
-            collB = t;
-        }
-
-        final Orientation o = Orientation.getdecodedOrientation(world.getBlockMetadata(x, y, z));
-
-        for (float[] f: collB)
-        {
-            final Vec3 lower = Vec3.createVectorHelper(f[0]-0.5,f[1],f[2]-0.5);
-            final Vec3 upper = Vec3.createVectorHelper(f[3]-0.5,f[4],f[5]-0.5);
-
-            lower.rotateAroundY((float) (PI * (1.0-o.ordinal()/2.0)));
-            upper.rotateAroundY((float) (PI * (1.0-o.ordinal()/2.0)));
-
-           return AxisAlignedBB.getBoundingBox(
-                    x+0.5+lower.xCoord,y+lower.yCoord,z+0.5+lower.zCoord,
-                    x+0.5+upper.xCoord,y+upper.yCoord,z+0.5+upper.zCoord);
-
-        }
-        return AxisAlignedBB.getBoundingBox(0,0,0,0,0,0);
+        return AxisAlignedBB.getBoundingBox(x,y,z,x+1,y+1,z+1);
     }
 
     @Override
@@ -121,41 +89,7 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
         final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock)te.getMasterBlock();
 
         block.cleanPattern();
-        if (!world.isRemote) Logger.info("Cleaned the recipe : " + block.getLocalizedName());
+        if (!world.isRemote) player.addChatComponentMessage(new ChatComponentText("Cleaned the recipe : " + block.getLocalizedName()));
         return false;
     }
-
-    /*public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding)
-    {
-        final StructureShapeTE ote = (StructureShapeTE)world.getTileEntity(x,y,z);
-        final Block mte = ote.getMasterBlock();
-        float[][] collB = null;
-
-        if (mte instanceof SteamNSteelStructureBlock){
-            collB = ((SteamNSteelStructureBlock)mte).getPattern().getCollisionBoxes(ote.getBlockID());
-        } else {
-            final float[][] t = {{0,0,0 ,1,1,1}};
-            collB = t;
-        }
-
-        final Orientation o = Orientation.getdecodedOrientation(world.getBlockMetadata(x, y, z));
-
-        for (float[] f: collB)
-        {
-            final Vec3 lower = Vec3.createVectorHelper(f[0]-0.5,f[1],f[2]-0.5);
-            final Vec3 upper = Vec3.createVectorHelper(f[3]-0.5,f[4],f[5]-0.5);
-
-            lower.rotateAroundY((float) (PI * (1.0-o.ordinal()/2.0)));
-            upper.rotateAroundY((float) (PI * (1.0-o.ordinal()/2.0)));
-
-            final AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(
-                    x + 0.5 + min(lower.xCoord, upper.xCoord), y + lower.yCoord, z + 0.5 + min(lower.zCoord, upper.zCoord),
-                    x + 0.5 + max(lower.xCoord, upper.xCoord), y + upper.yCoord, z + 0.5 + max(lower.zCoord, upper.zCoord));
-
-            if (aabb.intersectsWith(bb))
-            {
-                boundingBoxList.add(bb);
-            }
-        }
-    }*/
 }

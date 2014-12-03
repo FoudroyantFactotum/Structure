@@ -29,12 +29,12 @@ import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 
-public class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE
+public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE
 {
     private int blockID = -1;
     private Optional<AxisAlignedBB> renderBounds = Optional.absent();
 
-    private static final String BLOCK_NUMBER = "blockNumber";
+    private static final String BLOCK_ID = "blockID";
 
     @Override
     public Packet getDescriptionPacket()
@@ -54,14 +54,14 @@ public class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureT
     public void readFromNBT(NBTTagCompound nbt)
     {
         super.readFromNBT(nbt);
-        blockID = nbt.getInteger(BLOCK_NUMBER);
+        blockID = nbt.getInteger(BLOCK_ID);
     }
 
     @Override
     public void writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
-        nbt.setInteger(BLOCK_NUMBER,blockID);
+        nbt.setInteger(BLOCK_ID,blockID);
     }
 
     @Override

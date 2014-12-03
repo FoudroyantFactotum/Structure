@@ -79,23 +79,19 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
         result.add(PATTERN, pattern);
 
         //Collision
-        JsonArray collE = null;
         if (src.collisionBoxes != null)
         {
-            collE = new JsonArray();
-            for (float[][] bc:src.collisionBoxes)
+            JsonArray jsonL = new JsonArray();
+            for (float[] collL:src.collisionBoxes)
             {
-                final JsonArray collS = new JsonArray();
-                for (float[] c: bc)
-                {
-                    final JsonArray collB = new JsonArray();
-                    for (float cp: c)collB.add(new JsonPrimitive(cp));
-                    collS.add(collB);
-                }
-                collE.add(collS);
+                    final JsonArray jsonP = new JsonArray();
+                    for (float collP: collL)jsonP.add(new JsonPrimitive(collP));
+                    jsonL.add(jsonP);
             }
+
+            result.add(COLLISION_BOXES, jsonL);
         }
-        result.add(COLLISION_BOXES, collE);
+
 
         return result;
     }
@@ -152,33 +148,33 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
         }
 
         //Collision
-        final JsonElement jsonCollisionList = obj.get(COLLISION_BOXES);
-        if (jsonPatternList != null)
+        final JsonElement jsonCollisionObj = obj.get(COLLISION_BOXES);
+        if (jsonCollisionObj != null)
         {
-            final JsonArray collS = jsonCollisionList.getAsJsonArray();
-            final float[][][] collSList = new float[collS.size()][][];
-            for (int i=0; i< collS.size(); ++i)
+            final JsonArray jsonCollisionArray = jsonCollisionObj.getAsJsonArray();
+            final float[][] collArray = new float[jsonCollisionArray.size()][];
+
+            for (int i = 0; i < collArray.length; ++i)
             {
-                final JsonArray collB = collS.get(i).getAsJsonArray();
-                final float[][] collBList = new float[collB.size()][];
-                for (int ii=0; ii< collB.size(); ++ii)
-                {
-                    final JsonArray collC = collB.get(ii).getAsJsonArray();
-                    final float[] coll = {
-                            collC.get(0).getAsFloat(),
-                            collC.get(1).getAsFloat(),
-                            collC.get(2).getAsFloat(),
-                            collC.get(3).getAsFloat(),
-                            collC.get(4).getAsFloat(),
-                            collC.get(5).getAsFloat()
-                    };
-                    collBList[ii] = coll;
-                }
-                collSList[i] = collBList;
+                final JsonArray jsonCollision = jsonCollisionArray.get(i).getAsJsonArray();
+                collArray[i] = new float[]{
+                    jsonCollision.get(0).getAsFloat(),
+                    jsonCollision.get(1).getAsFloat(),
+                    jsonCollision.get(2).getAsFloat(),
+                    jsonCollision.get(3).getAsFloat(),
+                    jsonCollision.get(4).getAsFloat(),
+                    jsonCollision.get(5).getAsFloat()};
             }
-            sp.collisionBoxes = collSList;
+            sp.collisionBoxes = collArray;
+        } else {
+            sp.collisionBoxes = new float[][]{{
+                    (int)-sp.size.xCoord/2,
+                    0,
+                    (int)-sp.size.zCoord/2,
+                    (int)Math.ceil(sp.size.xCoord/2),
+                    (int)sp.size.yCoord,
+                    (int)Math.ceil(sp.size.zCoord/2)}};
         }
-        sp.buildBlockCollisions();
 
         return sp;
     }

@@ -29,7 +29,7 @@ public class StructurePattern
 {
     public static final StructurePattern MISSING_STRUCTURE = new StructurePattern(1,1,1);
 
-    float[][][] collisionBoxes;
+    float[][] collisionBoxes;
     ImmutableMap<Character, Block> blocks;
     ImmutableList<String> pattern;
     final Vec3 size;
@@ -56,7 +56,13 @@ public class StructurePattern
                 pattern.size() / rowsPerLayer,
                 rowsPerLayer);
 
-        buildBlockCollisions();
+        collisionBoxes = new float[][]{{
+                -recRowLength/2,
+                0,
+                -rowsPerLayer/2,
+                (float)Math.ceil(recRowLength/2),
+                (float)pattern.size() / rowsPerLayer,
+                (float)Math.ceil(rowsPerLayer/2)}};
     }
 
     public StructurePattern(int xSize, int ySize, int zSize)
@@ -65,17 +71,16 @@ public class StructurePattern
         pattern = null;
 
         size = Vec3.createVectorHelper(xSize,ySize,zSize);
-        buildBlockCollisions();
+
+        collisionBoxes = new float[][]{{
+                -xSize/2,
+                0,
+                -zSize/2,
+                (float)Math.ceil(xSize/2),
+                ySize,
+                (float)Math.ceil(zSize/2)}};
     }
 
-    void buildBlockCollisions()
-    {
-        if (collisionBoxes != null) return;
-
-        final float[][] genericCollision = {{0,0,0,1,1,1}};
-        collisionBoxes = new float[(int)(size.xCoord*size.yCoord*size.zCoord)][][];
-        for (int i = 0; i < collisionBoxes.length; ++i) collisionBoxes[i] = genericCollision;
-    }
 
     public Block getBlock(int x, int y, int z)
     {
@@ -104,9 +109,9 @@ public class StructurePattern
         return blocks;
     }
 
-    public float[][] getCollisionBoxes(int id)
+    public float[][] getCollisionBoxes()
     {
-        return collisionBoxes[id];
+        return collisionBoxes.clone();
     }
 
     public String toString(){

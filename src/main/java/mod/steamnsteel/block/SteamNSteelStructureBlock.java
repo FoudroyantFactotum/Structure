@@ -20,7 +20,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.TheMod;
 import mod.steamnsteel.library.ModBlock;
-import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import mod.steamnsteel.tileentity.StructureShapeTE;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.log.Logger;
@@ -187,36 +186,36 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding)
     {
         final TileEntity te = world.getTileEntity(x,y,z);
-        float[][] collB = null;
+        final int meta = world.getBlockMetadata(x, y, z);
+        float[][] collB;
 
         if (te instanceof StructureShapeTE){
+            final Block block = ((StructureShapeTE) te).getMasterBlock();
 
-            final Block b = ((StructureShapeTE)te).getMasterBlock();
-            if (b != null && b instanceof SteamNSteelStructureBlock)
+            if (block instanceof SteamNSteelStructureBlock)
             {
-                collB = ((SteamNSteelStructureBlock) b).getPattern().getCollisionBoxes(((IStructureTE) te).getBlockID());
-            } else {
-                final float[][] t = {{0,0,0 ,1,1,1}};
-                collB = t;
+                final Vec3 ml = ((StructureShapeTE) te).getMasterLocation();
+
+                block.addCollisionBoxesToList(world, (int)ml.xCoord, (int)ml.yCoord, (int)ml.zCoord, aabb, boundingBoxList, entityColliding);
             }
-        } else if (te instanceof SteamNSteelStructureTE)
-        {
-            collB = getPattern().getCollisionBoxes(((IStructureTE) te).getBlockID());
+
+            return;
         } else {
-            final float[][] t = {{0,0,0 ,1,1,1}};
-            collB = t;
+            collB = getPattern().getCollisionBoxes();
         }
 
-        final Orientation o = Orientation.getdecodedOrientation(world.getBlockMetadata(x, y, z));
+
+        final Orientation o = Orientation.getdecodedOrientation(meta);
+        final boolean isMirrored = (meta & flagMirrored) != 0;
 
         for (float[] f: collB)
         {
-            final Vec3 lower = Vec3.createVectorHelper(-0.5,f[1],f[2]-0.5);
+            final Vec3 lower = Vec3.createVectorHelper(f[0]-0.5,f[1],f[2]-0.5);
             final Vec3 upper = Vec3.createVectorHelper(f[3]-0.5,f[4],f[5]-0.5);
 
             lower.rotateAroundY((float) (PI * (1.0-o.ordinal()/2.0)));
             upper.rotateAroundY((float) (PI * (1.0-o.ordinal()/2.0)));
-
+//todo implement flip
             final AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(
                     x + 0.5 + min(lower.xCoord, upper.xCoord), y + lower.yCoord, z + 0.5 + min(lower.zCoord, upper.zCoord),
                     x + 0.5 + max(lower.xCoord, upper.xCoord), y + upper.yCoord, z + 0.5 + max(lower.zCoord, upper.zCoord));

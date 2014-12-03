@@ -16,35 +16,16 @@
 package mod.steamnsteel.tileentity;
 
 import com.google.common.base.Optional;
-import mod.steamnsteel.utility.structure.IStructureTE;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
-import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.Vec3;
 
-public class StructureShapeTE extends SteamNSteelTE implements IStructureTE
+public class StructureShapeTE extends SteamNSteelStructureTE
 {
     private int blockID = -1;
     private Optional<Vec3> masterLocation = Optional.absent();
 
-    private static final String BLOCK_NUMBER = "blockNumber";
     private static final String MASTER_LOCATION = "masterLocation";
-
-    @Override
-    public Packet getDescriptionPacket()
-    {
-        final NBTTagCompound nbt = new NBTTagCompound();
-        writeToNBT(nbt);
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, nbt);
-    }
-
-    @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
-    {
-        readFromNBT(packet.func_148857_g());
-    }
 
     @Override
     public void readFromNBT(NBTTagCompound nbt)
@@ -56,8 +37,6 @@ public class StructureShapeTE extends SteamNSteelTE implements IStructureTE
         {
             masterLocation = Optional.of(Vec3.createVectorHelper(mLoc[0],mLoc[1],mLoc[2]));
         }
-
-        blockID = nbt.getInteger(BLOCK_NUMBER);
     }
 
     @Override
@@ -70,8 +49,6 @@ public class StructureShapeTE extends SteamNSteelTE implements IStructureTE
             final Vec3 mLoc = masterLocation.get();
             nbt.setIntArray(MASTER_LOCATION, new int[]{(int)mLoc.xCoord,(int)mLoc.yCoord,(int)mLoc.zCoord});
         }
-
-        nbt.setInteger(BLOCK_NUMBER,blockID);
     }
 
     public Block getMasterBlock()
@@ -95,15 +72,5 @@ public class StructureShapeTE extends SteamNSteelTE implements IStructureTE
     {
         masterLocation = Optional.of(Vec3.createVectorHelper(x,y,z));
         return this;
-    }
-
-    public void setBlockID(int blkID)
-    {
-        blockID = blkID < 0 ? -1:blkID;
-    }
-
-    public int getBlockID()
-    {
-        return blockID;
     }
 }
