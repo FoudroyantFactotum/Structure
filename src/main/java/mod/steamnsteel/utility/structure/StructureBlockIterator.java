@@ -25,7 +25,7 @@ import java.util.NoSuchElementException;
 public class StructureBlockIterator implements Iterator<WorldBlockCoord>
 {
     private final Vec3 worldLocation;
-    private final Vec3 block;
+    private Vec3 block;
 
     private final ImmutableTriple<Integer,Integer,Integer> maxSize;
     private final ImmutableTriple<Integer,Integer,Integer> minSize;
@@ -48,15 +48,15 @@ public class StructureBlockIterator implements Iterator<WorldBlockCoord>
         this.mirrored = mirrored;
 
         maxSize = ImmutableTriple.of(
-                (int)Math.ceil(spSize.xCoord / 2)-1,
+                (int)spSize.xCoord-1,
                 (int)spSize.yCoord-1,
-                (int)Math.ceil(spSize.zCoord / 2)-1
+                (int)spSize.zCoord-1
         );
 
         minSize = ImmutableTriple.of(
-                (int) (-1*spSize.xCoord / 2),
                 (int)0,
-                (int)(-1*spSize.zCoord / 2)
+                (int)0,
+                (int)0
         );
 
         this.block = Vec3.createVectorHelper(
@@ -65,6 +65,14 @@ public class StructureBlockIterator implements Iterator<WorldBlockCoord>
                 (int)maxSize.getRight());
 
         if (mirrored) block.zCoord = minSize.getRight();
+    }
+
+    public void cleanIterator()
+    {
+        block = Vec3.createVectorHelper(
+                (int)maxSize.getLeft(),
+                (int)maxSize.getMiddle(),
+                (int)maxSize.getRight());
     }
 
     @Override

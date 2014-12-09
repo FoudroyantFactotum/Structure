@@ -104,6 +104,14 @@ public class StructurePattern
                 size.zCoord);
     }
 
+    public Vec3 getHalfSize()
+    {
+        return Vec3.createVectorHelper(
+                size.xCoord*0.5,
+                0,
+                size.zCoord*0.5);
+    }
+
     public ImmutableMap<Character, Block> getBlockMap()
     {
         return blocks;

@@ -31,7 +31,7 @@ public class BallMillTESR extends SteamNSteelTESR
 {
     private static final ResourceLocation TEXTURE = getResourceLocation(BallMillBlock.NAME);
     private static final ImmutableTriple<Float, Float, Float> SCALE = ImmutableTriple.of(1.0f, 1.0f, 1.0f);
-    private static final ImmutableTriple<Float, Float, Float> OFFSET = ImmutableTriple.of(0.5f, 0.0f, 0.5f);
+    private static final ImmutableTriple<Float, Float, Float> OFFSET = ImmutableTriple.of(1.5f, 0.0f, 0.5f);
 
     private final BallMillModel model = new BallMillModel();
 
@@ -66,16 +66,15 @@ public class BallMillTESR extends SteamNSteelTESR
 
         // Inherent adjustments to model, center.
         GL11.glScalef(SCALE.left, SCALE.middle, SCALE.right);
-        GL11.glTranslatef(OFFSET.left, OFFSET.middle, OFFSET.right);
+        GL11.glTranslatef(0.5f,0,0.5f);
 
         // Orient the model to match the placement
         final int metadata = world.getBlockMetadata(x, y, z);
         final Orientation orientation = Orientation.getdecodedOrientation(metadata);
 
+        //rotate then translate offset
         GL11.glRotatef(getAngleFromOrientation(orientation), 0.0F, 1.0F, 0.0F);
-
-        // Shift model to fit on two blocks.
-        GL11.glTranslatef(-0.5F, 0.0F, -0.5F);
+        GL11.glTranslatef(OFFSET.left, OFFSET.middle, OFFSET.right);
 
         // If block is mirrored, flip faces and scale along -Z
         if ((metadata & SteamNSteelStructureBlock.flagMirrored) != 0) {

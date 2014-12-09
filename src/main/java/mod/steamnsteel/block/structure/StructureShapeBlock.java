@@ -19,6 +19,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.tileentity.StructureShapeTE;
+import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.utility.structure.StructurePattern;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
@@ -30,6 +31,7 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class StructureShapeBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
@@ -84,12 +86,31 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
 
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_)
-    {
+    {//TODO remove test code
         final StructureShapeTE te = (StructureShapeTE)world.getTileEntity(x,y,z);
         final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock)te.getMasterBlock();
 
+        if (!world.isRemote){
+            player.addChatComponentMessage(new ChatComponentText("Cleaned the recipe : " + block.getLocalizedName()));
+        }
         block.cleanPattern();
-        if (!world.isRemote) player.addChatComponentMessage(new ChatComponentText("Cleaned the recipe : " + block.getLocalizedName()));
-        return false;
+
+        if (!world.isRemote)
+        {
+            StringBuilder s = new StringBuilder('\n');
+            for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+            {
+                s.append(d);
+                s.append(": ");
+                s.append(te.hasNeighbour(d));
+                s.append(" : ");
+                s.append(d.flag);
+                s.append('\n');
+            }
+            Logger.info(s.toString());
+        }
+
+
+        return true;
     }
 }

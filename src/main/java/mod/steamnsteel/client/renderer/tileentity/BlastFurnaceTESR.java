@@ -31,7 +31,7 @@ public class BlastFurnaceTESR extends SteamNSteelTESR
 {
     private static final ResourceLocation TEXTURE = getResourceLocation(BlastFurnaceBlock.NAME);
     private static final ImmutableTriple<Float, Float, Float> SCALE = ImmutableTriple.of(1.0f, 1.0f, 1.0f);
-    private static final ImmutableTriple<Float, Float, Float> OFFSET = ImmutableTriple.of(0.5f, 0.0f, 0.5f);
+    private static final ImmutableTriple<Float, Float, Float> OFFSET = ImmutableTriple.of(1.0f, 0.0f, 1.0f);
 
     private final BlastFurnaceModel model = new BlastFurnaceModel();
 
@@ -66,13 +66,14 @@ public class BlastFurnaceTESR extends SteamNSteelTESR
 
         // Inherent adjustments to model
         GL11.glScalef(SCALE.left, SCALE.middle, SCALE.right);
-        GL11.glTranslatef(OFFSET.left, OFFSET.middle, OFFSET.right);
+        GL11.glTranslatef(0.5f,0,0.5f);
 
         // Orient the model to match the placement
         final int metadata = world.getBlockMetadata(x, y, z);
         final Orientation orientation = Orientation.getdecodedOrientation(metadata);
 
         GL11.glRotatef(getAngleFromOrientation(orientation), 0.0F, 1.0F, 0.0F);
+        GL11.glTranslatef(OFFSET.left, OFFSET.middle, OFFSET.right);
 
         // If block is mirrored, flip faces and scale along -Z
         if ((metadata & SteamNSteelStructureBlock.flagMirrored) != 0) {

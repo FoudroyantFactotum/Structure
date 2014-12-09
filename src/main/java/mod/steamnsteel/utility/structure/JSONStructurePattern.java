@@ -22,6 +22,7 @@ import com.google.gson.*;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 import net.minecraft.block.Block;
+import net.minecraft.util.Vec3;
 import java.lang.reflect.Type;
 import java.util.Map.Entry;
 
@@ -149,6 +150,7 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
 
         //Collision
         final JsonElement jsonCollisionObj = obj.get(COLLISION_BOXES);
+        final Vec3 hlfSz = sp.getHalfSize();
         if (jsonCollisionObj != null)
         {
             final JsonArray jsonCollisionArray = jsonCollisionObj.getAsJsonArray();
@@ -158,22 +160,24 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
             {
                 final JsonArray jsonCollision = jsonCollisionArray.get(i).getAsJsonArray();
                 collArray[i] = new float[]{
-                    jsonCollision.get(0).getAsFloat(),
-                    jsonCollision.get(1).getAsFloat(),
-                    jsonCollision.get(2).getAsFloat(),
-                    jsonCollision.get(3).getAsFloat(),
-                    jsonCollision.get(4).getAsFloat(),
-                    jsonCollision.get(5).getAsFloat()};
+                        (float) (jsonCollision.get(0).getAsFloat() - hlfSz.xCoord),
+                        jsonCollision.get(1).getAsFloat(),
+                        (float) (jsonCollision.get(2).getAsFloat() - hlfSz.zCoord),
+
+                        (float) (jsonCollision.get(3).getAsFloat() - hlfSz.xCoord),
+                        jsonCollision.get(4).getAsFloat(),
+                        (float) (jsonCollision.get(5).getAsFloat() - hlfSz.zCoord)};
             }
             sp.collisionBoxes = collArray;
         } else {
             sp.collisionBoxes = new float[][]{{
-                    (int)-sp.size.xCoord/2,
+                    (float)-hlfSz.xCoord,
                     0,
-                    (int)-sp.size.zCoord/2,
-                    (int)Math.ceil(sp.size.xCoord/2),
-                    (int)sp.size.yCoord,
-                    (int)Math.ceil(sp.size.zCoord/2)}};
+                    (float)-hlfSz.zCoord,
+
+                    (float)hlfSz.xCoord,
+                    (float)hlfSz.yCoord,
+                    (float)hlfSz.zCoord}};
         }
 
         return sp;

@@ -19,6 +19,7 @@ import com.google.common.base.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.utility.structure.IStructureTE;
 import mod.steamnsteel.utility.structure.StructurePattern;
@@ -28,6 +29,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE
 {
@@ -35,6 +37,8 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     private Optional<AxisAlignedBB> renderBounds = Optional.absent();
 
     private static final String BLOCK_ID = "blockID";
+    private static final String NEIGHBOUR_BLOCKS = "neighbourBlocks";
+    private byte neighbourBlocks = 0;
 
     @Override
     public Packet getDescriptionPacket()
@@ -55,6 +59,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         super.readFromNBT(nbt);
         blockID = nbt.getInteger(BLOCK_ID);
+        neighbourBlocks = nbt.getByte(NEIGHBOUR_BLOCKS);
     }
 
     @Override
@@ -62,6 +67,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         super.writeToNBT(nbt);
         nbt.setInteger(BLOCK_ID,blockID);
+        nbt.setByte(NEIGHBOUR_BLOCKS,neighbourBlocks);
     }
 
     @Override
@@ -79,16 +85,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
                 renderBounds = Optional.of(INFINITE_EXTENT_AABB);
             } else
             {
-                final Vec3 size = block.getPattern().getSize();
-
-                renderBounds = Optional.of(AxisAlignedBB.getBoundingBox(
-                        xCoord - (int)size.xCoord/2,
-                        yCoord,
-                        zCoord - (int)size.zCoord/2,
-
-                        xCoord + Math.ceil(size.xCoord/2),
-                        yCoord + size.yCoord,
-                        zCoord + Math.ceil(size.zCoord/2)));
+                renderBounds = Optional.of(block.getSelectedBoundingBoxFromPool(worldObj, xCoord, yCoord, zCoord));
             }
         }
 
@@ -105,5 +102,26 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     public void setBlockID(int blkID)
     {
         blockID = blkID < 0 ? -1:blkID;
+    }
+
+    public void setNeighbours(Vec3 rSize, Orientation o)
+    {
+        int sx = (int)(blockID%rSize.zCoord);
+        int sy = (int)(blockID%(rSize.xCoord * rSize.zCoord));
+        int sz = (int)(blockID/rSize.xCoord);
+
+        //todo fix localTOglobal Neighbours
+
+        if (rSize.xCoord > sx) setNeighbour(ForgeDirection.EAST);
+    }
+
+    public void setNeighbour(ForgeDirection d)
+    {
+        neighbourBlocks |= (byte)d.flag;
+    }
+
+    public boolean hasNeighbour(ForgeDirection d)
+    {
+        return (neighbourBlocks & d.flag) != 0;
     }
 }

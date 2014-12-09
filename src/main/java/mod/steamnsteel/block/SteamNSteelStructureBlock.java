@@ -53,7 +53,6 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
     public static final int flagMirrored = 1<<2;
 
-
     @Override
     public StructurePattern getPattern()
     {
@@ -107,9 +106,11 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             if (block.getX() != x || block.getY() != y || block.getZ() != z)
             {
                 block.setBlock(world, ModBlock.structureShape, meta, 2);
-                ((StructureShapeTE)block.getTileEntity(world))
-                        .setMaster(x, y, z)
-                        .setBlockID(blkID);
+                final StructureShapeTE ssBlock = (StructureShapeTE) block.getTileEntity(world);
+                ssBlock.setMaster(x, y, z);
+                ssBlock.setBlockID(blkID);
+                ssBlock.setNeighbours(getPattern().getSize(), Orientation.NORTH);
+
 
             } else {
                 final TileEntity te = block.getTileEntity(world);
@@ -157,37 +158,27 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z)
     {//TODO consider caching AABB?
-        final Vec3 size = getPattern().getSize();
+        final Vec3 size = getPattern().getSize().addVector(-0.5, 0, -0.5);
+        final Vec3 b = Vec3.createVectorHelper(-0.5,0,-0.5);
+        final Orientation o = Orientation.getdecodedOrientation(world.getBlockMetadata(x, y, z));
 
-        final  Orientation o = Orientation.getdecodedOrientation(world.getBlockMetadata(x, y, z));
-
-        Vec3 c = Vec3.createVectorHelper(
-                size.xCoord % 2 == 0 ? -0.5 : 0,
-                0,
-                size.zCoord % 2 == 0 ? -0.5 : 0
-        );
-
-        Vec3 b = Vec3.createVectorHelper(size.xCoord/2,0,size.zCoord/2);
-
+        size.rotateAroundY((float) (Math.PI * (1.0-o.ordinal()/2.0)));
         b.rotateAroundY((float) (Math.PI * (1.0-o.ordinal()/2.0)));
-        c.rotateAroundY((float) (Math.PI * (1.0-o.ordinal()/2.0)));
 
         return AxisAlignedBB.getBoundingBox(
-                x+0.5+c.xCoord - b.xCoord,
+                x + 0.5 + min(b.xCoord, size.xCoord),
                 y,
-                z+0.5+c.zCoord - b.zCoord,
+                z + 0.5 + min(b.zCoord, size.zCoord),
 
-                x+0.5+c.xCoord + b.xCoord,
-                y+size.yCoord,
-                z+0.5+c.zCoord + b.zCoord);
+                x + 0.5 + max(b.xCoord, size.xCoord),
+                y + size.yCoord,
+                z + 0.5 + max(b.zCoord, size.zCoord));
     }
 
     @Override
     public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding)
-    {
+    {//TODO cache
         final TileEntity te = world.getTileEntity(x,y,z);
-        final int meta = world.getBlockMetadata(x, y, z);
-        float[][] collB;
 
         if (te instanceof StructureShapeTE){
             final Block block = ((StructureShapeTE) te).getMasterBlock();
@@ -200,25 +191,28 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             }
 
             return;
-        } else {
-            collB = getPattern().getCollisionBoxes();
         }
 
-
+        final int meta = world.getBlockMetadata(x, y, z);
         final Orientation o = Orientation.getdecodedOrientation(meta);
+        final float[][] collB = getPattern().getCollisionBoxes();
+        final Vec3 trans = getPattern().getHalfSize().addVector(-0.5,0,-0.5);
+
         final boolean isMirrored = (meta & flagMirrored) != 0;
 
         for (float[] f: collB)
         {
-            final Vec3 lower = Vec3.createVectorHelper(f[0]-0.5,f[1],f[2]-0.5);
-            final Vec3 upper = Vec3.createVectorHelper(f[3]-0.5,f[4],f[5]-0.5);
+            final Vec3 lower = Vec3.createVectorHelper(f[0], f[1], f[2] * (isMirrored?-1:1));
+            final Vec3 upper = Vec3.createVectorHelper(f[3], f[4], f[5] * (isMirrored?-1:1));
+            final float rot = (float) (PI * (1.0 - o.ordinal() / 2.0));
 
-            lower.rotateAroundY((float) (PI * (1.0-o.ordinal()/2.0)));
-            upper.rotateAroundY((float) (PI * (1.0-o.ordinal()/2.0)));
-//todo implement flip
+            lower.rotateAroundY(rot);
+            upper.rotateAroundY(rot);
+            trans.rotateAroundY(rot);
+
             final AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(
-                    x + 0.5 + min(lower.xCoord, upper.xCoord), y + lower.yCoord, z + 0.5 + min(lower.zCoord, upper.zCoord),
-                    x + 0.5 + max(lower.xCoord, upper.xCoord), y + upper.yCoord, z + 0.5 + max(lower.zCoord, upper.zCoord));
+                    x + min(lower.xCoord, upper.xCoord) + trans.xCoord + 0.5, y + lower.yCoord, z + min(lower.zCoord, upper.zCoord) + trans.zCoord + 0.5,
+                    x + max(lower.xCoord, upper.xCoord) + trans.xCoord + 0.5, y + upper.yCoord, z + max(lower.zCoord, upper.zCoord) + trans.zCoord + 0.5);
 
             if (aabb.intersectsWith(bb))
             {

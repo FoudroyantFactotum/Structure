@@ -17,7 +17,6 @@ package mod.steamnsteel.utility.structure;
 
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.utility.Orientation;
-import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.entity.player.EntityPlayer;
@@ -37,20 +36,18 @@ public class StructureBlockItem extends ItemBlock
     @Override
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata)
     {
+        final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) field_150939_a;
+
         if (player == null) return false;
+        //if (!world.getEntitiesWithinAABBExcludingEntity(null, block.getSelectedBoundingBoxFromPool(world, x, y, z)).isEmpty()) return false;//todo fix directional check
 
         final int orientation = BlockDirectional.getDirection(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5));
-        final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) field_150939_a;
 
         StructureBlockIterator itr = new StructureBlockIterator(
                 block.getPattern(), Vec3.createVectorHelper(x, y, z), Orientation.getdecodedOrientation(orientation), player.isSneaking());
 
         while (itr.hasNext())
-        {
-            final WorldBlockCoord wBlock = itr.next();
-
-            if (!wBlock.isAirBlock(world)) return false;
-        }
+            if (!itr.next().isAirBlock(world)) return false;
 
         world.setBlock(x, y, z, block, metadata, 3);
         block.onBlockPlacedBy(world, x, y, z, player, stack);
