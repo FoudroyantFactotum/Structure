@@ -34,6 +34,7 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
 
     private static final String SIZE = "size";
     private static final String PATTERN = "pattern";
+    private static final String PATTERN_META = PATTERN +"Meta";
     private static final String COLLISION_BOXES = "collisionBoxes";
 
     private static final String BLOCK_CHAR = "char";
@@ -43,6 +44,7 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
     @Override
     public JsonElement serialize(StructurePattern src, Type typeOfSrc, JsonSerializationContext context)
     {
+        //TODO metadata serializer
         JsonObject result = new JsonObject();
 
         //Master Block Location
@@ -124,7 +126,7 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
                 final String blockName = blockData.get(BLOCK_NAME).getAsString();
                 final int blockDividePoint = blockName.indexOf(':');
 
-                final Block block = GameRegistry.findBlock(
+                Block block = GameRegistry.findBlock(
                         blockName.substring(0, blockDividePoint),
                         blockName.substring(blockDividePoint + 1,blockName.length()));
 
@@ -146,6 +148,24 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
             for(JsonElement jsonPattern: pattern) builder.add(jsonPattern.getAsString());
 
             sp.pattern = builder.build();
+        }
+
+        //patternMeta
+        final JsonElement jsonPatternMetaList = obj.get(PATTERN_META);
+        if (jsonPatternMetaList != null)
+        {
+            final JsonArray patternMeta = jsonPatternMetaList.getAsJsonArray();
+            final Builder builder = ImmutableList.builder();
+
+            for(JsonElement jsonMeta:patternMeta) {
+                final Builder builderInner = ImmutableList.builder();
+                final String line = jsonMeta.getAsString();
+
+                for (char c: line.toCharArray()) builderInner.add(Byte.parseByte(String.valueOf(c), 16));
+
+                builder.add(builderInner.build());
+            }
+            sp.meta = builder.build();
         }
 
         //Collision

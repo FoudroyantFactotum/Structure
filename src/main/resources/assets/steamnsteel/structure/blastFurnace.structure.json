@@ -8,12 +8,37 @@
     {
       "char": "b",
       "block": "steamnsteel:blockBrass"
+    },
+    {
+      "char": "T",
+      "block": "minecraft:stone_stairs"
     }
   ],
   "pattern": [
     "bbb",
+    "b b",
     "bbb",
-    "bbb"
+
+    "bbb",
+    "b b",
+    "bbb",
+
+    "TTT",
+    "TbT",
+    "TTT"
+  ],
+  "patternMeta": [
+    "000",
+    "000",
+    "000",
+
+    "000",
+    "000",
+    "000",
+
+    "333",
+    "001",
+    "222"
   ],
   "collisionBoxes": [
     [0,0,1.3 ,1,0.7,1.7],
@@ -28,5 +53,4 @@
     [0.7,2,0.7 ,2.3,2.5,2.3],
     [1,2.5,1 ,2,3,2]
   ]
-
 }

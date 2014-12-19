@@ -12,23 +12,31 @@
     {
       "char": "s",
       "block": "steamnsteel:blockSteel"
+    },
+    {
+      "char": "g",
+      "block": "minecraft:glass_pane"
+    },
+    {
+      "char":"B",
+      "block": "minecraft:iron_bars"
     }
   ],
   "pattern": [
     "ppp",
-    "psp",
+    " s ",
+    "ppp",
+
+    "pgp",
+    "BsB",
+    "ppp",
+
+    "pgp",
+    "BsB",
     "ppp",
 
     "ppp",
-    "psp",
-    "ppp",
-
-    "ppp",
-    "psp",
-    "ppp",
-
-    "ppp",
-    "psp",
+    " s ",
     "ppp"
   ],
   "collisionBoxes": [

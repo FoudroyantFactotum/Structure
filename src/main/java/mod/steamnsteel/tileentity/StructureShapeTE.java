@@ -16,13 +16,13 @@
 package mod.steamnsteel.tileentity;
 
 import com.google.common.base.Optional;
+import mod.steamnsteel.utility.structure.IStructureShapeTE;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.Vec3;
 
-public class StructureShapeTE extends SteamNSteelStructureTE
+public class StructureShapeTE extends SteamNSteelStructureTE implements IStructureShapeTE
 {
-    private int blockID = -1;
     private Optional<Vec3> masterLocation = Optional.absent();
 
     private static final String MASTER_LOCATION = "masterLocation";
@@ -51,26 +51,29 @@ public class StructureShapeTE extends SteamNSteelStructureTE
         }
     }
 
+    @Override
     public Block getMasterBlock()
     {
         final Vec3 mLoc = masterLocation.get();
         return worldObj.getBlock((int)mLoc.xCoord, (int)mLoc.yCoord, (int)mLoc.zCoord);
     }
 
+    @Override
     public Vec3 getMasterLocation()
     {
         final Vec3 mLoc = masterLocation.get();
         return Vec3.createVectorHelper(mLoc.xCoord, mLoc.yCoord, mLoc.zCoord);
     }
 
+    @Override
     public boolean hasMaster()
     {
         return masterLocation.isPresent();
     }
 
-    public StructureShapeTE setMaster(int x, int y, int z)
+    @Override
+    public void setMaster(int x, int y, int z)
     {
         masterLocation = Optional.of(Vec3.createVectorHelper(x,y,z));
-        return this;
     }
 }

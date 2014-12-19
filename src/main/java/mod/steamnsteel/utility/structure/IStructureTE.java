@@ -15,8 +15,13 @@
  */
 package mod.steamnsteel.utility.structure;
 
+import net.minecraftforge.common.util.ForgeDirection;
+
 public interface IStructureTE
 {
     int getBlockID();
-    void setBlockID(int blkID);
+
+    boolean hasNeighbour(ForgeDirection d);
+
+    void configureBlock(StructureBlockCoord sBlock);
 }

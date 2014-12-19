@@ -23,6 +23,7 @@ import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.utility.structure.StructurePattern;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -32,6 +33,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import java.util.List;
 
 public class StructureShapeBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
@@ -45,7 +47,8 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
     @Override
     public StructurePattern getPattern()
     {
-        return null;
+        //should be unreachable
+        throw new AssertionError("Pattern call on non-pattern block");
     }
 
     @Override
@@ -67,6 +70,28 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
     }
 
     @Override
+    protected Vec3 getMasterBlock(World world, int x, int y, int z)
+    {
+        final StructureShapeTE te = (StructureShapeTE) world.getTileEntity(x,y,z);
+
+        return te.getMasterLocation();
+    }
+
+    @Override
+    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding)
+    {
+        final TileEntity te = world.getTileEntity(x,y,z);
+        final Block block = ((StructureShapeTE) te).getMasterBlock();
+
+        if (block instanceof SteamNSteelStructureBlock)
+        {
+            final Vec3 ml = ((StructureShapeTE) te).getMasterLocation();
+
+            block.addCollisionBoxesToList(world, (int)ml.xCoord, (int)ml.yCoord, (int)ml.zCoord, aabb, boundingBoxList, entityColliding);
+        }
+    }
+
+    @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
         return new StructureShapeTE();
@@ -79,35 +104,27 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
     }
 
     @Override
-    public void breakBlock(World world, int x, int y, int z, Block oBlock, int meta)
-    {
-        //noop
-    }
-
-    @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_)
     {//TODO remove test code
         final StructureShapeTE te = (StructureShapeTE)world.getTileEntity(x,y,z);
         final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock)te.getMasterBlock();
 
         if (!world.isRemote){
-            player.addChatComponentMessage(new ChatComponentText("Cleaned the recipe : " + block.getLocalizedName()));
+            player.addChatComponentMessage(new ChatComponentText("Cleaned the recipe : " + block.getLocalizedName() + " : BlockID " + te.getBlockID()));
         }
         block.cleanPattern();
 
         if (!world.isRemote)
         {
-            StringBuilder s = new StringBuilder('\n');
-            for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+            String s = "\n";
+            for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
             {
-                s.append(d);
-                s.append(": ");
-                s.append(te.hasNeighbour(d));
-                s.append(" : ");
-                s.append(d.flag);
-                s.append('\n');
+                if (te.hasNeighbour(d)) s += "\n" + d;
             }
-            Logger.info(s.toString());
+
+            if (!world.isRemote) Logger.info(s);
+
+            return true;
         }
 
 

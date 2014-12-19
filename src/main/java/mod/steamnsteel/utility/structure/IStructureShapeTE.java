@@ -13,27 +13,15 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.block.structure;
+package mod.steamnsteel.utility.structure;
 
-import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.tileentity.BallMillTE;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
+import net.minecraft.block.Block;
+import net.minecraft.util.Vec3;
 
-public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
+public interface IStructureShapeTE
 {
-    public static final String NAME = "ballMill";
-
-    public BallMillBlock()
-    {
-        setBlockName(NAME);
-    }
-
-    @Override
-    public TileEntity createNewTileEntity(World world, int meta)
-    {
-        return new BallMillTE();
-    }
-
+    Block getMasterBlock();
+    Vec3 getMasterLocation();
+    boolean hasMaster();
+    void setMaster(int x, int y, int z);
 }

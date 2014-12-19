@@ -19,6 +19,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
+import cpw.mods.fml.common.registry.GameRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.Vec3;
@@ -28,10 +29,18 @@ import static com.google.common.base.Preconditions.*;
 public class StructurePattern
 {
     public static final StructurePattern MISSING_STRUCTURE = new StructurePattern(1,1,1);
+    private static final ImmutableMap<Character,Block> IMPLICIT_BLOCKS = ImmutableMap.of(' ', GameRegistry.findBlock("minecraft", "air"));
+
+    /*East:  0000
+West:  0001
+South: 0010
+North: 0011*/
+
 
     float[][] collisionBoxes;
     ImmutableMap<Character, Block> blocks;
     ImmutableList<String> pattern;
+    ImmutableList<ImmutableList<Byte>> meta;
     final Vec3 size;
 
     public StructurePattern(ImmutableMap<Character, Block> blocks, int rowsPerLayer, String... recRows)
@@ -50,6 +59,7 @@ public class StructurePattern
 
         this.blocks = blocks;
         pattern = builder.build();
+        meta = null;
 
         size = Vec3.createVectorHelper(
                 recRowLength,
@@ -69,6 +79,7 @@ public class StructurePattern
     {
         blocks = null;
         pattern = null;
+        meta = null;
 
         size = Vec3.createVectorHelper(xSize,ySize,zSize);
 
@@ -84,11 +95,41 @@ public class StructurePattern
 
     public Block getBlock(int x, int y, int z)
     {
-        if (blocks == null) return Blocks.air;
+        if (blocks == null || checkBlockBoundsRequest(x, y, z)) return Blocks.air;
 
-        //TODO check Bounds?
         final Character c = pattern.get((int) (z + y*size.zCoord)).charAt(x);
-        return blocks.get(c);
+        Block resBlock = blocks.get(c);
+        //implicit value check
+        if (resBlock == null) resBlock = IMPLICIT_BLOCKS.get(c);
+        return resBlock == null ? Blocks.air : resBlock;
+    }
+
+    private boolean checkBlockBoundsRequest(int x, int y, int z)
+    {
+        return
+                x >= size.xCoord ||
+                x < 0 ||
+                y >= size.yCoord ||
+                y < 0 ||
+                z >= size.zCoord ||
+                z < 0;
+    }
+
+    public byte getBlockMetadata(int x, int y, int z)
+    {
+        if (meta == null || checkBlockBoundsRequest(x, y, z)) return 0;
+
+        return meta.get((int) (z + y*size.zCoord)).get(x);
+    }
+
+    public byte getBlockMetadata(StructureBlockCoord coord)
+    {
+        return getBlockMetadata(coord.getLX(), coord.getLY(), coord.getLZ()-1);
+    }
+
+    public Block getBlock(StructureBlockCoord coord)
+    {
+        return getBlock(coord.getLX(), coord.getLY(), coord.getLZ()-1);
     }
 
     public Block getBlock(Vec3 v)

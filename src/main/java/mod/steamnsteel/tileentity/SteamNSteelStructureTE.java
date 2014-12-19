@@ -15,20 +15,20 @@
  */
 package mod.steamnsteel.tileentity;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.utility.structure.IStructureTE;
+import mod.steamnsteel.utility.structure.StructureBlockCoord;
 import mod.steamnsteel.utility.structure.StructurePattern;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE
@@ -38,7 +38,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
 
     private static final String BLOCK_ID = "blockID";
     private static final String NEIGHBOUR_BLOCKS = "neighbourBlocks";
-    private byte neighbourBlocks = 0;
+    private byte neighbourBlocks = 0x0;
 
     @Override
     public Packet getDescriptionPacket()
@@ -74,7 +74,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getRenderBoundingBox()
     {
-        if (!renderBounds.isPresent())
+     if (!renderBounds.isPresent())
         {
             final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) getBlockType();
             final StructurePattern pattern = block.getPattern();
@@ -98,30 +98,36 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         return blockID;
     }
 
-    @Override
-    public void setBlockID(int blkID)
+    private void setBlockID(int blkID)
     {
         blockID = blkID < 0 ? -1:blkID;
     }
 
-    public void setNeighbours(Vec3 rSize, Orientation o)
+    @Override
+    public void configureBlock(StructureBlockCoord sBlock)
     {
-        int sx = (int)(blockID%rSize.zCoord);
-        int sy = (int)(blockID%(rSize.xCoord * rSize.zCoord));
-        int sz = (int)(blockID/rSize.xCoord);
+        setBlockID(sBlock.getBlockID());
 
-        //todo fix localTOglobal Neighbours
-
-        if (rSize.xCoord > sx) setNeighbour(ForgeDirection.EAST);
+        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS) if (sBlock.hasGlobalNeighbour(d)) setNeighbour(d);
     }
 
-    public void setNeighbour(ForgeDirection d)
+    private void setNeighbour(ForgeDirection d)
     {
-        neighbourBlocks |= (byte)d.flag;
+        neighbourBlocks |= d.flag;
     }
 
     public boolean hasNeighbour(ForgeDirection d)
     {
         return (neighbourBlocks & d.flag) != 0;
+    }
+
+    @Override
+    public String toString()
+    {
+        return Objects.toStringHelper(this)
+                .add("neighbourBlocks", neighbourBlocks)
+                .add("blockID", blockID)
+                .add("renderBounds", renderBounds)
+                .toString();
     }
 }

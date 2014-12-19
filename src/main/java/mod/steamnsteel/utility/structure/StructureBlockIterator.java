@@ -22,7 +22,7 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public class StructureBlockIterator implements Iterator<WorldBlockCoord>
+public class StructureBlockIterator implements Iterator<StructureBlockCoord>
 {
     private final Vec3 worldLocation;
     private Vec3 block;
@@ -32,6 +32,9 @@ public class StructureBlockIterator implements Iterator<WorldBlockCoord>
 
     private final Orientation orienetation;
     private final boolean mirrored;
+
+    private final Vec3 patternSize;
+    private int blockID;
 
     private static final int rotationMatrix[][][] = {
             {{-1, 0}, {0, -1}}, //south
@@ -46,6 +49,9 @@ public class StructureBlockIterator implements Iterator<WorldBlockCoord>
         final Vec3 spSize = sp.getSize();
         this.orienetation = orientation;
         this.mirrored = mirrored;
+
+        patternSize = sp.getSize();
+        blockID = (int) (patternSize.xCoord * patternSize.yCoord * patternSize.zCoord);
 
         maxSize = ImmutableTriple.of(
                 (int)spSize.xCoord-1,
@@ -82,18 +88,19 @@ public class StructureBlockIterator implements Iterator<WorldBlockCoord>
     }
 
     @Override
-    public WorldBlockCoord next()
+    public StructureBlockCoord next()
     {
         if (!hasNext())
             throw new NoSuchElementException();
 
+        --blockID;
         final int d = orienetation.ordinal();
 
         final double xF = rotationMatrix[d][0][0] * block.xCoord + rotationMatrix[d][0][1] * block.zCoord;
         final double zF = rotationMatrix[d][1][0] * block.xCoord + rotationMatrix[d][1][1] * block.zCoord;
         final double yF = block.yCoord;
 
-        final int[] locPos = {(int)block.xCoord, (int)block.yCoord, (int)(mirrored ? maxSize.getRight()-block.zCoord : block.zCoord)};
+        final Vec3 locPos = Vec3.createVectorHelper(block.xCoord,block.yCoord, mirrored ? maxSize.getRight()-block.zCoord : block.zCoord);
 
         --block.xCoord;
         if (block.xCoord < minSize.getLeft()) {
@@ -106,10 +113,15 @@ public class StructureBlockIterator implements Iterator<WorldBlockCoord>
             --block.yCoord;
         }
 
-        return WorldBlockCoord.of(
+        return new StructureBlockCoord(WorldBlockCoord.of(
                 (int)(xF + worldLocation.xCoord),
                 (int)(yF + worldLocation.yCoord),
-                (int)(zF + worldLocation.zCoord));
+                (int)(zF + worldLocation.zCoord)),
+                locPos,
+                orienetation,
+                patternSize,
+                blockID,
+                mirrored);
     }
 
     @Override

@@ -26,6 +26,8 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 
+import static java.lang.Math.PI;
+
 public class StructureBlockItem extends ItemBlock
 {
     public StructureBlockItem(Block block)
@@ -40,18 +42,23 @@ public class StructureBlockItem extends ItemBlock
 
         if (player == null) return false;
         //if (!world.getEntitiesWithinAABBExcludingEntity(null, block.getSelectedBoundingBoxFromPool(world, x, y, z)).isEmpty()) return false;//todo fix directional check
+        //todo deal with entity colisions
+        final Orientation o = Orientation.getdecodedOrientation(BlockDirectional.getDirection(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5)));
 
-        final int orientation = BlockDirectional.getDirection(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5));
+        final Vec3 hlfSz = block.getPattern().getHalfSize();
+        hlfSz.xCoord *= -1;
+        hlfSz.zCoord *= -1;
+        hlfSz.rotateAroundY((float) (PI * (1.0-o.ordinal()/2.0)));
 
-        StructureBlockIterator itr = new StructureBlockIterator(
-                block.getPattern(), Vec3.createVectorHelper(x, y, z), Orientation.getdecodedOrientation(orientation), player.isSneaking());
+        final Vec3 mLoc = Vec3.createVectorHelper(x+(int)hlfSz.xCoord,y, z+(int)hlfSz.zCoord);
+        final StructureBlockIterator itr = new StructureBlockIterator(block.getPattern(), mLoc, o, player.isSneaking());
 
         while (itr.hasNext())
             if (!itr.next().isAirBlock(world)) return false;
 
-        world.setBlock(x, y, z, block, metadata, 3);
-        block.onBlockPlacedBy(world, x, y, z, player, stack);
-        block.onPostBlockPlaced(world, x, y, z, metadata);
+        world.setBlock((int)mLoc.xCoord, (int)mLoc.yCoord,(int)mLoc.zCoord, block, metadata, 3);
+        block.onBlockPlacedBy(world, (int)mLoc.xCoord, (int)mLoc.yCoord,(int)mLoc.zCoord, player, stack);
+        block.onPostBlockPlaced(world, (int)mLoc.xCoord, (int)mLoc.yCoord,(int)mLoc.zCoord, metadata);
 
         return true;
     }
