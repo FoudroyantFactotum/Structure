@@ -12,10 +12,6 @@
     {
       "char": "S",
       "block": "steamnsteel:blockSteel"
-    },
-    {
-      "char": "g",
-      "block": "minecraft:sand"
     }
   ],
   "pattern": [

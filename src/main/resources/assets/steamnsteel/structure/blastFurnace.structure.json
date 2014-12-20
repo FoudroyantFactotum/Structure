@@ -12,25 +12,33 @@
     {
       "char": "T",
       "block": "minecraft:stone_stairs"
+    },
+    {
+      "char": "l",
+      "block": "minecraft:lava"
+    },
+    {
+      "char": "g",
+      "block": "minecraft:glass"
     }
   ],
   "pattern": [
-    "bbb",
-    "b b",
+    "TTT",
+    "TbT",
     "bbb",
 
-    "bbb",
-    "b b",
-    "bbb",
+    "bgb",
+    "glg",
+    "bgb",
 
     "TTT",
     "TbT",
-    "TTT"
+    "bbb"
   ],
   "patternMeta": [
-    "000",
-    "000",
-    "000",
+    "777",
+    "405",
+    "666",
 
     "000",
     "000",

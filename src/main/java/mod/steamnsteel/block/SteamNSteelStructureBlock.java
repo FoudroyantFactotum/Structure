@@ -214,7 +214,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             final StructureBlockCoord coord = itr.next();
 
             final Block patternReplacementBlock = pattern.getBlock(coord);
-            final byte patternMeta = pattern.getBlockMetadata(coord);
+            final int patternMeta = pattern.getBlockMetadata(coord);
             final Block coordBlock = coord.getBlock(world);
 
             if (coordBlock == Blocks.air || coordBlock.getClass().equals(StructureShapeBlock.class) || block.getPattern() == pattern) //TODO fix issue with transported crossover master blocks

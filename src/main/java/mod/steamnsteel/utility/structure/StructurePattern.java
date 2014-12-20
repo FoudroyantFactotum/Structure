@@ -20,9 +20,13 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableMap;
 import cpw.mods.fml.common.registry.GameRegistry;
+import mod.steamnsteel.utility.Orientation;
+import mod.steamnsteel.utility.structure.MetaCorrecter.SMCStoneStairs;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.Vec3;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -30,12 +34,23 @@ public class StructurePattern
 {
     public static final StructurePattern MISSING_STRUCTURE = new StructurePattern(1,1,1);
     private static final ImmutableMap<Character,Block> IMPLICIT_BLOCKS = ImmutableMap.of(' ', GameRegistry.findBlock("minecraft", "air"));
+    private static final Map<Block,IStructurePatternMetaCorrecter> META_CORRECTOR = new HashMap<Block, IStructurePatternMetaCorrecter>(11);
 
-    /*East:  0000
-West:  0001
-South: 0010
-North: 0011*/
+    static {
+        final IStructurePatternMetaCorrecter stairs = new SMCStoneStairs();
 
+        registerMetaCorrector("minecraft:stone_stairs",stairs);
+        registerMetaCorrector("minecraft:oak_stairs",stairs);
+        registerMetaCorrector("minecraft:brick_stairs",stairs);
+        registerMetaCorrector("minecraft:stone_brick_stairs",stairs);
+        registerMetaCorrector("minecraft:nether_brick_stairs",stairs);
+        registerMetaCorrector("minecraft:sandstone_stairs",stairs);
+        registerMetaCorrector("minecraft:birch_stairs",stairs);
+        registerMetaCorrector("minecraft:jungle_stairs",stairs);
+        registerMetaCorrector("minecraft:quartz_stairs",stairs);
+        registerMetaCorrector("minecraft:acacia_stairs",stairs);
+        registerMetaCorrector("minecraft:dark_oak_stairs",stairs);
+    }
 
     float[][] collisionBoxes;
     ImmutableMap<Character, Block> blocks;
@@ -115,16 +130,19 @@ North: 0011*/
                 z < 0;
     }
 
-    public byte getBlockMetadata(int x, int y, int z)
+    public int getBlockMetadata(int x, int y, int z, Orientation o, boolean isMirrored)
     {
         if (meta == null || checkBlockBoundsRequest(x, y, z)) return 0;
 
-        return meta.get((int) (z + y*size.zCoord)).get(x);
+        final IStructurePatternMetaCorrecter metaCorrecter = META_CORRECTOR.get(getBlock(x, y, z));
+        final byte metadata = meta.get((int) (z + y*size.zCoord)).get(x);
+
+        return metaCorrecter == null ? metadata : metaCorrecter.correctMeta(metadata, o, isMirrored);
     }
 
-    public byte getBlockMetadata(StructureBlockCoord coord)
+    public int getBlockMetadata(StructureBlockCoord coord)
     {
-        return getBlockMetadata(coord.getLX(), coord.getLY(), coord.getLZ()-1);
+        return getBlockMetadata(coord.getLX(), coord.getLY(), coord.getLZ()-1, coord.getOrienetation(), coord.isMirrored());
     }
 
     public Block getBlock(StructureBlockCoord coord)
@@ -179,5 +197,17 @@ North: 0011*/
                 + Objects.hashCode(collisionBoxes);
     }
 
+    public static void registerMetaCorrector(String blockName, IStructurePatternMetaCorrecter metaCorrecter)
+    {
+        final int blockDividePoint = blockName.indexOf(':');
 
+        Block block = GameRegistry.findBlock(
+                blockName.substring(0, blockDividePoint),
+                blockName.substring(blockDividePoint + 1,blockName.length()));
+
+        checkNotNull(block, blockName + " : Is missing from game Registry");
+        checkNotNull(metaCorrecter, blockName + " : metaCorrecter class is null");
+
+        META_CORRECTOR.put(block, metaCorrecter);
+    }
 }
