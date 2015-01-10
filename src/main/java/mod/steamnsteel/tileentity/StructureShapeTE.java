@@ -15,65 +15,93 @@
  */
 package mod.steamnsteel.tileentity;
 
-import com.google.common.base.Optional;
-import mod.steamnsteel.utility.structure.IStructureShapeTE;
-import net.minecraft.block.Block;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.Vec3;
 
-public class StructureShapeTE extends SteamNSteelStructureTE implements IStructureShapeTE
-{
-    private Optional<Vec3> masterLocation = Optional.absent();
-
-    private static final String MASTER_LOCATION = "masterLocation";
-
+public class StructureShapeTE extends SteamNSteelStructureTE
+{//todo fix :p
     @Override
     public void readFromNBT(NBTTagCompound nbt)
     {
         super.readFromNBT(nbt);
-
-        final int[] mLoc = nbt.getIntArray(MASTER_LOCATION);
-        if (mLoc != null && mLoc.length == 3)
-        {
-            masterLocation = Optional.of(Vec3.createVectorHelper(mLoc[0],mLoc[1],mLoc[2]));
-        }
     }
 
     @Override
     public void writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
-
-        if (masterLocation.isPresent())
-        {
-            final Vec3 mLoc = masterLocation.get();
-            nbt.setIntArray(MASTER_LOCATION, new int[]{(int)mLoc.xCoord,(int)mLoc.yCoord,(int)mLoc.zCoord});
-        }
     }
 
     @Override
-    public Block getMasterBlock()
+    public int getSizeInventory()
     {
-        final Vec3 mLoc = masterLocation.get();
-        return worldObj.getBlock((int)mLoc.xCoord, (int)mLoc.yCoord, (int)mLoc.zCoord);
+        return 0;
     }
 
     @Override
-    public Vec3 getMasterLocation()
+    public ItemStack getStackInSlot(int p_70301_1_)
     {
-        final Vec3 mLoc = masterLocation.get();
-        return Vec3.createVectorHelper(mLoc.xCoord, mLoc.yCoord, mLoc.zCoord);
+        return null;
     }
 
     @Override
-    public boolean hasMaster()
+    public ItemStack decrStackSize(int p_70298_1_, int p_70298_2_)
     {
-        return masterLocation.isPresent();
+        return null;
     }
 
     @Override
-    public void setMaster(int x, int y, int z)
+    public ItemStack getStackInSlotOnClosing(int p_70304_1_)
     {
-        masterLocation = Optional.of(Vec3.createVectorHelper(x,y,z));
+        return null;
+    }
+
+    @Override
+    public void setInventorySlotContents(int p_70299_1_, ItemStack p_70299_2_)
+    {
+
+    }
+
+    @Override
+    public String getInventoryName()
+    {
+        return null;
+    }
+
+    @Override
+    public boolean hasCustomInventoryName()
+    {
+        return false;
+    }
+
+    @Override
+    public int getInventoryStackLimit()
+    {
+        return 0;
+    }
+
+    @Override
+    public boolean isUseableByPlayer(EntityPlayer p_70300_1_)
+    {
+        return false;
+    }
+
+    @Override
+    public void openInventory()
+    {
+
+    }
+
+    @Override
+    public void closeInventory()
+    {
+
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_)
+    {
+        return false;
     }
 }

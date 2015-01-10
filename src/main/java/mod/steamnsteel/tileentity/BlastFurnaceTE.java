@@ -15,6 +15,95 @@
  */
 package mod.steamnsteel.tileentity;
 
+import mod.steamnsteel.block.structure.BlastFurnaceBlock;
+import mod.steamnsteel.inventory.Inventory;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.tileentity.TileEntityFurnace;
+
 public class BlastFurnaceTE extends SteamNSteelStructureTE
-{
+{//TODO complete class
+
+    public static final int INPUT = 0;
+    public static final int INPUT_FUEL = 1;
+    public static final int OUTPUT_TOP = 2;
+    public static final int OUTPUT_BOTTOM = 3;
+    public static final int INVENTORY_SIZE = 4;
+
+    private final Inventory inventory = new Inventory(INVENTORY_SIZE);
+
+    @Override
+    public int getSizeInventory()
+    {
+        return inventory.getSize();
+    }
+
+    @Override
+    public ItemStack getStackInSlot(int slotIndex)
+    {
+        return inventory.getStack(slotIndex);
+    }
+
+    @Override
+    public ItemStack decrStackSize(int slotIndex, int decrAmount)
+    {
+        return inventory.decrStackSize(slotIndex, decrAmount);
+    }
+
+    @Override
+    public ItemStack getStackInSlotOnClosing(int slotIndex)
+    {
+        return inventory.getStackOnClosing(slotIndex);
+    }
+
+    @Override
+    public void setInventorySlotContents(int slotIndex, ItemStack itemStack)
+    {
+        inventory.setSlot(slotIndex, itemStack);
+    }
+
+
+    @Override
+    public String getInventoryName()
+    {
+        return containerName(BlastFurnaceBlock.NAME);
+    }
+
+    @Override
+    public boolean hasCustomInventoryName()
+    {
+        return false;
+    }
+
+    @Override
+    public int getInventoryStackLimit()
+    {
+        return inventory.getStackSizeMax();
+    }
+
+    @Override
+    public boolean isUseableByPlayer(EntityPlayer player)
+    {
+        return false;
+    }
+
+    @Override
+    public void openInventory()
+    {
+        //no op
+    }
+
+    @Override
+    public void closeInventory()
+    {
+        //no op
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
+    {
+        return slotIndex != OUTPUT_TOP &&
+                slotIndex != OUTPUT_BOTTOM &&
+                (slotIndex != INPUT_FUEL || TileEntityFurnace.isItemFuel(itemStack));
+    }
 }

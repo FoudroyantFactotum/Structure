@@ -4,7 +4,7 @@
     4.0,
     3.0
   ],
-  "blocks": [
+  "blocksDefinition": [
     {
       "char": "p",
       "block": "steamnsteel:blockPlotonium"
@@ -23,21 +23,23 @@
     }
   ],
   "pattern": [
-    "ppp",
-    " s ",
-    "ppp",
-
-    "pgp",
-    "BsB",
-    "ppp",
-
-    "pgp",
-    "BsB",
-    "ppp",
-
-    "ppp",
-    " s ",
-    "ppp"
+    [
+      "ppp",
+      " s ",
+      "ppp"
+    ],[
+      "ppp",
+      "BsB",
+      "pgp"
+    ],[
+      "ppp",
+      "BsB",
+      "pgp"
+    ],[
+      "ppp",
+      " s ",
+      "ppp"
+    ]
   ],
   "collisionBoxes": [
     [0.7,3.5,0.7, 2.3,4.0,2.3],

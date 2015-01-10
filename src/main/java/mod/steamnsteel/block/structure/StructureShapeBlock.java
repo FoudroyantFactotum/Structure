@@ -18,21 +18,18 @@ package mod.steamnsteel.block.structure;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import mod.steamnsteel.tileentity.StructureShapeTE;
-import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.utility.structure.StructurePattern;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
 import java.util.List;
 
 public class StructureShapeBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
@@ -55,40 +52,37 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z)
     {
-        final StructureShapeTE te = (StructureShapeTE)world.getTileEntity(x,y,z);
+        final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
 
-        if (te.hasMaster())
-        {
-            final Vec3 loc = te.getMasterLocation();
-            final Block block = te.getMasterBlock();
+        final Vec3 loc = te.getMasterLocation();
+        final Block block = te.getMasterBlock();
 
-            if (block instanceof SteamNSteelStructureBlock && !(block instanceof StructureShapeBlock))
-                return block.getSelectedBoundingBoxFromPool(world, (int)loc.xCoord,(int)loc.yCoord,(int)loc.zCoord);
-        }
+        if (block instanceof SteamNSteelStructureBlock && !(block instanceof StructureShapeBlock))
+            return block.getSelectedBoundingBoxFromPool(world, (int)loc.xCoord,(int)loc.yCoord,(int)loc.zCoord);
 
         return AxisAlignedBB.getBoundingBox(x,y,z,x+1,y+1,z+1);
     }
 
     @Override
-    protected Vec3 getMasterBlock(World world, int x, int y, int z)
+    public Vec3 getMasterBlockLocation(SteamNSteelStructureTE te)
     {
-        final StructureShapeTE te = (StructureShapeTE) world.getTileEntity(x,y,z);
-
         return te.getMasterLocation();
+    }
+
+    @Override
+    protected SteamNSteelStructureBlock getMasterBlock(SteamNSteelStructureTE te)
+    {
+        return (SteamNSteelStructureBlock) te.getMasterBlock();
     }
 
     @Override
     public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding)
     {
-        final TileEntity te = world.getTileEntity(x,y,z);
-        final Block block = ((StructureShapeTE) te).getMasterBlock();
+        final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
+        final Vec3 ml = te.getMasterLocation();
+        final Block block = te.getMasterBlock();
 
-        if (block instanceof SteamNSteelStructureBlock)
-        {
-            final Vec3 ml = ((StructureShapeTE) te).getMasterLocation();
-
-            block.addCollisionBoxesToList(world, (int)ml.xCoord, (int)ml.yCoord, (int)ml.zCoord, aabb, boundingBoxList, entityColliding);
-        }
+        block.addCollisionBoxesToList(world, (int)ml.xCoord, (int)ml.yCoord, (int)ml.zCoord, aabb, boundingBoxList, entityColliding);
     }
 
     @Override
@@ -101,33 +95,5 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack itemStack)
     {
         //noop
-    }
-
-    @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int p_149727_6_, float p_149727_7_, float p_149727_8_, float p_149727_9_)
-    {//TODO remove test code
-        final StructureShapeTE te = (StructureShapeTE)world.getTileEntity(x,y,z);
-        final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock)te.getMasterBlock();
-
-        if (!world.isRemote){
-            player.addChatComponentMessage(new ChatComponentText("Cleaned the recipe : " + block.getLocalizedName() + " : BlockID " + te.getBlockID()));
-        }
-        block.cleanPattern();
-
-        if (!world.isRemote)
-        {
-            String s = "\n";
-            for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
-            {
-                if (te.hasNeighbour(d)) s += "\n" + d;
-            }
-
-            if (!world.isRemote) Logger.info(s);
-
-            return true;
-        }
-
-
-        return true;
     }
 }

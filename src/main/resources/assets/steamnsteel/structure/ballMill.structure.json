@@ -4,7 +4,7 @@
     2.0,
     2.0
   ],
-  "blocks": [
+  "blocksDefinition": [
     {
       "char": "s",
       "block": "steamnsteel:blockBrass"
@@ -15,11 +15,13 @@
     }
   ],
   "pattern": [
-    "SsssS",
-    "SsssS",
-
-    "SsssS",
-    "SsssS"
+    [
+      "SsssS",
+      "SsssS"
+    ],[
+      "SsssS",
+      "SsssS"
+    ]
   ],
   "collisionBoxes": [
     [0,0,0, 1,1.49,2],

@@ -17,14 +17,16 @@ package mod.steamnsteel.utility.structure;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.gson.*;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.common.registry.GameRegistry.UniqueIdentifier;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.common.util.ForgeDirection;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 import java.lang.reflect.Type;
-import java.util.Map.Entry;
 
 import static com.google.common.base.Preconditions.*;
 
@@ -33,19 +35,28 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
     public static final Gson gson = new GsonBuilder().setPrettyPrinting().registerTypeAdapter(StructurePattern.class, new JSONStructurePattern()).create();
 
     private static final String SIZE = "size";
-    private static final String PATTERN = "pattern";
-    private static final String PATTERN_META = PATTERN +"Meta";
+    private static final String PATTERN_META = "patternMeta";
     private static final String COLLISION_BOXES = "collisionBoxes";
 
-    private static final String BLOCK_CHAR = "char";
-    private static final String BLOCK_NAME = "block";
-    private static final String BLOCK_MAP = "blocks";
+    private static final String BLOCKS_DEFINITION = "blocksDefinition";
+    private static final String BLOCKS_CHAR = "char";
+    private static final String BLOCKS_NAME = "block";
+    private static final String BLOCKS_PATTERN = "pattern";
+
+    private static final String BLOCK_SIDE_INPUT_DEFINITION = "blockSideInputDefinition";
+    private static final String BLOCK_SIDE_INPUT_CHAR = "char";
+    private static final String BLOCK_SIDE_INPUT_SIDES = "sides";
+    private static final String BLOCK_SIDE_INPUT_ACCESSIBLE_SLOTS = "accessibleSlots";
+    private static final String BLOCK_SIDE_INPUT_CAN_ITEM = "can-Item";
+    private static final String BLOCK_SIDE_INPUT = "blockSideInput";
 
     @Override
     public JsonElement serialize(StructurePattern src, Type typeOfSrc, JsonSerializationContext context)
     {
+    //todo redo
         //TODO metadata serializer
-        JsonObject result = new JsonObject();
+        //TODO BLOCK_SIDE_INPUT
+        /*JsonObject result = new JsonObject();
 
         //Master Block Location
         final JsonArray size = new JsonArray();
@@ -56,21 +67,21 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
 
         //Block Map
         JsonArray blocks = null;
-        if (src.blocks != null)
+        if (src.blocksDefinition != null)
         {
             blocks = new JsonArray();
-            for (Entry<Character, Block> pair:src.blocks.entrySet())
+            for (Entry<Character, Block> pair:src.blocksDefinition.entrySet())
             {
                 final UniqueIdentifier blockName = GameRegistry.findUniqueIdentifierFor(pair.getValue());
                 checkNotNull(blockName, pair.toString() + " : Block does not exist");
 
                 JsonObject blockData = new JsonObject();
-                blockData.add(BLOCK_CHAR, new JsonPrimitive(pair.getKey()));
-                blockData.add(BLOCK_NAME, new JsonPrimitive(blockName.toString()));
+                blockData.add(BLOCKS_CHAR, new JsonPrimitive(pair.getKey()));
+                blockData.add(BLOCKS_NAME, new JsonPrimitive(blockName.toString()));
                 blocks.add(blockData);
             }
         }
-        result.add(BLOCK_MAP, blocks);
+        result.add(BLOCKS_DEFINITION, blocks);
 
         //Block Recipe
         JsonArray pattern = null;
@@ -96,81 +107,230 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
         }
 
 
-        return result;
+        return result;*/
+        return null;
     }
 
     @Override
     public StructurePattern deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException
     {//TODO do validation on json file
         final JsonObject obj = json.getAsJsonObject();
-        StructurePattern sp = new StructurePattern(1,1,1);
 
+        final ImmutableTriple<Integer,Integer,Integer> size = deserializeMasterBlock(obj);
+
+        return new StructurePattern(
+                size,
+                deserializeBlocks(obj),
+                deserializeMetadata(obj),
+                deserializeSideInput(obj),
+                deserializeCollision(obj,
+                        Vec3.createVectorHelper(
+                                size.getLeft()/ 2.0f,
+                                size.getMiddle()/ 2.0f,
+                                size.getRight()/ 2.0f))
+        );
+    }
+
+    private static ImmutableTriple<Integer,Integer,Integer> deserializeMasterBlock(JsonObject obj)
+    {
         //Master Block Location
         final JsonArray size = obj.get(SIZE).getAsJsonArray();
-        sp.size.xCoord = size.get(0).getAsInt();
-        sp.size.yCoord = size.get(1).getAsInt();
-        sp.size.zCoord = size.get(2).getAsInt();
 
-        //Block Map
-        final JsonElement jsonBlockMap = obj.get(BLOCK_MAP);
-        if (jsonBlockMap != null)
+        return ImmutableTriple.of(
+                size.get(0).getAsInt(),
+                size.get(1).getAsInt(),
+                size.get(2).getAsInt()
+        );
+    }
+
+    private static ImmutableList<ImmutableList<Block>> deserializeBlocks(JsonObject obj)
+    {
+        final JsonElement jsonBlocksDefinition = obj.get(BLOCKS_DEFINITION);
+        final JsonElement jsonBlocksPattern = obj.get(BLOCKS_PATTERN);
+
+        if (jsonBlocksDefinition != null && jsonBlocksPattern != null)
         {
-            final JsonArray blockMap = obj.get(BLOCK_MAP).getAsJsonArray();
-            ImmutableMap.Builder<Character, Block> builder = ImmutableMap.builder();
+            final ImmutableMap<Character,Block> blocksDefinition =
+                    deserializeBlocksDefinition(jsonBlocksDefinition.getAsJsonArray());
 
-            for (JsonElement jsonBlock: blockMap)
+            final JsonArray pattern = jsonBlocksPattern.getAsJsonArray();
+            final Builder<ImmutableList<Block>> listBuilder = ImmutableList.builder();
+
+            for (final JsonElement jsonPatternY: pattern)
             {
-                final JsonObject blockData = jsonBlock.getAsJsonObject();
+                for (final JsonElement jsonPatternZ: jsonPatternY.getAsJsonArray())
+                {
+                    final Builder<Block> blockBuilder = ImmutableList.builder();
+                    final String charBlockLine = jsonPatternZ.getAsString();
 
-                final char blockChar = blockData.get(BLOCK_CHAR).getAsCharacter();
-                final String blockName = blockData.get(BLOCK_NAME).getAsString();
-                final int blockDividePoint = blockName.indexOf(':');
+                    for (int x=0; x<charBlockLine.length(); ++x)
+                    {
+                        final char c = charBlockLine.charAt(x);
+                        final Block block = blocksDefinition.get(c);
 
-                Block block = GameRegistry.findBlock(
-                        blockName.substring(0, blockDividePoint),
-                        blockName.substring(blockDividePoint + 1,blockName.length()));
+                        checkNotNull(block, "block char not defined -" + c + '-');
 
-                checkNotNull(block, blockName + " : Block does not exist");
+                        blockBuilder.add(block);
+                    }
 
-                builder.put(blockChar, block);
+                    listBuilder.add(blockBuilder.build());
+                }
             }
 
-            sp.blocks = builder.build();
+            return listBuilder.build();
         }
 
-        //Block Recipe
-        final JsonElement jsonPatternList = obj.get(BLOCK_MAP);
-        if (jsonPatternList != null)
+        return null;
+    }
+
+    private static ImmutableMap<Character,Block> deserializeBlocksDefinition(JsonArray blocksDefinition)
+    {
+        ImmutableMap.Builder<Character, Block> builder = ImmutableMap.builder();
+
+        //Implicit blocks
+        builder.put(' ', Blocks.air);
+
+        //Load block definitions
+        for (JsonElement jsonBlock: blocksDefinition)
         {
-            final JsonArray pattern = obj.get(PATTERN).getAsJsonArray();
-            final Builder builder = ImmutableList.builder();
+            final JsonObject blockData = jsonBlock.getAsJsonObject();
 
-            for(JsonElement jsonPattern: pattern) builder.add(jsonPattern.getAsString());
+            final char blockChar = blockData.get(BLOCKS_CHAR).getAsCharacter();
+            final String blockName = blockData.get(BLOCKS_NAME).getAsString();
+            final int blockDividePoint = blockName.indexOf(':');
 
-            sp.pattern = builder.build();
+            Block block = GameRegistry.findBlock(
+                    blockName.substring(0, blockDividePoint),
+                    blockName.substring(blockDividePoint + 1,blockName.length()));
+
+            checkNotNull(block, "Block does not exist " + blockName);
+
+            builder.put(blockChar, block);
         }
 
-        //patternMeta
+        return builder.build();
+    }
+
+    private static ImmutableList<ImmutableList<Byte>> deserializeMetadata(JsonObject obj)
+    {
         final JsonElement jsonPatternMetaList = obj.get(PATTERN_META);
+
         if (jsonPatternMetaList != null)
         {
             final JsonArray patternMeta = jsonPatternMetaList.getAsJsonArray();
             final Builder builder = ImmutableList.builder();
 
-            for(JsonElement jsonMeta:patternMeta) {
-                final Builder builderInner = ImmutableList.builder();
-                final String line = jsonMeta.getAsString();
+            for(JsonElement jsonMetaY:patternMeta)
+            {
+                for(JsonElement jsonMetaZ:jsonMetaY.getAsJsonArray())
+                {
+                    final Builder builderInner = ImmutableList.builder();
+                    final String line = jsonMetaZ.getAsString();
 
-                for (char c: line.toCharArray()) builderInner.add(Byte.parseByte(String.valueOf(c), 16));
+                    for (char c : line.toCharArray())
+                        builderInner.add(Byte.parseByte(String.valueOf(c), 16));
 
-                builder.add(builderInner.build());
+                    builder.add(builderInner.build());
+                }
             }
-            sp.meta = builder.build();
+
+            return builder.build();
         }
 
-        //Collision
+        return null;
+    }
+
+    private static ImmutableListMultimap<Integer, StructureBlockSideAccess> deserializeSideInput(JsonObject obj)
+    {
+        final JsonElement jsonBlockSideInput = obj.get(BLOCK_SIDE_INPUT);
+        final JsonElement jsonBlockSideInputDefinition = obj.get(BLOCK_SIDE_INPUT_DEFINITION);
+
+        if (jsonBlockSideInput != null && jsonBlockSideInputDefinition != null)
+        {
+            final ImmutableMap<Character, StructureBlockSideAccess> sideInputDefinition =
+                    deserializeSideInputDefinition(jsonBlockSideInputDefinition);
+
+            final ImmutableListMultimap.Builder<Integer, StructureBlockSideAccess> builder = ImmutableListMultimap.builder();
+            final JsonArray jsonBlockSideArrayY = jsonBlockSideInput.getAsJsonArray();
+
+            for (int locY=0; locY<jsonBlockSideArrayY.size(); ++locY)
+            {
+                final JsonArray jsonBlockSideArrayZ = jsonBlockSideArrayY.get(locY).getAsJsonArray();
+
+                for (int locZ = 0; locZ < jsonBlockSideArrayZ.size(); ++locZ)
+                {
+                    final String elementLineX = jsonBlockSideArrayZ.get(locZ).getAsString();
+
+                    for (int locX = 0; locX < elementLineX.length(); ++locX)
+                    {
+                        final char c = elementLineX.charAt(locX);
+
+                        if (c != ' ')
+                        {
+                            StructureBlockSideAccess sideAccess = sideInputDefinition.get(c);
+
+                            checkNotNull(sideAccess, "sideAccess char not defined -" + c + '-');
+
+                            builder.put(StructurePattern.getPosHash(locX, locY, locZ), sideAccess);
+                        }
+                    }
+                }
+            }
+
+            return builder.build();
+        }
+
+        return null;
+    }
+
+    private static ImmutableMap<Character, StructureBlockSideAccess> deserializeSideInputDefinition(JsonElement jsonBlockSideInputDefinition)
+    {
+        final JsonArray blockSideInputDefinition = jsonBlockSideInputDefinition.getAsJsonArray();
+        final ImmutableMap.Builder<Character, StructureBlockSideAccess> builderSideInputDef
+                = ImmutableMap.builder();
+
+        for(JsonElement jsonElementSideDef:blockSideInputDefinition)
+        {
+            final JsonObject jsonSideDef = jsonElementSideDef.getAsJsonObject();
+
+            //IdentityChar
+            final char sideChar = jsonSideDef.getAsJsonPrimitive(BLOCK_SIDE_INPUT_CHAR).getAsCharacter();
+
+            //InputSides
+            final JsonElement jsonInputSides = jsonSideDef.get(BLOCK_SIDE_INPUT_SIDES);
+            final String inputSides = jsonSideDef.get(BLOCK_SIDE_INPUT_SIDES).getAsString();
+            byte sideFlags = 0;
+
+            for (char c: inputSides.toUpperCase().toCharArray()) sideFlags |= (byte) getFlagFromChar(c);
+
+            //AccessibleSlots
+            final JsonArray jsonAccessibleSlots = jsonSideDef.getAsJsonArray(BLOCK_SIDE_INPUT_ACCESSIBLE_SLOTS);
+            final int[] accessibleSlots = new int[jsonAccessibleSlots.size()];
+
+            for (int i=0; i< jsonAccessibleSlots.size(); ++i)
+                accessibleSlots[i] = jsonAccessibleSlots.get(i).getAsInt();
+
+            //Can Input/Extract Item
+            final String stringCanItem = jsonSideDef.getAsJsonPrimitive(BLOCK_SIDE_INPUT_CAN_ITEM).getAsString();
+            final boolean canInsertItem = stringCanItem.toUpperCase().indexOf('I') != -1;
+            final boolean canExtractItem = stringCanItem.toUpperCase().indexOf('E') != -1;
+
+            builderSideInputDef.put(
+                    sideChar,
+                    new StructureBlockSideAccess(
+                            sideFlags,
+                            accessibleSlots,
+                            canInsertItem,
+                            canExtractItem));
+        }
+
+        return builderSideInputDef.build();
+    }
+
+    private static float[][] deserializeCollision(JsonObject obj, Vec3 hlfSz)
+    {//todo replace outside array with immutable collection. also inside one?
         final JsonElement jsonCollisionObj = obj.get(COLLISION_BOXES);
-        final Vec3 hlfSz = sp.getHalfSize();
+
         if (jsonCollisionObj != null)
         {
             final JsonArray jsonCollisionArray = jsonCollisionObj.getAsJsonArray();
@@ -188,9 +348,9 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
                         jsonCollision.get(4).getAsFloat(),
                         (float) (jsonCollision.get(5).getAsFloat() - hlfSz.zCoord)};
             }
-            sp.collisionBoxes = collArray;
+            return collArray;
         } else {
-            sp.collisionBoxes = new float[][]{{
+            return new float[][]{{
                     (float)-hlfSz.xCoord,
                     0,
                     (float)-hlfSz.zCoord,
@@ -199,7 +359,26 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
                     (float)hlfSz.yCoord,
                     (float)hlfSz.zCoord}};
         }
+    }
 
-        return sp;
+    private static int getFlagFromChar(char c)
+    {
+        switch (c)
+        {
+            case 'U':
+                return ForgeDirection.UP.flag;
+            case 'D':
+                return ForgeDirection.DOWN.flag;
+            case 'N':
+                return ForgeDirection.NORTH.flag;
+            case 'S':
+                return ForgeDirection.SOUTH.flag;
+            case 'E':
+                return ForgeDirection.EAST.flag;
+            case 'W':
+                return ForgeDirection.WEST.flag;
+            default:
+                return ForgeDirection.UNKNOWN.flag;
+        }
     }
 }

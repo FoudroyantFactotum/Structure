@@ -34,7 +34,6 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
     private final boolean mirrored;
 
     private final Vec3 patternSize;
-    private int blockID;
 
     private static final int rotationMatrix[][][] = {
             {{-1, 0}, {0, -1}}, //south
@@ -51,7 +50,6 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         this.mirrored = mirrored;
 
         patternSize = sp.getSize();
-        blockID = (int) (patternSize.xCoord * patternSize.yCoord * patternSize.zCoord);
 
         maxSize = ImmutableTriple.of(
                 (int)spSize.xCoord-1,
@@ -60,15 +58,15 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         );
 
         minSize = ImmutableTriple.of(
-                (int)0,
-                (int)0,
-                (int)0
+                0,
+                0,
+                0
         );
 
         this.block = Vec3.createVectorHelper(
-                (int)maxSize.getLeft(),
-                (int)maxSize.getMiddle(),
-                (int)maxSize.getRight());
+                maxSize.getLeft(),
+                maxSize.getMiddle(),
+                maxSize.getRight());
 
         if (mirrored) block.zCoord = minSize.getRight();
     }
@@ -76,9 +74,9 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
     public void cleanIterator()
     {
         block = Vec3.createVectorHelper(
-                (int)maxSize.getLeft(),
-                (int)maxSize.getMiddle(),
-                (int)maxSize.getRight());
+                maxSize.getLeft(),
+                maxSize.getMiddle(),
+                maxSize.getRight());
     }
 
     @Override
@@ -93,7 +91,6 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         if (!hasNext())
             throw new NoSuchElementException();
 
-        --blockID;
         final int d = orienetation.ordinal();
 
         final double xF = rotationMatrix[d][0][0] * block.xCoord + rotationMatrix[d][0][1] * block.zCoord;
@@ -105,7 +102,7 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         --block.xCoord;
         if (block.xCoord < minSize.getLeft()) {
             block.xCoord = maxSize.getLeft();
-            block.zCoord += (mirrored)?1:-1;
+            block.zCoord += mirrored ?1:-1;
         }
 
         if (block.zCoord < minSize.getRight() || block.zCoord > maxSize.getRight()){
@@ -120,7 +117,6 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
                 locPos,
                 orienetation,
                 patternSize,
-                blockID,
                 mirrored);
     }
 

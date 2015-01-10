@@ -17,11 +17,8 @@ package mod.steamnsteel.block.structure;
 
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.tileentity.BoilerTE;
-import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 
 public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
@@ -39,13 +36,4 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
         return new BoilerTE();
     }
 
-    @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float p_149727_7_, float p_149727_8_, float p_149727_9_)
-    {
-        if (!world.isRemote)
-        {
-            player.addChatComponentMessage(new ChatComponentText("BlockID " + ((SteamNSteelStructureTE) world.getTileEntity(x, y, z)).getBlockID()));
-        }
-        return true;
-    }
 }

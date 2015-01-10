@@ -17,14 +17,26 @@ package mod.steamnsteel.utility.structure;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
+import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import cpw.mods.fml.common.registry.GameRegistry;
+import mod.steamnsteel.TheMod;
+import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.utility.Orientation;
+import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.utility.structure.MetaCorrecter.SMCStoneStairs;
 import net.minecraft.block.Block;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.IResource;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.common.util.ForgeDirection;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,9 +44,13 @@ import static com.google.common.base.Preconditions.*;
 
 public class StructurePattern
 {
-    public static final StructurePattern MISSING_STRUCTURE = new StructurePattern(1,1,1);
-    private static final ImmutableMap<Character,Block> IMPLICIT_BLOCKS = ImmutableMap.of(' ', GameRegistry.findBlock("minecraft", "air"));
-    private static final Map<Block,IStructurePatternMetaCorrecter> META_CORRECTOR = new HashMap<Block, IStructurePatternMetaCorrecter>(11);
+    private static String STRUCTURE_LOCATION = "structure/";
+    private static String STRUCTURE_FILE_EXTENSION = ".structure.json";
+
+    public static final StructurePattern MISSING_STRUCTURE = new StructurePattern();
+
+    /*TODO Immutable?*/private static final Map<Block,IStructurePatternMetaCorrecter> META_CORRECTOR = new HashMap<Block, IStructurePatternMetaCorrecter>(11);
+    private static final ImmutableMap<Integer, StructurePattern> PATTERNS;
 
     static {
         final IStructurePatternMetaCorrecter stairs = new SMCStoneStairs();
@@ -50,99 +66,113 @@ public class StructurePattern
         registerMetaCorrector("minecraft:quartz_stairs",stairs);
         registerMetaCorrector("minecraft:acacia_stairs",stairs);
         registerMetaCorrector("minecraft:dark_oak_stairs",stairs);
+
+
+        Builder builder = ImmutableMap.builder();
+
+        registerPatterns(builder, ModBlock.ballMill);
+        registerPatterns(builder, ModBlock.blastFurnace);
+        registerPatterns(builder, ModBlock.boiler);
+
+        PATTERNS = builder.build();
     }
 
-    float[][] collisionBoxes;
-    ImmutableMap<Character, Block> blocks;
-    ImmutableList<String> pattern;
-    ImmutableList<ImmutableList<Byte>> meta;
-    final Vec3 size;
-
-    public StructurePattern(ImmutableMap<Character, Block> blocks, int rowsPerLayer, String... recRows)
+    private static void registerMetaCorrector(String blockName, IStructurePatternMetaCorrecter metaCorrecter)
     {
-        Builder<String> builder = ImmutableList.builder();
+        final int blockDividePoint = blockName.indexOf(':');
 
-        int recRowLength = recRows[0].length();
-        int count = 0;
-        for (String recRow: recRows) {
-            checkState(recRowLength == recRow.length(), "Recipe row must be of the same length");
-            builder.add(recRow);
-            ++count;
+        Block block = GameRegistry.findBlock(
+                blockName.substring(0, blockDividePoint),
+                blockName.substring(blockDividePoint + 1,blockName.length()));
+
+        checkNotNull(block, blockName + " : Is missing from game Registry");
+        checkNotNull(metaCorrecter, blockName + " : metaCorrecter class is null");
+
+        META_CORRECTOR.put(block, metaCorrecter);
+    }
+
+    private static void registerPatterns(Builder b,Block block)
+    {
+        final ResourceLocation jsonStructure = getResourceLocation(getStructurePath(getBlockName(block.getUnlocalizedName())));
+        StructurePattern blockPattern = null;
+        try
+        {
+            final IResource res = Minecraft.getMinecraft().getResourceManager().getResource(jsonStructure);
+            final InputStreamReader inpStream = new InputStreamReader(res.getInputStream());
+            final BufferedReader buffRead = new BufferedReader(inpStream);
+
+            blockPattern = JSONStructurePattern.gson.fromJson(buffRead, StructurePattern.class);
+
+            buffRead.close();
+            inpStream.close();
+        } catch (IOException e)
+        {
+            Logger.info("file does not exist : " + e.getMessage());
         }
 
-        checkState(count % rowsPerLayer == 0, "Recipe must fill defined box " + count);
+        b.put(block.getUnlocalizedName().hashCode(), blockPattern == null?MISSING_STRUCTURE:blockPattern);
+    }
 
-        this.blocks = blocks;
-        pattern = builder.build();
-        meta = null;
+    public static StructurePattern getPattern(int hash)
+    {
+        final StructurePattern pattern = PATTERNS.get(hash);
+        return pattern == null ? MISSING_STRUCTURE : pattern;
+    }
 
-        size = Vec3.createVectorHelper(
-                recRowLength,
-                pattern.size() / rowsPerLayer,
-                rowsPerLayer);
+    private static String getBlockName(String unlocName)
+    {
+        return unlocName.substring(unlocName.indexOf(':')+1);
+    }
 
-        collisionBoxes = new float[][]{{
-                -recRowLength/2,
-                0,
-                -rowsPerLayer/2,
-                (float)Math.ceil(recRowLength/2),
-                (float)pattern.size() / rowsPerLayer,
-                (float)Math.ceil(rowsPerLayer/2)}};
+    private static ResourceLocation getResourceLocation(String path)
+    {
+        return new ResourceLocation(TheMod.MOD_ID.toLowerCase(), path);
+    }
+
+    private static String getStructurePath(String name)
+    {
+        return STRUCTURE_LOCATION + name + STRUCTURE_FILE_EXTENSION;
+    }
+
+
+    private final ImmutableTriple<Integer,Integer,Integer> size;
+    private final ImmutableList<ImmutableList<Block>> blocks;
+    private final ImmutableList<ImmutableList<Byte>> metadata;
+    private final float[][] collisionBoxes;
+    private final ImmutableListMultimap<Integer, StructureBlockSideAccess> blockSideAccess;
+
+    public StructurePattern()
+    {
+        this(1,1,1);
     }
 
     public StructurePattern(int xSize, int ySize, int zSize)
     {
-        blocks = null;
-        pattern = null;
-        meta = null;
-
-        size = Vec3.createVectorHelper(xSize,ySize,zSize);
-
-        collisionBoxes = new float[][]{{
-                -xSize/2,
-                0,
-                -zSize/2,
-                (float)Math.ceil(xSize/2),
-                ySize,
-                (float)Math.ceil(zSize/2)}};
+        this(
+                ImmutableTriple.of(xSize,ySize,zSize),
+                null,
+                null,
+                null,
+                new float[][]{{
+                        -xSize / 2,
+                        0,
+                        -zSize / 2,
+                        (float) Math.ceil(xSize / 2),
+                        ySize,
+                        (float) Math.ceil(zSize / 2)}});
     }
 
-
-    public Block getBlock(int x, int y, int z)
+    public StructurePattern(ImmutableTriple<Integer,Integer,Integer> size,
+            ImmutableList<ImmutableList<Block>> blocks,
+            ImmutableList<ImmutableList<Byte>> metadata,
+            ImmutableListMultimap<Integer, StructureBlockSideAccess> blockSideAccess,
+            float[][] collisionBoxes)
     {
-        if (blocks == null || checkBlockBoundsRequest(x, y, z)) return Blocks.air;
-
-        final Character c = pattern.get((int) (z + y*size.zCoord)).charAt(x);
-        Block resBlock = blocks.get(c);
-        //implicit value check
-        if (resBlock == null) resBlock = IMPLICIT_BLOCKS.get(c);
-        return resBlock == null ? Blocks.air : resBlock;
-    }
-
-    private boolean checkBlockBoundsRequest(int x, int y, int z)
-    {
-        return
-                x >= size.xCoord ||
-                x < 0 ||
-                y >= size.yCoord ||
-                y < 0 ||
-                z >= size.zCoord ||
-                z < 0;
-    }
-
-    public int getBlockMetadata(int x, int y, int z, Orientation o, boolean isMirrored)
-    {
-        if (meta == null || checkBlockBoundsRequest(x, y, z)) return 0;
-
-        final IStructurePatternMetaCorrecter metaCorrecter = META_CORRECTOR.get(getBlock(x, y, z));
-        final byte metadata = meta.get((int) (z + y*size.zCoord)).get(x);
-
-        return metaCorrecter == null ? metadata : metaCorrecter.correctMeta(metadata, o, isMirrored);
-    }
-
-    public int getBlockMetadata(StructureBlockCoord coord)
-    {
-        return getBlockMetadata(coord.getLX(), coord.getLY(), coord.getLZ()-1, coord.getOrienetation(), coord.isMirrored());
+        this.size = size;
+        this.blocks = blocks;
+        this.metadata = metadata;
+        this.collisionBoxes = collisionBoxes;
+        this.blockSideAccess = blockSideAccess;
     }
 
     public Block getBlock(StructureBlockCoord coord)
@@ -155,59 +185,103 @@ public class StructurePattern
         return getBlock((int)v.xCoord, (int)v.yCoord, (int)v.zCoord);
     }
 
+    public Block getBlock(int x, int y, int z)
+    {
+        if (blocks != null)
+        {
+            final int layerCount = getLayerCount(y, z);
+
+            if (checkNotOutOfBounds(blocks, x, layerCount))
+                return blocks.get(layerCount).get(x);
+        }
+
+        return Blocks.air;
+    }
+
+    public int getBlockMetadata(StructureBlockCoord coord)
+    {
+        return getBlockMetadata(coord.getLX(), coord.getLY(), coord.getLZ()-1, coord.getOrienetation(), coord.isMirrored());
+    }
+
+    public int getBlockMetadata(int x, int y, int z, Orientation o, boolean isMirrored)
+    {
+        byte meta = 0;
+
+        if (metadata != null)
+        {
+            final int layerCount = getLayerCount(y, z);
+
+            if (checkNotOutOfBounds(metadata, x, layerCount))
+                meta = metadata.get(layerCount).get(x);
+        }
+
+        final IStructurePatternMetaCorrecter metaCorrecter = META_CORRECTOR.get(getBlock(x, y, z));
+
+        return metaCorrecter == null ? meta : metaCorrecter.correctMeta(meta, o, isMirrored);
+    }
+
+    public StructureBlockSideAccess getSideAccess(int x, int y, int z, ForgeDirection direction, Orientation orientation)
+    {//todo transform direction with orientation
+
+        if (blockSideAccess != null)
+        {
+            final int hash = getPosHash(x, y, z);
+            final ImmutableList<StructureBlockSideAccess> sideAccessList = blockSideAccess.get(hash);
+
+            for (StructureBlockSideAccess sideAccess: sideAccessList)
+                if (sideAccess.hasSide(direction))
+                    return sideAccess;
+        }
+
+        return StructureBlockSideAccess.MISSING_SIDE_ACCESS;
+    }
+
+    public static int getPosHash(int x, int y, int z)
+    {
+        return (byte) x << 16 + (byte) y << 8 + (byte) z;
+    }
+
+    private int getLayerCount(int y, int z)
+    {
+        return z + y*size.right;
+    }
+
+    private static <E> boolean checkNotOutOfBounds(ImmutableList<ImmutableList<E>> list, int x, int layerCount)
+    {
+        return layerCount < list.size() && layerCount > -1 && x < list.get(layerCount).size();
+    }
+
     public Vec3 getSize()
     {
         return Vec3.createVectorHelper(
-                size.xCoord,
-                size.yCoord,
-                size.zCoord);
+                size.getLeft(),
+                size.getMiddle(),
+                size.getRight());
     }
 
     public Vec3 getHalfSize()
     {
-        return Vec3.createVectorHelper(
-                size.xCoord*0.5,
-                0,
-                size.zCoord*0.5);
-    }
+        final Vec3 size = getSize();
 
-    public ImmutableMap<Character, Block> getBlockMap()
-    {
-        return blocks;
+        size.xCoord /= 2;
+        size.yCoord /= 2;
+        size.zCoord /= 2;
+
+        return size;
     }
 
     public float[][] getCollisionBoxes()
     {
-        return collisionBoxes.clone();
+        return collisionBoxes;
     }
 
     public String toString(){
         return Objects.toStringHelper(this)
-                .add("pattern", pattern)
-                .add("blocks", blocks)
                 .add("size", size)
+                .add("blocks", blocks)
+                .add("metadata", metadata)
                 .add("collisionBoxes", collisionBoxes)
+                .add("blockSideAccess", blockSideAccess)
                 .toString();
-    }
-
-    @Override
-    public int hashCode()
-    {
-        return Objects.hashCode(pattern) + Objects.hashCode(size) + Objects.hashCode(blocks)
-                + Objects.hashCode(collisionBoxes);
-    }
-
-    public static void registerMetaCorrector(String blockName, IStructurePatternMetaCorrecter metaCorrecter)
-    {
-        final int blockDividePoint = blockName.indexOf(':');
-
-        Block block = GameRegistry.findBlock(
-                blockName.substring(0, blockDividePoint),
-                blockName.substring(blockDividePoint + 1,blockName.length()));
-
-        checkNotNull(block, blockName + " : Is missing from game Registry");
-        checkNotNull(metaCorrecter, blockName + " : metaCorrecter class is null");
-
-        META_CORRECTOR.put(block, metaCorrecter);
     }
 }

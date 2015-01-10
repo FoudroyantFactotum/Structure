@@ -15,13 +15,18 @@
  */
 package mod.steamnsteel.utility.structure;
 
+import net.minecraft.block.Block;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public interface IStructureTE
 {
-    int getBlockID();
+    StructurePattern getPattern();
 
     boolean hasNeighbour(ForgeDirection d);
+    Block getTransmutedBlock();
+    int getTransmutedMeta();
+
+    void setBlockPattern(String name);
 
     void configureBlock(StructureBlockCoord sBlock);
 }

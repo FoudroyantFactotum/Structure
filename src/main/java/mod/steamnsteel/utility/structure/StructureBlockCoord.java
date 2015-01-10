@@ -32,22 +32,15 @@ public class StructureBlockCoord
     private final Orientation orienetation;
     private final Vec3 pSize;
     private final boolean isMirrored;
-    private final int blockID;
 
-    public StructureBlockCoord(WorldBlockCoord worldCoord, Vec3 localCoord, Orientation orienetation, Vec3 pSize, int blockID, boolean isMirrored)
+    public StructureBlockCoord(WorldBlockCoord worldCoord, Vec3 localCoord, Orientation orienetation, Vec3 pSize, boolean isMirrored)
     {
         this.worldCoord = worldCoord;
         this.localCoord = localCoord;
         this.orienetation = orienetation;
         this.pSize = pSize;
-        this.blockID = blockID;
 
         this.isMirrored = isMirrored;
-    }
-
-    public int getBlockID()
-    {
-        return blockID;
     }
 
     public Block getBlock(IBlockAccess world)
@@ -85,6 +78,11 @@ public class StructureBlockCoord
         worldCoord.setBlock(world, block);
     }
 
+    public void setMeta(World world, int meta, int flag)
+    {
+        world.setBlockMetadataWithNotify(worldCoord.getX(),worldCoord.getY(),worldCoord.getZ(), meta, flag);
+    }
+
     public boolean isAirBlock(World world)
     {
         return worldCoord.isAirBlock(world);
@@ -93,6 +91,11 @@ public class StructureBlockCoord
     public TileEntity getTileEntity(World world)
     {
         return worldCoord.getTileEntity(world);
+    }
+
+    public void removeTileEntity(World world)
+    {
+        world.removeTileEntity(worldCoord.getX(),worldCoord.getY(),worldCoord.getZ());
     }
 
     public int getLX()
@@ -107,7 +110,7 @@ public class StructureBlockCoord
 
     public int getLZ()
     {
-        return (int)(pSize.zCoord - localCoord.zCoord);
+        return (int) localCoord.zCoord;
     }
 
     public Vec3 getLocal()
@@ -122,7 +125,7 @@ public class StructureBlockCoord
 
     public boolean isMasterBlock()
     {
-        return (int)localCoord.xCoord == 0 && (int)localCoord.yCoord == 0 && (int) localCoord.zCoord == 0;
+        return getLX() == 0 && getLY() == 0 && (isMirrored ? pSize.zCoord-getLZ()-1 : getLZ()) == 0;
     }
 
     public boolean isMirrored()
@@ -132,7 +135,10 @@ public class StructureBlockCoord
 
     public boolean hasLocalNeighbour(ForgeDirection d)
     {
-        if (d == ForgeDirection.NORTH || d == ForgeDirection.SOUTH) d = isMirrored?d.getOpposite():d;
+        if (d == ForgeDirection.NORTH || d == ForgeDirection.SOUTH)
+            if (isMirrored)
+                d = d.getOpposite();
+
         switch (d)
         {
             case DOWN:
@@ -180,7 +186,6 @@ public class StructureBlockCoord
                 .add("localCoord",localCoord)
                 .add("orienetation",orienetation)
                 .add("pSize",pSize)
-                .add("blockID",blockID)
                 .toString();
     }
 }
