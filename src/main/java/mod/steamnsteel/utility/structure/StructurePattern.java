@@ -200,7 +200,7 @@ public class StructurePattern
 
     public int getBlockMetadata(StructureBlockCoord coord)
     {
-        return getBlockMetadata(coord.getLX(), coord.getLY(), coord.getLZ()-1, coord.getOrienetation(), coord.isMirrored());
+        return getBlockMetadata(coord.getLX(), coord.getLY(), coord.getLZ(), coord.getOrienetation(), coord.isMirrored());
     }
 
     public int getBlockMetadata(int x, int y, int z, Orientation o, boolean isMirrored)
@@ -259,6 +259,21 @@ public class StructurePattern
                 size.getRight());
     }
 
+    public int getSizeX()
+    {
+        return size.getLeft();
+    }
+
+    public int getSizeY()
+    {
+        return size.getMiddle();
+    }
+
+    public int getSizeZ()
+    {
+        return size.getRight();
+    }
+
     public Vec3 getHalfSize()
     {
         final Vec3 size = getSize();
@@ -284,4 +299,11 @@ public class StructurePattern
                 .add("blockSideAccess", blockSideAccess)
                 .toString();
     }
+
+    //=========================
+    //DIRECT BLOCK RELATED CODE
+    //=========================
+    //todo dbrc
+    //lol none
+
 }

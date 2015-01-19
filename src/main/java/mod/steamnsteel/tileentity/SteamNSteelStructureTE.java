@@ -149,7 +149,9 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         setBlockID(sBlock.getLX(),sBlock.getLY(),sBlock.getLZ());
 
-        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS) if (sBlock.hasGlobalNeighbour(d)) setNeighbour(d);
+        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
+            if (sBlock.hasGlobalNeighbour(d))
+                setNeighbour(d);
     }
 
     public void setBlockPattern(String name)
@@ -175,19 +177,28 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
                 SteamNSteelStructureBlock.isMirrored(meta));
     }
 
-    public Vec3 getMasterLocation()
+    public Vec3 getMasterLocation(Orientation o, boolean isMirrored)
     {//todo world rotation....
-        return Vec3.createVectorHelper(
-                xCoord - blockID.getLeft(),
-                yCoord - blockID.getMiddle(),
-                zCoord - blockID.getRight()
-        );
-    }
 
-    public Block getMasterBlock()
-    {
-        final Vec3 mLoc = getMasterLocation();
-        return getWorldObj().getBlock((int) mLoc.xCoord,(int) mLoc.yCoord, (int) mLoc.zCoord);
+        Vec3 loc = Vec3.createVectorHelper(blockID.getLeft(),blockID.getMiddle(),blockID.getRight());
+
+        if (isMirrored)
+        {
+            final int z = getPattern().getSizeZ();
+            final int hlfZ = z/2;
+            loc.zCoord -= hlfZ;
+            loc.zCoord *= -1;
+            loc.zCoord += hlfZ;
+            if (z % 2 == 0) loc.zCoord -= 1;
+        }
+
+        loc.rotateAroundY((float) o.getRotationValue());
+
+        loc.xCoord = xCoord - loc.xCoord;
+        loc.yCoord = yCoord - loc.yCoord;
+        loc.zCoord = zCoord - loc.zCoord;
+
+        return loc;
     }
 
     private void setBlockID(int x, int y, int z)

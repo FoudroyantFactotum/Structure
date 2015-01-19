@@ -16,12 +16,7 @@
 package mod.steamnsteel.utility.structure;
 
 
-import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
-import net.minecraft.util.Vec3;
-
 public interface IStructurePatternBlock
 {
     StructurePattern getPattern();
-
-    Vec3 getMasterBlockLocation(SteamNSteelStructureTE te);
 }

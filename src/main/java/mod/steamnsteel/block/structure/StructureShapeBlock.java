@@ -20,8 +20,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import mod.steamnsteel.tileentity.StructureShapeTE;
+import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.structure.StructurePattern;
-import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -53,36 +53,30 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
     public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z)
     {
         final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
+        final int meta = world.getBlockMetadata(x,y,z);
+        final Orientation o = Orientation.getdecodedOrientation(meta);
+        final boolean isMirrored = isMirrored(meta);
 
-        final Vec3 loc = te.getMasterLocation();
-        final Block block = te.getMasterBlock();
+        final Vec3 ml = te.getMasterLocation(o, isMirrored);
 
-        if (block instanceof SteamNSteelStructureBlock && !(block instanceof StructureShapeBlock))
-            return block.getSelectedBoundingBoxFromPool(world, (int)loc.xCoord,(int)loc.yCoord,(int)loc.zCoord);
+        if (ml != null)
+            return getSelectedBoundingBoxFromPoolUsingPattern(world, (int) ml.xCoord, (int) ml.yCoord, (int) ml.zCoord, te.getPattern());
 
-        return AxisAlignedBB.getBoundingBox(x,y,z,x+1,y+1,z+1);
-    }
-
-    @Override
-    public Vec3 getMasterBlockLocation(SteamNSteelStructureTE te)
-    {
-        return te.getMasterLocation();
-    }
-
-    @Override
-    protected SteamNSteelStructureBlock getMasterBlock(SteamNSteelStructureTE te)
-    {
-        return (SteamNSteelStructureBlock) te.getMasterBlock();
+        return AxisAlignedBB.getBoundingBox(x,y,z,x+1,y+1,z+1); //TODO null equivelent;
     }
 
     @Override
     public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding)
     {
         final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
-        final Vec3 ml = te.getMasterLocation();
-        final Block block = te.getMasterBlock();
 
-        block.addCollisionBoxesToList(world, (int)ml.xCoord, (int)ml.yCoord, (int)ml.zCoord, aabb, boundingBoxList, entityColliding);
+        final int meta = world.getBlockMetadata(x,y,z);
+        final Orientation o = Orientation.getdecodedOrientation(meta);
+        final boolean isMirrored = isMirrored(meta);
+        final Vec3 mLoc = te.getMasterLocation(o,isMirrored);
+
+        if (mLoc != null)
+                addCollisionBoxesToListUsingPattern(world, (int) mLoc.xCoord, (int) mLoc.yCoord, (int) mLoc.zCoord, aabb, boundingBoxList, entityColliding, te.getPattern());
     }
 
     @Override
