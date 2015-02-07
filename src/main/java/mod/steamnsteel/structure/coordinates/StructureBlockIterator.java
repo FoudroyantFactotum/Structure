@@ -13,8 +13,9 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.utility.structure;
+package mod.steamnsteel.structure.coordinates;
 
+import mod.steamnsteel.structure.registry.StructurePattern;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.util.Vec3;
@@ -82,7 +83,7 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
     @Override
     public boolean hasNext()
     {
-        return 0 <= block.yCoord;
+        return block.yCoord >= 0;
     }
 
     @Override
@@ -100,20 +101,23 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         final Vec3 locPos = Vec3.createVectorHelper(block.xCoord,block.yCoord, mirrored ? maxSize.getRight()-block.zCoord : block.zCoord);
 
         --block.xCoord;
-        if (block.xCoord < minSize.getLeft()) {
+        if (block.xCoord < minSize.getLeft())
+        {
             block.xCoord = maxSize.getLeft();
             block.zCoord += mirrored ?1:-1;
         }
 
-        if (block.zCoord < minSize.getRight() || block.zCoord > maxSize.getRight()){
+        if (block.zCoord < minSize.getRight() || block.zCoord > maxSize.getRight())
+        {
             block.zCoord = mirrored ? minSize.getRight() : maxSize.getRight();
             --block.yCoord;
         }
 
-        return new StructureBlockCoord(WorldBlockCoord.of(
-                (int)(xF + worldLocation.xCoord),
-                (int)(yF + worldLocation.yCoord),
-                (int)(zF + worldLocation.zCoord)),
+        return new StructureBlockCoord(
+                WorldBlockCoord.of(
+                    (int)(xF + worldLocation.xCoord),
+                    (int)(yF + worldLocation.yCoord),
+                    (int)(zF + worldLocation.zCoord)),
                 locPos,
                 orienetation,
                 patternSize,

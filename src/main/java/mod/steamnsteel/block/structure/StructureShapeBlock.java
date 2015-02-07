@@ -18,11 +18,11 @@ package mod.steamnsteel.block.structure;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.registry.StructurePattern;
 import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import mod.steamnsteel.tileentity.StructureShapeTE;
-import mod.steamnsteel.utility.Orientation;
-import mod.steamnsteel.utility.structure.StructurePattern;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.item.ItemStack;
@@ -33,7 +33,7 @@ import net.minecraft.world.World;
 import java.util.List;
 
 public class StructureShapeBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
-{
+{//todo donot extend structureBlock.
     public static final String NAME = "structureShape";
 
     public StructureShapeBlock()
@@ -53,11 +53,7 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
     public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z)
     {
         final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
-        final int meta = world.getBlockMetadata(x,y,z);
-        final Orientation o = Orientation.getdecodedOrientation(meta);
-        final boolean isMirrored = isMirrored(meta);
-
-        final Vec3 ml = te.getMasterLocation(o, isMirrored);
+        final Vec3 ml = te.getMasterLocation();
 
         if (ml != null)
             return getSelectedBoundingBoxFromPoolUsingPattern(world, (int) ml.xCoord, (int) ml.yCoord, (int) ml.zCoord, te.getPattern());
@@ -69,11 +65,7 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
     public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding)
     {
         final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
-
-        final int meta = world.getBlockMetadata(x,y,z);
-        final Orientation o = Orientation.getdecodedOrientation(meta);
-        final boolean isMirrored = isMirrored(meta);
-        final Vec3 mLoc = te.getMasterLocation(o,isMirrored);
+        final Vec3 mLoc = te.getMasterLocation();
 
         if (mLoc != null)
                 addCollisionBoxesToListUsingPattern(world, (int) mLoc.xCoord, (int) mLoc.yCoord, (int) mLoc.zCoord, aabb, boundingBoxList, entityColliding, te.getPattern());
@@ -89,5 +81,31 @@ public class StructureShapeBlock extends SteamNSteelStructureBlock implements IT
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack itemStack)
     {
         //noop
+    }
+
+    @Override
+    protected void spawnBreakParticle(World world, SteamNSteelStructureTE te, float x, float y, float z, float sx, float sy, float sz)
+    {
+        //noop
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer)
+    {
+        final SteamNSteelStructureTE te = (SteamNSteelStructureTE)world.getTileEntity(x,y,z);
+
+        if (te != null)
+        {
+            final SteamNSteelStructureBlock block = te.getMasterBlockInstance();
+
+            if (block != null)
+            {
+                final Vec3 mloc = te.getMasterLocation(meta);
+                return block.addDestroyEffects(world, (int)mloc.xCoord, (int)mloc.yCoord, (int)mloc.zCoord, meta, effectRenderer);
+            }
+        }
+
+        return true; //No Destroy Effects
     }
 }

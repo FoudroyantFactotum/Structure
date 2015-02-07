@@ -13,135 +13,71 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.utility.structure;
+package mod.steamnsteel.structure.registry;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import cpw.mods.fml.common.registry.GameRegistry;
-import mod.steamnsteel.TheMod;
-import mod.steamnsteel.library.ModBlock;
+import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
+import mod.steamnsteel.structure.registry.MetaCorrecter.SMCStoneStairs;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.log.Logger;
-import mod.steamnsteel.utility.structure.MetaCorrecter.SMCStoneStairs;
 import net.minecraft.block.Block;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.IResource;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
 
 import static com.google.common.base.Preconditions.*;
 
 public class StructurePattern
 {
-    private static String STRUCTURE_LOCATION = "structure/";
-    private static String STRUCTURE_FILE_EXTENSION = ".structure.json";
-
     public static final StructurePattern MISSING_STRUCTURE = new StructurePattern();
-
-    /*TODO Immutable?*/private static final Map<Block,IStructurePatternMetaCorrecter> META_CORRECTOR = new HashMap<Block, IStructurePatternMetaCorrecter>(11);
-    private static final ImmutableMap<Integer, StructurePattern> PATTERNS;
+    private static final ImmutableMap<Block,IStructurePatternMetaCorrecter> META_CORRECTOR;
 
     static {
+        final Builder<Block, IStructurePatternMetaCorrecter> builder = ImmutableMap.builder();
         final IStructurePatternMetaCorrecter stairs = new SMCStoneStairs();
 
-        registerMetaCorrector("minecraft:stone_stairs",stairs);
-        registerMetaCorrector("minecraft:oak_stairs",stairs);
-        registerMetaCorrector("minecraft:brick_stairs",stairs);
-        registerMetaCorrector("minecraft:stone_brick_stairs",stairs);
-        registerMetaCorrector("minecraft:nether_brick_stairs",stairs);
-        registerMetaCorrector("minecraft:sandstone_stairs",stairs);
-        registerMetaCorrector("minecraft:birch_stairs",stairs);
-        registerMetaCorrector("minecraft:jungle_stairs",stairs);
-        registerMetaCorrector("minecraft:quartz_stairs",stairs);
-        registerMetaCorrector("minecraft:acacia_stairs",stairs);
-        registerMetaCorrector("minecraft:dark_oak_stairs",stairs);
+        registerMetaCorrector(builder, "minecraft:stone_stairs"          , stairs);
+        registerMetaCorrector(builder, "minecraft:oak_stairs"            , stairs);
+        registerMetaCorrector(builder, "minecraft:brick_stairs"          , stairs);
+        registerMetaCorrector(builder, "minecraft:stone_brick_stairs"    , stairs);
+        registerMetaCorrector(builder, "minecraft:nether_brick_stairs"   , stairs);
+        registerMetaCorrector(builder, "minecraft:sandstone_stairs"      , stairs);
+        registerMetaCorrector(builder, "minecraft:birch_stairs"          , stairs);
+        registerMetaCorrector(builder, "minecraft:jungle_stairs"         , stairs);
+        registerMetaCorrector(builder, "minecraft:quartz_stairs"         , stairs);
+        registerMetaCorrector(builder, "minecraft:acacia_stairs"         , stairs);
+        registerMetaCorrector(builder, "minecraft:dark_oak_stairs"       , stairs);
 
-
-        Builder builder = ImmutableMap.builder();
-
-        registerPatterns(builder, ModBlock.ballMill);
-        registerPatterns(builder, ModBlock.blastFurnace);
-        registerPatterns(builder, ModBlock.boiler);
-
-        PATTERNS = builder.build();
+        META_CORRECTOR = builder.build();
     }
 
-    private static void registerMetaCorrector(String blockName, IStructurePatternMetaCorrecter metaCorrecter)
+    private static void registerMetaCorrector(Builder<Block, IStructurePatternMetaCorrecter> builder, String blockName, IStructurePatternMetaCorrecter metaCorrecter)
     {
         final int blockDividePoint = blockName.indexOf(':');
 
         Block block = GameRegistry.findBlock(
                 blockName.substring(0, blockDividePoint),
-                blockName.substring(blockDividePoint + 1,blockName.length()));
+                blockName.substring(blockDividePoint + 1, blockName.length())
+        );
 
-        checkNotNull(block, blockName + " : Is missing from game Registry");
+        checkNotNull(block,         blockName + " : Is missing from game Registry");
         checkNotNull(metaCorrecter, blockName + " : metaCorrecter class is null");
 
-        META_CORRECTOR.put(block, metaCorrecter);
+        builder.put(block, metaCorrecter);
     }
-
-    private static void registerPatterns(Builder b,Block block)
-    {
-        final ResourceLocation jsonStructure = getResourceLocation(getStructurePath(getBlockName(block.getUnlocalizedName())));
-        StructurePattern blockPattern = null;
-        try
-        {
-            final IResource res = Minecraft.getMinecraft().getResourceManager().getResource(jsonStructure);
-            final InputStreamReader inpStream = new InputStreamReader(res.getInputStream());
-            final BufferedReader buffRead = new BufferedReader(inpStream);
-
-            blockPattern = JSONStructurePattern.gson.fromJson(buffRead, StructurePattern.class);
-
-            buffRead.close();
-            inpStream.close();
-        } catch (IOException e)
-        {
-            Logger.info("file does not exist : " + e.getMessage());
-        }
-
-        b.put(block.getUnlocalizedName().hashCode(), blockPattern == null?MISSING_STRUCTURE:blockPattern);
-    }
-
-    public static StructurePattern getPattern(int hash)
-    {
-        final StructurePattern pattern = PATTERNS.get(hash);
-        return pattern == null ? MISSING_STRUCTURE : pattern;
-    }
-
-    private static String getBlockName(String unlocName)
-    {
-        return unlocName.substring(unlocName.indexOf(':')+1);
-    }
-
-    private static ResourceLocation getResourceLocation(String path)
-    {
-        return new ResourceLocation(TheMod.MOD_ID.toLowerCase(), path);
-    }
-
-    private static String getStructurePath(String name)
-    {
-        return STRUCTURE_LOCATION + name + STRUCTURE_FILE_EXTENSION;
-    }
-
 
     private final ImmutableTriple<Integer,Integer,Integer> size;
     private final ImmutableList<ImmutableList<Block>> blocks;
     private final ImmutableList<ImmutableList<Byte>> metadata;
     private final float[][] collisionBoxes;
-    private final ImmutableListMultimap<Integer, StructureBlockSideAccess> blockSideAccess;
+    private final ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> blockSideAccess;
 
-    public StructurePattern()
+    private StructurePattern()
     {
         this(1,1,1);
     }
@@ -165,7 +101,7 @@ public class StructurePattern
     public StructurePattern(ImmutableTriple<Integer,Integer,Integer> size,
             ImmutableList<ImmutableList<Block>> blocks,
             ImmutableList<ImmutableList<Byte>> metadata,
-            ImmutableListMultimap<Integer, StructureBlockSideAccess> blockSideAccess,
+            ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> blockSideAccess,
             float[][] collisionBoxes)
     {
         this.size = size;
@@ -177,7 +113,7 @@ public class StructurePattern
 
     public Block getBlock(StructureBlockCoord coord)
     {
-        return getBlock(coord.getLX(), coord.getLY(), coord.getLZ()-1);
+        return getBlock(coord.getLX(), coord.getLY(), coord.getLZ());
     }
 
     public Block getBlock(Vec3 v)
@@ -228,9 +164,12 @@ public class StructurePattern
             final int hash = getPosHash(x, y, z);
             final ImmutableList<StructureBlockSideAccess> sideAccessList = blockSideAccess.get(hash);
 
-            for (StructureBlockSideAccess sideAccess: sideAccessList)
-                if (sideAccess.hasSide(direction))
-                    return sideAccess;
+            if (sideAccessList != null)
+            {
+                for (StructureBlockSideAccess sideAccess: sideAccessList)
+                    if (sideAccess.hasSide(direction))
+                        return sideAccess;
+            }
         }
 
         return StructureBlockSideAccess.MISSING_SIDE_ACCESS;
@@ -238,7 +177,7 @@ public class StructurePattern
 
     public static int getPosHash(int x, int y, int z)
     {
-        return (byte) x << 16 + (byte) y << 8 + (byte) z;
+        return (((byte) x) << 16) + (((byte) y) << 8) + ((byte) z);
     }
 
     private int getLayerCount(int y, int z)
@@ -300,10 +239,12 @@ public class StructurePattern
                 .toString();
     }
 
-    //=========================
-    //DIRECT BLOCK RELATED CODE
-    //=========================
-    //todo dbrc
-    //lol none
+    @SafeVarargs
+    protected static <E> void print(E... a)
+    {
+        final StringBuilder s = new StringBuilder(a.length);
+        for (final E b:a) s.append(b);
 
+        Logger.info(s.toString());
+    }
 }

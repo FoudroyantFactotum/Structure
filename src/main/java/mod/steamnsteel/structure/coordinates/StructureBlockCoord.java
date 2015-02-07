@@ -13,9 +13,10 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.utility.structure;
+package mod.steamnsteel.structure.coordinates;
 
 import com.google.common.base.Objects;
+import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
@@ -81,6 +82,11 @@ public class StructureBlockCoord
     public void setMeta(World world, int meta, int flag)
     {
         world.setBlockMetadataWithNotify(worldCoord.getX(),worldCoord.getY(),worldCoord.getZ(), meta, flag);
+    }
+
+    public void updateNeighbors(World world)
+    {
+        world.notifyBlocksOfNeighborChange(worldCoord.getX(),worldCoord.getY(),worldCoord.getZ(), ModBlock.structureShape);
     }
 
     public boolean isAirBlock(World world)
@@ -156,6 +162,15 @@ public class StructureBlockCoord
             default:
                 return false;
         }
+    }
+
+    public boolean isEdge()
+    {
+        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
+            if (hasGlobalNeighbour(d))
+                return true;
+
+        return false;
     }
 
     public boolean hasGlobalNeighbour(ForgeDirection d)

@@ -15,6 +15,7 @@
  */
 package mod.steamnsteel.tileentity;
 
+import mod.steamnsteel.inventory.Inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
@@ -24,6 +25,18 @@ public class BoilerTE extends SteamNSteelStructureTE
     public int getSizeInventory()
     {
         return 0;
+    }
+
+    @Override
+    protected boolean hasSharedInventory()
+    {
+        return false;
+    }
+
+    @Override
+    protected Inventory getSharedInventory()
+    {
+        return null;
     }
 
     @Override

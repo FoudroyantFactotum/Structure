@@ -32,8 +32,9 @@ import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.block.structure.BlastFurnaceBlock;
 import mod.steamnsteel.block.structure.BoilerBlock;
 import mod.steamnsteel.block.structure.StructureShapeBlock;
+import mod.steamnsteel.structure.StructureBlockItem;
+import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.*;
-import mod.steamnsteel.utility.structure.StructureBlockItem;
 import net.minecraft.block.Block;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -91,12 +92,11 @@ public final class ModBlock
     public static void init()
     {
         GameRegistry.registerBlock(chestPlotonium, PlotoniumChest.NAME);
-
-        GameRegistry.registerBlock(ballMill, StructureBlockItem.class, BallMillBlock.NAME);
-        GameRegistry.registerBlock(blastFurnace, StructureBlockItem.class, BlastFurnaceBlock.NAME);
-        GameRegistry.registerBlock(boiler, StructureBlockItem.class, BoilerBlock.NAME);
         GameRegistry.registerBlock(cupola, CupolaBlock.NAME);
         GameRegistry.registerBlock(structureShape, StructureShapeBlock.NAME);
+        registerStructures(ballMill, BallMillBlock.NAME);
+        registerStructures(blastFurnace, BlastFurnaceBlock.NAME);
+        registerStructures(boiler, BoilerBlock.NAME);
 
         registerBlockAndOre(oreCopper, CopperOre.NAME);
         registerBlockAndOre(oreNiter, NiterOre.NAME);
@@ -121,5 +121,11 @@ public final class ModBlock
     {
         GameRegistry.registerBlock(block, name);
         OreDictionary.registerOre(name, block);
+    }
+
+    private static void registerStructures(SteamNSteelStructureBlock structure, String name)
+    {
+        GameRegistry.registerBlock(structure, StructureBlockItem.class, name);
+        StructureRegistry.registerBlockForDataLoad(structure);
     }
 }

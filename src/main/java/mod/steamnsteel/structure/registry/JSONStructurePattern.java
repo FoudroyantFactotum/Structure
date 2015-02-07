@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.utility.structure;
+package mod.steamnsteel.structure.registry;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
@@ -218,13 +218,13 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
         if (jsonPatternMetaList != null)
         {
             final JsonArray patternMeta = jsonPatternMetaList.getAsJsonArray();
-            final Builder builder = ImmutableList.builder();
+            final Builder<ImmutableList<Byte>> builder = ImmutableList.builder();
 
             for(JsonElement jsonMetaY:patternMeta)
             {
                 for(JsonElement jsonMetaZ:jsonMetaY.getAsJsonArray())
                 {
-                    final Builder builderInner = ImmutableList.builder();
+                    final Builder<Byte> builderInner = ImmutableList.builder();
                     final String line = jsonMetaZ.getAsString();
 
                     for (char c : line.toCharArray())
@@ -240,17 +240,17 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
         return null;
     }
 
-    private static ImmutableListMultimap<Integer, StructureBlockSideAccess> deserializeSideInput(JsonObject obj)
-    {
+    private static ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> deserializeSideInput(JsonObject obj)
+    {//todo redo. There are better ways of doing this.
         final JsonElement jsonBlockSideInput = obj.get(BLOCK_SIDE_INPUT);
         final JsonElement jsonBlockSideInputDefinition = obj.get(BLOCK_SIDE_INPUT_DEFINITION);
 
         if (jsonBlockSideInput != null && jsonBlockSideInputDefinition != null)
         {
-            final ImmutableMap<Character, StructureBlockSideAccess> sideInputDefinition =
+            final ImmutableListMultimap<Character, StructureBlockSideAccess> sideInputDefinition =
                     deserializeSideInputDefinition(jsonBlockSideInputDefinition);
 
-            final ImmutableListMultimap.Builder<Integer, StructureBlockSideAccess> builder = ImmutableListMultimap.builder();
+            final ImmutableMap.Builder<Integer, ImmutableList<StructureBlockSideAccess>> builder = ImmutableMap.builder();
             final JsonArray jsonBlockSideArrayY = jsonBlockSideInput.getAsJsonArray();
 
             for (int locY=0; locY<jsonBlockSideArrayY.size(); ++locY)
@@ -267,11 +267,12 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
 
                         if (c != ' ')
                         {
-                            StructureBlockSideAccess sideAccess = sideInputDefinition.get(c);
+                            ImmutableList<StructureBlockSideAccess> sideAccess = sideInputDefinition.get(c);
 
                             checkNotNull(sideAccess, "sideAccess char not defined -" + c + '-');
 
                             builder.put(StructurePattern.getPosHash(locX, locY, locZ), sideAccess);
+
                         }
                     }
                 }
@@ -283,11 +284,11 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
         return null;
     }
 
-    private static ImmutableMap<Character, StructureBlockSideAccess> deserializeSideInputDefinition(JsonElement jsonBlockSideInputDefinition)
+    private static ImmutableListMultimap<Character, StructureBlockSideAccess> deserializeSideInputDefinition(JsonElement jsonBlockSideInputDefinition)
     {
         final JsonArray blockSideInputDefinition = jsonBlockSideInputDefinition.getAsJsonArray();
-        final ImmutableMap.Builder<Character, StructureBlockSideAccess> builderSideInputDef
-                = ImmutableMap.builder();
+        final ImmutableListMultimap.Builder<Character, StructureBlockSideAccess> builderSideInputDef
+                = ImmutableListMultimap.builder();
 
         for(JsonElement jsonElementSideDef:blockSideInputDefinition)
         {
@@ -315,13 +316,15 @@ public class JSONStructurePattern implements JsonSerializer<StructurePattern>, J
             final boolean canInsertItem = stringCanItem.toUpperCase().indexOf('I') != -1;
             final boolean canExtractItem = stringCanItem.toUpperCase().indexOf('E') != -1;
 
+
             builderSideInputDef.put(
                     sideChar,
                     new StructureBlockSideAccess(
                             sideFlags,
                             accessibleSlots,
                             canInsertItem,
-                            canExtractItem));
+                            canExtractItem)
+            );
         }
 
         return builderSideInputDef.build();

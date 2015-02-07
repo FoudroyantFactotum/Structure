@@ -16,45 +16,84 @@
 package mod.steamnsteel.tileentity;
 
 
+import com.google.common.base.Objects;
+import mod.steamnsteel.block.structure.BallMillBlock;
+import mod.steamnsteel.inventory.Inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.Vec3;
 
 public class BallMillTE extends SteamNSteelStructureTE
 {//TODO complete class
+    public static final int INPUT = 0;
+    public static final int INPUT_FUEL = 1;
+    public static final int OUTPUT_TOP = 2;
+    public static final int OUTPUT_BOTTOM = 3;
+    public static final int INVENTORY_SIZE = 4;
+
+    private final Inventory inventory = new Inventory(INVENTORY_SIZE);
+
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
+        inventory.readFromNBT(nbt);
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+        inventory.writeToNBT(nbt);
+    }
+
+    @Override
+    protected boolean hasSharedInventory()
+    {
+        return true;
+    }
+
+    @Override
+    protected Inventory getSharedInventory()
+    {
+        return inventory;
+    }
+
     @Override
     public int getSizeInventory()
     {
-        return 0;
+        return inventory.getSize();
     }
 
     @Override
-    public ItemStack getStackInSlot(int p_70301_1_)
+    public ItemStack getStackInSlot(int slotIndex)
     {
-        return null;
+        return inventory.getStack(slotIndex);
     }
 
     @Override
-    public ItemStack decrStackSize(int p_70298_1_, int p_70298_2_)
+    public ItemStack decrStackSize(int slotIndex, int decrAmount)
     {
-        return null;
+        return inventory.decrStackSize(slotIndex, decrAmount);
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int p_70304_1_)
+    public ItemStack getStackInSlotOnClosing(int slotIndex)
     {
-        return null;
+        return inventory.getStackOnClosing(slotIndex);
     }
 
     @Override
-    public void setInventorySlotContents(int p_70299_1_, ItemStack p_70299_2_)
+    public void setInventorySlotContents(int slotIndex, ItemStack itemStack)
     {
-
+        inventory.setSlot(slotIndex, itemStack);
     }
+
 
     @Override
     public String getInventoryName()
     {
-        return null;
+        return containerName(BallMillBlock.NAME);
     }
 
     @Override
@@ -66,11 +105,11 @@ public class BallMillTE extends SteamNSteelStructureTE
     @Override
     public int getInventoryStackLimit()
     {
-        return 0;
+        return inventory.getStackSizeMax();
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer p_70300_1_)
+    public boolean isUseableByPlayer(EntityPlayer player)
     {
         return false;
     }
@@ -78,18 +117,27 @@ public class BallMillTE extends SteamNSteelStructureTE
     @Override
     public void openInventory()
     {
-
+        //no op
     }
 
     @Override
     public void closeInventory()
     {
-
+        //no op
     }
 
     @Override
-    public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_)
+    public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
     {
-        return false;
+        return slotIndex >= 0 && slotIndex < 4;
+    }
+
+    @Override
+    public String toString()
+    {
+        return Objects.toStringHelper(this)
+                .add("position", Vec3.createVectorHelper(xCoord, yCoord, zCoord))
+                .add("inventory", inventory)
+                .toString();
     }
 }

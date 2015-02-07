@@ -73,11 +73,23 @@
       "sides": "U",
       "accessibleSlots": [0],
       "can-Item": "I"
+    },
+    {
+      "char": "T",
+      "sides": "N",
+      "accessibleSlots": [0],
+      "can-Item": "I"
+    },
+    {
+      "char": "T",
+      "sides": "D",
+      "accessibleSlots": [0],
+      "can-Item": "E"
     }
   ],
   "blockSideInput": [
     [
-      "   ",
+      "T  ",
       "   ",
       "   "
     ],[

@@ -13,8 +13,10 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.utility.structure;
+package mod.steamnsteel.structure;
 
+import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
+import mod.steamnsteel.structure.registry.StructurePattern;
 import net.minecraft.block.Block;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -26,7 +28,7 @@ public interface IStructureTE
     Block getTransmutedBlock();
     int getTransmutedMeta();
 
-    void setBlockPattern(String name);
 
+    void setBlockPattern(String name);
     void configureBlock(StructureBlockCoord sBlock);
 }

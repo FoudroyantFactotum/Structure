@@ -13,10 +13,10 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.utility.structure.MetaCorrecter;
+package mod.steamnsteel.structure.registry.MetaCorrecter;
 
+import mod.steamnsteel.structure.registry.IStructurePatternMetaCorrecter;
 import mod.steamnsteel.utility.Orientation;
-import mod.steamnsteel.utility.structure.IStructurePatternMetaCorrecter;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class SMCStoneStairs implements IStructurePatternMetaCorrecter

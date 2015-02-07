@@ -13,10 +13,9 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.utility.structure;
+package mod.steamnsteel.structure.registry;
 
 import com.google.common.base.Objects;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public class StructureBlockSideAccess
@@ -46,7 +45,6 @@ public class StructureBlockSideAccess
     @SuppressWarnings("ReturnOfCollectionOrArrayField")
     public int[] getAccessibleSlotsFromSide()
     {
-        if (this != MISSING_SIDE_ACCESS) Logger.info("NOT MISSING_SIDE_ACCESS");
         return accessibleSlots;
     }
 
@@ -65,12 +63,27 @@ public class StructureBlockSideAccess
         return (inputSides & side.flag) != 0;
     }
 
+    private static String arrayToString(int[] l)
+    {
+        final StringBuilder b = new StringBuilder(l.length);
+
+        b.append('[');
+        for (int i: l) {
+            b.append(i);
+            b.append(',');
+        }
+        b.deleteCharAt(b.length()-1);
+        b.append(']');
+
+        return b.toString();
+    }
+
     @Override
     public String toString()
     {
         return Objects.toStringHelper(this)
-                .add("inputSides", inputSides)
-                .add("accessibleSlots", accessibleSlots)
+                .add("inputSides", ForgeDirection.getOrientation(inputSides))
+                .add("accessibleSlots", arrayToString(accessibleSlots))
                 .add("canInsert", canInsert)
                 .add("canExtract", canExtract)
                 .toString();

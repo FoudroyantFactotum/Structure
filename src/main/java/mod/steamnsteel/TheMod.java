@@ -32,6 +32,7 @@ import mod.steamnsteel.gui.GuiHandler;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.library.ModItem;
 import mod.steamnsteel.proxy.Proxies;
+import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.world.WorldGen;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -89,6 +90,7 @@ public class TheMod
         Proxies.render.init();
         WorldGen.init();
         ModBlock.registerTileEntities();
+        StructureRegistry.loadRegisteredPatterns();
     }
 
     @SuppressWarnings("UnusedParameters")

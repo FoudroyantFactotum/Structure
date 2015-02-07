@@ -15,52 +15,106 @@
  */
 package mod.steamnsteel.tileentity;
 
+import com.google.common.base.Optional;
+import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.inventory.Inventory;
+import mod.steamnsteel.utility.Orientation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.Vec3;
 
 public class StructureShapeTE extends SteamNSteelStructureTE
 {//todo fix :p
+    protected Optional<SteamNSteelStructureTE> masterTileEntity = Optional.absent();
+
     @Override
-    public void readFromNBT(NBTTagCompound nbt)
+    protected boolean hasSharedInventory()
     {
-        super.readFromNBT(nbt);
+        return false;
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    protected Inventory getSharedInventory()
     {
-        super.writeToNBT(nbt);
+        return null;
+    }
+
+    public void getMasterTE()
+    {
+        Vec3 mLoc;
+
+        if (!masterLocation.isPresent())
+        {
+            final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
+            final Orientation o = Orientation.getdecodedOrientation(meta);
+            final boolean isMirrored = SteamNSteelStructureBlock.isMirrored(meta);
+
+            mLoc = getMasterLocation(o, isMirrored);
+        } else
+            mLoc = masterLocation.get();
+
+        final TileEntity mTe = getWorldObj()
+                .getTileEntity((int) mLoc.xCoord, (int) mLoc.yCoord, (int) mLoc.zCoord);
+
+        masterTileEntity =  Optional.fromNullable(mTe instanceof SteamNSteelStructureTE? (SteamNSteelStructureTE) mTe: null);
+    }
+
+    private boolean hasMasterTEInventory()
+    {
+        if (masterTileEntity.isPresent())
+        {
+            if (masterTileEntity.get().isInvalid())
+                masterTileEntity = Optional.absent();
+            else
+                return masterTileEntity.get().hasSharedInventory();
+        } else
+            getMasterTE();
+
+        return false;
     }
 
     @Override
     public int getSizeInventory()
     {
+        if (hasMasterTEInventory())
+            return masterTileEntity.get().getSharedInventory().getSize();
+
         return 0;
     }
 
     @Override
-    public ItemStack getStackInSlot(int p_70301_1_)
+    public ItemStack getStackInSlot(int slotIndex)
     {
+        if (hasMasterTEInventory())
+            return masterTileEntity.get().getSharedInventory().getStack(slotIndex);
+
         return null;
     }
 
     @Override
-    public ItemStack decrStackSize(int p_70298_1_, int p_70298_2_)
+    public ItemStack decrStackSize(int slotIndex, int decrAmount)
     {
+        if (hasMasterTEInventory())
+            return masterTileEntity.get().getSharedInventory().decrStackSize(slotIndex, decrAmount);
+
         return null;
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int p_70304_1_)
+    public ItemStack getStackInSlotOnClosing(int slotIndex)
     {
+        if (hasMasterTEInventory())
+            return masterTileEntity.get().getSharedInventory().getStackOnClosing(slotIndex);
+
         return null;
     }
 
     @Override
-    public void setInventorySlotContents(int p_70299_1_, ItemStack p_70299_2_)
+    public void setInventorySlotContents(int slotIndex, ItemStack itemStack)
     {
-
+        if (hasMasterTEInventory())
+            masterTileEntity.get().getSharedInventory().setSlot(slotIndex, itemStack);
     }
 
     @Override
@@ -78,11 +132,14 @@ public class StructureShapeTE extends SteamNSteelStructureTE
     @Override
     public int getInventoryStackLimit()
     {
+        if (hasMasterTEInventory())
+            return masterTileEntity.get().getSharedInventory().getStackSizeMax();
+
         return 0;
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer p_70300_1_)
+    public boolean isUseableByPlayer(EntityPlayer player)
     {
         return false;
     }
@@ -100,8 +157,8 @@ public class StructureShapeTE extends SteamNSteelStructureTE
     }
 
     @Override
-    public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_)
+    public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
     {
-        return false;
+        return hasMasterTEInventory() && masterTileEntity.get().isItemValidForSlot(slotIndex, itemStack);
     }
 }

@@ -15,11 +15,14 @@
  */
 package mod.steamnsteel.tileentity;
 
+import com.google.common.base.Objects;
 import mod.steamnsteel.block.structure.BlastFurnaceBlock;
 import mod.steamnsteel.inventory.Inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.util.Vec3;
 
 public class BlastFurnaceTE extends SteamNSteelStructureTE
 {//TODO complete class
@@ -31,6 +34,31 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     public static final int INVENTORY_SIZE = 4;
 
     private final Inventory inventory = new Inventory(INVENTORY_SIZE);
+
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
+        inventory.readFromNBT(nbt);
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+        inventory.writeToNBT(nbt);
+    }
+
+    @Override
+    protected boolean hasSharedInventory()
+    {
+        return true;
+    }
+
+    @Override
+    protected Inventory getSharedInventory()
+    {
+        return inventory;
+    }
 
     @Override
     public int getSizeInventory()
@@ -105,5 +133,14 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
         return slotIndex != OUTPUT_TOP &&
                 slotIndex != OUTPUT_BOTTOM &&
                 (slotIndex != INPUT_FUEL || TileEntityFurnace.isItemFuel(itemStack));
+    }
+
+    @Override
+    public String toString()
+    {
+        return Objects.toStringHelper(this)
+                .add("position", Vec3.createVectorHelper(xCoord,yCoord,zCoord))
+                .add("inventory", inventory)
+                .toString();
     }
 }

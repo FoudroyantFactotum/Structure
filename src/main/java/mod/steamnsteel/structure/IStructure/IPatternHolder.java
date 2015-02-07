@@ -13,10 +13,11 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.utility.structure;
+package mod.steamnsteel.structure.IStructure;
 
+import mod.steamnsteel.structure.registry.StructurePattern;
 
-public interface IStructurePatternBlock
+public interface IPatternHolder
 {
     StructurePattern getPattern();
 }
