@@ -262,6 +262,11 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
                   (((byte) z) << blockIDShiftZ);
     }
 
+    public int getBlockID()
+    {
+        return blockID;
+    }
+
     private byte getBlockIDX()
     {
         return (byte)(blockID >> blockIDShiftX);

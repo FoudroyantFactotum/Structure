@@ -59,7 +59,7 @@ public final class ModBlock
     public static final SteamNSteelStructureBlock ballMill = new BallMillBlock();
     public static final SteamNSteelStructureBlock blastFurnace = new BlastFurnaceBlock();
     public static final SteamNSteelStructureBlock boiler = new BoilerBlock();
-    public static final SteamNSteelStructureBlock structureShape = new StructureShapeBlock();
+    public static final SteamNSteelBlock structureShape = new StructureShapeBlock();
 
     public static final SteamNSteelBlock chestPlotonium = new PlotoniumChest();
     public static final SteamNSteelBlock cupola = new CupolaBlock();

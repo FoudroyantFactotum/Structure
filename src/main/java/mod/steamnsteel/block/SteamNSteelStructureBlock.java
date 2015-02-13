@@ -17,15 +17,16 @@ package mod.steamnsteel.block;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import mod.steamnsteel.block.structure.StructureShapeBlock;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.structure.IStructure.IPatternHolder;
+import mod.steamnsteel.structure.IStructure.IStructureAspects;
 import mod.steamnsteel.structure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
 import mod.steamnsteel.structure.coordinates.StructureBlockIterator;
 import mod.steamnsteel.structure.registry.StructurePattern;
 import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.Orientation;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.Entity;
@@ -38,18 +39,19 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+
 import java.util.List;
 import java.util.Random;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
-public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock implements IPatternHolder
+public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock implements IPatternHolder, IStructureAspects
 {
     public static final int flagMirrored = 1 << 2;
     public static final int flagInvalidBreak = 1 << 3;
 
-    private StructurePattern structurePattern;
+    private StructurePattern structurePattern = null;
 
     @Override
     public StructurePattern getPattern()
@@ -91,9 +93,18 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             ssBlock.setBlockPattern(getUnlocalizedName());
             ssBlock.configureBlock(block);
         }
+    }
 
-        //now update. required blocks
-        itr.cleanIterator();
+    @Override
+    public void onPostBlockPlaced(World world, int x, int y, int z, int meta)
+    {
+        final StructureBlockIterator itr =
+                new StructureBlockIterator(
+                        getPattern(),
+                        Vec3.createVectorHelper(x, y, z),
+                        Orientation.getdecodedOrientation(meta),
+                        isMirrored(meta)
+                );
 
         while (itr.hasNext())
         {
@@ -103,34 +114,55 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 block.updateNeighbors(world);
         }
 
+        super.onPostBlockPlaced(world, x, y, z, meta);
     }
 
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
     {
         super.onNeighborBlockChange(world, x, y, z, block);
+        onSharedNeighbourBlockChange(world, x, y, z, block);
+    }
+
+    @Override
+    public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+    {
+        if ((flagInvalidBreak & meta) != 0) return;
+
         final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
+
+        if (te != null)
+            breakStructure(world, Vec3.createVectorHelper(x, y, z), getPattern(), Orientation.getdecodedOrientation(meta), isMirrored(meta));
+
+        super.breakBlock(world, x, y, z, block, meta);
+    }
+
+    @Override
+    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding)
+    {//TODO fix lack of extendability
         final int meta = world.getBlockMetadata(x,y,z);
 
-        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
-        {
-            if (te.hasNeighbour(d))
-            {
-                final int nx = x + d.offsetX;
-                final int ny = y + d.offsetY;
-                final int nz = z + d.offsetZ;
+        addCollisionBoxesToListUsingPattern(world, x, y, z, aabb, boundingBoxList, entityColliding, getPattern(),
+                Orientation.getdecodedOrientation(meta), isMirrored(meta));
+    }
 
-                final Block nBlock = world.getBlock(nx,ny,nz);
-                final int nMeta = world.getBlockMetadata(nx, ny, nz);
+    @Override
+    public int quantityDropped(Random rnd)
+    {
+        return 0;
+    }
 
-                if (meta != nMeta && !(nBlock instanceof SteamNSteelStructureBlock) )
-                {
-                    print(world,"onNeighborBlockChange: Has Changed: ", Vec3.createVectorHelper(x,y,z), " because of ", Vec3.createVectorHelper(nx,ny,nz));
-                    world.setBlockMetadataWithNotify(x,y,z,flagInvalidBreak,0x2);
-                    world.setBlock(x, y, z, te.getTransmutedBlock(),te.getTransmutedMeta(),0x3);
-                }
-            }
-        }
+    @Override
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float sx, float sy, float sz)
+    {
+        if (!world.isRemote) print("master");
+        return onStructureBlockActivated(world,x,y,z,player,meta,sx,sy,sz,0x0,x,y,z);
+    }
+
+    @Override
+    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float sx, float sy, float sz, int sbID, int sbx, int sby, int sbz) {
+        if (!world.isRemote) print("onStructureBlockActivated: ", Vec3.createVectorHelper(x,y,z), " : ", sbID, " : ", Vec3.createVectorHelper(sbx, sby, sbz));
+        return false;
     }
 
     @Override
@@ -143,17 +175,16 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer)
-    {//todo no need to get te for pattern once the "extended" issue is fixed.
+    {
         final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
         final Orientation o = Orientation.getdecodedOrientation(meta);
         final boolean isMirrored = isMirrored(meta);
-        final Vec3 mLoc = te.getMasterLocation(o,isMirrored);
 
         final float sAjt = 0.05f;
 
         final StructureBlockIterator itr = new StructureBlockIterator(
-                te.getPattern(),
-                mLoc,
+                getPattern(),
+                Vec3.createVectorHelper(x,y,z),
                 o,
                 isMirrored
         );
@@ -167,9 +198,10 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             float zSpeed = 0.0f;
             int count = 0;
 
-            for(ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
+            for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
             {
-                if (!coord.hasGlobalNeighbour(d)) {
+                if (!coord.hasGlobalNeighbour(d))
+                {
                     xSpeed += d.offsetX;
                     ySpeed += d.offsetY;
                     zSpeed += d.offsetZ;
@@ -178,7 +210,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
             if (++count > 5) continue;
 
-            spawnBreakParticle(world, te, coord.getX() + 0.5f, coord.getY() + 0.5f, coord.getZ() + 0.5f, xSpeed*sAjt, ySpeed*sAjt, zSpeed*sAjt);
+            spawnBreakParticle(world, te, coord.getX() + 0.5f, coord.getY() + 0.5f, coord.getZ() + 0.5f, xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
         }
 
         return true; //No Destroy Effects
@@ -198,47 +230,64 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z)
     {
-        return getSelectedBoundingBoxFromPoolUsingPattern(world, x, y, z, getPattern());
+        return getBoundingBoxUsingPattern(world, x, y, z, getPattern(), Orientation.getdecodedOrientation(world.getBlockMetadata(x, y, z)));
     }
 
-    public static AxisAlignedBB getSelectedBoundingBoxFromPoolUsingPattern(World world, int x, int y, int z, StructurePattern sp)
-    {//todo make smallest bounds box. and pass through if no collisions. Or allow custom defined bounds.
-        final Orientation o = Orientation.getdecodedOrientation(world.getBlockMetadata(x, y, z));
 
-        final Vec3 bbSize = Vec3.createVectorHelper(
-                sp.getSizeX() - 0.5,
-                sp.getSizeY(),
-                sp.getSizeZ() - 0.5);
-        final Vec3 b = Vec3.createVectorHelper(-0.5,0,-0.5);
-        final float rot = (float) o.getRotationValue();
+    //=======================================================
+    //       S t r u c t u r e   B l o c k   C o d e
+    //=======================================================
 
-        bbSize.rotateAroundY(rot);
-        b.rotateAroundY(rot);
-
-        return AxisAlignedBB.getBoundingBox(
-                x + 0.5 + min(b.xCoord, bbSize.xCoord),
-                y,
-                z + 0.5 + min(b.zCoord, bbSize.zCoord),
-
-                x + 0.5 + max(b.xCoord, bbSize.xCoord),
-                y + bbSize.yCoord,
-                z + 0.5 + max(b.zCoord, bbSize.zCoord));
-    }
-
-    @Override
-    public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding)
-    {//TODO fix lack of extendability
-        addCollisionBoxesToListUsingPattern(world, x, y, z, aabb, boundingBoxList, entityColliding, getPattern());
-    }
-
-    public static void addCollisionBoxesToListUsingPattern(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding, StructurePattern sp)
+    public static boolean isMirrored(int meta)
     {
-        final int meta = world.getBlockMetadata(x, y, z);
-        final Orientation o = Orientation.getdecodedOrientation(meta);
+        return (meta & flagMirrored) != 0;
+    }
+
+    public static void onSharedNeighbourBlockChange(World world, int x, int y, int z, Block block)
+    {//todo finish/fix
+        final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
+        final int meta = world.getBlockMetadata(x,y,z);
+
+        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
+        {
+            if (te.hasNeighbour(d))
+            {
+                final int nx = x + d.offsetX;
+                final int ny = y + d.offsetY;
+                final int nz = z + d.offsetZ;
+
+                final Block nBlock = world.getBlock(nx,ny,nz);
+                final int nMeta = world.getBlockMetadata(nx, ny, nz);
+
+                if (meta != nMeta)
+                {
+                    if (!(nBlock instanceof SteamNSteelStructureBlock || nBlock instanceof StructureShapeBlock))
+                    {
+                        world.setBlockMetadataWithNotify(x,y,z,flagInvalidBreak,0x2);
+                        world.setBlock(x, y, z, te.getTransmutedBlock(),te.getTransmutedMeta(),0x3);
+                    } else {
+                        //check Identity
+                        SteamNSteelStructureTE nte = (SteamNSteelStructureTE) world.getTileEntity(nx,ny,nz);
+
+                        if (nte != null)
+                        {
+                            if (te.getMasterBlockInstance() != nte.getMasterBlockInstance())
+                            {
+                                world.setBlockMetadataWithNotify(x,y,z,flagInvalidBreak,0x2);
+                                world.setBlock(x, y, z, te.getTransmutedBlock(),te.getTransmutedMeta(),0x3);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public static void addCollisionBoxesToListUsingPattern(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding, StructurePattern sp, Orientation o, boolean isMirrored)
+    {
         final float[][] collB = sp.getCollisionBoxes();
 
         final Vec3 trans = sp.getHalfSize().addVector(-0.5, 0, -0.5);
-        final boolean isMirrored = isMirrored(meta);
         final float rot = (float) o.getRotationValue();
 
         trans.rotateAroundY(rot);
@@ -261,28 +310,33 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         }
     }
 
-    @Override
-    public int quantityDropped(Random rnd)
+    public static AxisAlignedBB getBoundingBoxUsingPattern(World world, int x, int y, int z, StructurePattern sp, Orientation o)
     {
-        return 0;
+        final Vec3 bbSize = Vec3.createVectorHelper(
+                sp.getSizeX() - 0.5,
+                sp.getSizeY(),
+                sp.getSizeZ() - 0.5);
+        final Vec3 b = Vec3.createVectorHelper(-0.5,0,-0.5);
+        final float rot = (float) o.getRotationValue();
+
+        bbSize.rotateAroundY(rot);
+        b.rotateAroundY(rot);
+
+        return AxisAlignedBB.getBoundingBox(
+                x + 0.5 + min(b.xCoord, bbSize.xCoord),
+                y,
+                z + 0.5 + min(b.zCoord, bbSize.zCoord),
+
+                x + 0.5 + max(b.xCoord, bbSize.xCoord),
+                y + bbSize.yCoord,
+                z + 0.5 + max(b.zCoord, bbSize.zCoord));
     }
 
-    @Override
-    public void breakBlock(World world, int x, int y, int z, Block block, int meta)
+    public static void breakStructure(World world, Vec3 mloc, StructurePattern sp, Orientation o, boolean isMirrored)
     {
-        if ((flagInvalidBreak & meta) != 0) return;
-
-        print("breakBlockLoc: ", Vec3.createVectorHelper(x,y,z));
-
-        final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
-        final Orientation o = Orientation.getdecodedOrientation(meta);
-        final boolean isMirrored = isMirrored(meta);
-
-        final Vec3 mLoc = te.getMasterLocation(o, isMirrored);
-
         final StructureBlockIterator itr = new StructureBlockIterator(
-                te.getPattern(),
-                mLoc,
+                sp,
+                mloc,
                 o,
                 isMirrored
         );
@@ -290,9 +344,9 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         while (itr.hasNext())
         {
             final StructureBlockCoord coord = itr.next();
-            print ("breakBlock: ", coord, " : ", te.getPattern().getBlock(coord).getLocalizedName());
+
             coord.setMeta(world, flagInvalidBreak, 0x2);
-            coord.setBlock(world, te.getPattern().getBlock(coord), 0, 0x2);
+            coord.setBlock(world, sp.getBlock(coord), 0, 0x2);
             coord.removeTileEntity(world);
         }
 
@@ -305,60 +359,5 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             if (coord.isEdge())
                 coord.updateNeighbors(world);
         }
-
-        print("finish breakBlock");
-        super.breakBlock(world, x, y, z, block, meta);
-    }
-
-    @Override
-    public void onBlockDestroyedByPlayer(World world, int x, int y, int z, int meta)
-    {
-        //print(world, "onBlockDestroyedByPlayer: ", world.getTileEntity(x,y,z));
-        super.onBlockDestroyedByPlayer(world, x, y, z, meta);
-    }
-
-    //==============
-    //helper methods
-    //==============
-    //todo check over and remove unneeded help methods
-
-    @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float p_149727_7_, float p_149727_8_, float p_149727_9_)
-    {
-        final SteamNSteelStructureTE te = (SteamNSteelStructureTE)world.getTileEntity(x,y,z);
-
-        if (!world.isRemote)
-        {
-            /*print(
-                    "\n",
-                    te.getMasterLocation(Orientation.getdecodedOrientation(meta), isMirrored(meta)),
-                    " : te(" + te.xCoord + "," + te.yCoord + "," + te.zCoord + ") - M",
-                    te.blockID
-                    ,te);*/
-            print("\n", te);
-        }
-
-        return false;
-    }
-
-    @SafeVarargs
-    protected static <E> void print(E... a)
-    {
-        final StringBuilder s = new StringBuilder(a.length);
-        for (final E b:a) s.append(b);
-
-        Logger.info(s.toString());
-    }
-
-    public static void transAxisAlignedBB(AxisAlignedBB bounds, double x, double y, double z)
-    {
-        bounds.maxX += x; bounds.minX += x;
-        bounds.maxY += y; bounds.minY += y;
-        bounds.maxZ += z; bounds.minZ += z;
-    }
-
-    public static boolean isMirrored(int meta)
-    {
-        return (meta & flagMirrored) != 0;
     }
 }
