@@ -22,6 +22,7 @@ import mod.steamnsteel.utility.Orientation;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 
 public class StructureShapeTE extends SteamNSteelStructureTE
@@ -40,9 +41,14 @@ public class StructureShapeTE extends SteamNSteelStructureTE
         return null;
     }
 
+    @Override
+    public AxisAlignedBB getRenderBoundingBox() {
+        return null;
+    }
+
     public void getMasterTE()
     {
-        Vec3 mLoc;
+        final Vec3 mLoc;
 
         if (!masterLocation.isPresent())
         {

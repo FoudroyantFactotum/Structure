@@ -15,9 +15,9 @@
  */
 package mod.steamnsteel.structure.IStructure;
 
-import mod.steamnsteel.structure.registry.StructurePattern;
+import mod.steamnsteel.structure.registry.StructureDefinition;
 
 public interface IPatternHolder
 {
-    StructurePattern getPattern();
+    StructureDefinition getPattern();
 }

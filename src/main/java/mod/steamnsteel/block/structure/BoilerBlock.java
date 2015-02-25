@@ -18,11 +18,15 @@ package mod.steamnsteel.block.structure;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
+import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.BoilerTE;
 import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
+import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+
 import java.util.Random;
 
 public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
@@ -30,7 +34,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
     public static final String NAME = "boiler";
 
     @SideOnly(Side.CLIENT)
-    private static final Random rnd = new Random(System.currentTimeMillis());
+    private static final Random rnd = new Random();
 
     @SideOnly(Side.CLIENT)
     private static float rndRC()
@@ -45,13 +49,26 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
 
     @Override
     @SideOnly(Side.CLIENT)
-    protected void spawnBreakParticle(World world, SteamNSteelStructureTE te, float x, float y, float z, float sx, float sy, float sz)
+    protected void spawnBreakParticle(World world, SteamNSteelStructureTE te, StructureBlockCoord coord, float sx, float sy, float sz)
     {
-        for (int i=0; i<10; ++i)
-        {
-            world.spawnParticle("explode", x + rndRC(), y + 2, z + rndRC(), sx, sy, sz);
-            world.spawnParticle("explode", x, y + 1, z, sx, sy, sz);
-            world.spawnParticle("explode", x + rndRC(), y, z + rndRC(), sx, sy, sz);
+        final int x = coord.getX();
+        final int y = coord.getY();
+        final int z = coord.getZ();
+
+        StructureDefinition pattern = te.getPattern();
+
+        if (pattern != null) {
+            final Block block = pattern.getBlock(coord);
+
+            if (block != null)
+            {
+                for (int i = 0; i < 5; ++i)
+                {
+                    world.spawnParticle("explode", x + rndRC(), y + 1, z + rndRC(), sx, sy, sz);
+                    world.spawnParticle("explode", x, y + 0.5, z, sx, sy, sz);
+                    world.spawnParticle("explode", x + rndRC(), y, z + rndRC(), sx, sy, sz);
+                }
+            }
         }
     }
 

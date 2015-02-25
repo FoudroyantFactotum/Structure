@@ -21,6 +21,7 @@ import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResource;
 import net.minecraft.util.ResourceLocation;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -72,12 +73,12 @@ public class StructureRegistry
         //no op
     }
 
-    private static StructurePattern registerPattern(SteamNSteelStructureBlock block)
+    private static StructureDefinition registerPattern(SteamNSteelStructureBlock block)
     {
         final String unlocName = block.getUnlocalizedName();
         final String blockName = getBlockName(unlocName);
         final ResourceLocation jsonStructure = getResourceLocation(getStructurePath(blockName));
-        StructurePattern blockPattern = null;
+        StructureDefinition blockPattern = null;
 
         try
         {
@@ -85,7 +86,7 @@ public class StructureRegistry
             final InputStreamReader inpStream = new InputStreamReader(res.getInputStream());
             final BufferedReader buffRead = new BufferedReader(inpStream);
 
-            blockPattern = JSONStructurePattern.gson.fromJson(buffRead, StructurePattern.class);
+            blockPattern = JSONStructureDefinition.gson.fromJson(buffRead, StructureDefinition.class);
 
             buffRead.close();
             inpStream.close();

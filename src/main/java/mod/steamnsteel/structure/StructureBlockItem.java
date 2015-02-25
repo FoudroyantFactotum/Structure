@@ -60,14 +60,13 @@ public class StructureBlockItem extends ItemBlock
         final Vec3 mLoc = Vec3.createVectorHelper(mx,y, mz);
 
         final List<Entity> entitysWithinBounds = world.getEntitiesWithinAABBExcludingEntity(null,
-            SteamNSteelStructureBlock.getBoundingBoxUsingPattern(world, mx, y, mz, block.getPattern(), o));
+            SteamNSteelStructureBlock.getBoundingBoxUsingPattern(mx, y, mz, block.getPattern(), o));
 
         if (entitysWithinBounds.contains(player))
         {
-            Logger.info("placeBlockAt: Colistion intersects player");
+            Logger.info("placeBlockAt: Collision intersects player");
             return false;
         }
-
 
         //check block locations
         final StructureBlockIterator itr = new StructureBlockIterator(block.getPattern(), mLoc, o, player.isSneaking());
@@ -111,7 +110,7 @@ public class StructureBlockItem extends ItemBlock
 
         world.setBlock((int)mLoc.xCoord, (int)mLoc.yCoord,(int)mLoc.zCoord, block, metadata, 0x3);
         block.onBlockPlacedBy(world, (int)mLoc.xCoord, (int)mLoc.yCoord,(int)mLoc.zCoord, player, stack);
-        block.onPostBlockPlaced(world, (int)mLoc.xCoord, (int)mLoc.yCoord,(int)mLoc.zCoord, metadata);
+        block.onPostBlockPlaced(world, (int)mLoc.xCoord, (int)mLoc.yCoord,(int)mLoc.zCoord, world.getBlockMetadata(x,y,z));
 
         return true;
     }

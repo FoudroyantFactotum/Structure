@@ -30,13 +30,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
-import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
 import java.util.List;
 import java.util.Random;
 
-public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITileEntityProvider
+public final class StructureShapeBlock extends SteamNSteelMachineBlock implements ITileEntityProvider
 {
     public static final String NAME = "structureShape";
 
@@ -117,31 +116,20 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
     }
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public void onBlockDestroyedByExplosion(World world, int x, int y, int z, Explosion explosion)
-    {
-        world.spawnParticle("hugeexplosion", x, y, z, 1,1,1);
-    }
-
-    @Override
-    public void breakBlock(World world, int x, int y, int z, Block pBlock, int meta)
-    {
-        if ((SteamNSteelStructureBlock.flagInvalidBreak & meta) != 0) return;
-
+    public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z, boolean willHarvest) {
+        final int meta = world.getBlockMetadata(x,y,z);
         final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
+        final boolean isPlayerCreative = player != null && player.capabilities.isCreativeMode;
 
         if (te != null)
         {
-            final SteamNSteelStructureBlock block = te.getMasterBlockInstance();
+            final Vec3 mloc = te.getMasterLocation(meta);
 
-            if (block != null)
-            {
-                final Vec3 mloc = te.getMasterLocation(meta);
-                SteamNSteelStructureBlock.breakStructure(world, mloc, te.getPattern(), Orientation.getdecodedOrientation(meta), SteamNSteelStructureBlock.isMirrored(meta));
-            }
-        }
+            SteamNSteelStructureBlock.breakStructure(world, mloc, te.getPattern(), Orientation.getdecodedOrientation(meta), SteamNSteelStructureBlock.isMirrored(meta), isPlayerCreative);
+        } else
+            world.setBlockToAir(x,y,z);
 
-        super.breakBlock(world, x, y, z, pBlock, meta);
+        return true;
     }
 
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float sx, float sy, float sz)
@@ -162,5 +150,12 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
         }
 
         return false;
+    }
+
+    @Override
+    public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
+    {
+        super.onNeighborBlockChange(world, x, y, z, block);
+        SteamNSteelStructureBlock.onSharedNeighbourBlockChange(world, x, y, z, block);
     }
 }

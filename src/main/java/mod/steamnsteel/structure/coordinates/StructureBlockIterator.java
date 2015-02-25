@@ -15,11 +15,12 @@
  */
 package mod.steamnsteel.structure.coordinates;
 
-import mod.steamnsteel.structure.registry.StructurePattern;
+import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.util.Vec3;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -43,7 +44,7 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
             {{0, -1}, {1, 0}}, //east
     };
 
-    public StructureBlockIterator(StructurePattern sp, Vec3 worldLocation, Orientation orientation, Boolean mirrored)
+    public StructureBlockIterator(StructureDefinition sp, Vec3 worldLocation, Orientation orientation, Boolean mirrored)
     {
         this.worldLocation = worldLocation;
         final Vec3 spSize = sp.getSize();

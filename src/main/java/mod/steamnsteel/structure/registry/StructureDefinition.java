@@ -19,23 +19,25 @@ import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.gson.JsonDeserializer;
 import cpw.mods.fml.common.registry.GameRegistry;
 import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
 import mod.steamnsteel.structure.registry.MetaCorrecter.SMCStoneStairs;
 import mod.steamnsteel.utility.Orientation;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
-import net.minecraft.init.Blocks;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-import static com.google.common.base.Preconditions.*;
+import java.util.BitSet;
 
-public class StructurePattern
+import static com.google.common.base.Preconditions.checkNotNull;
+
+public class StructureDefinition
 {
-    public static final StructurePattern MISSING_STRUCTURE = new StructurePattern();
+    public static final StructureDefinition MISSING_STRUCTURE = new StructureDefinition();
     private static final ImmutableMap<Block,IStructurePatternMetaCorrecter> META_CORRECTOR;
+    private static final JSONStructureDefinition jsonDeserializer = new JSONStructureDefinition();
 
     static {
         final Builder<Block, IStructurePatternMetaCorrecter> builder = ImmutableMap.builder();
@@ -71,21 +73,33 @@ public class StructurePattern
         builder.put(block, metaCorrecter);
     }
 
-    private final ImmutableTriple<Integer,Integer,Integer> size;
-    private final ImmutableList<ImmutableList<Block>> blocks;
-    private final ImmutableList<ImmutableList<Byte>> metadata;
-    private final float[][] collisionBoxes;
-    private final ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> blockSideAccess;
+    public static JsonDeserializer<StructureDefinition> getJsonDeserializer()
+    {
+        return jsonDeserializer;
+    }
 
-    private StructurePattern()
+    private BitSet[][] sbLayout;
+    private boolean cleanUpOnBuild = true;
+
+    private ImmutableTriple<Integer,Integer,Integer> adjustmentCtS = ImmutableTriple.of(0,0,0);
+
+    private ImmutableTriple<Integer,Integer,Integer> totalSize;
+    private ImmutableTriple<Integer,Integer,Integer> mps;
+
+    private Block[][][] blocks;
+    private byte[][][] metadata;
+    private ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> blockSideAccess;
+    private float[][] collisionBoxes;
+
+    private StructureDefinition()
     {
         this(1,1,1);
     }
 
-    public StructurePattern(int xSize, int ySize, int zSize)
+    public StructureDefinition(int xSize, int ySize, int zSize)
     {
         this(
-                ImmutableTriple.of(xSize,ySize,zSize),
+                new int[]{xSize,ySize,zSize},
                 null,
                 null,
                 null,
@@ -98,17 +112,31 @@ public class StructurePattern
                         (float) Math.ceil(zSize / 2)}});
     }
 
-    public StructurePattern(ImmutableTriple<Integer,Integer,Integer> size,
-            ImmutableList<ImmutableList<Block>> blocks,
-            ImmutableList<ImmutableList<Byte>> metadata,
-            ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> blockSideAccess,
-            float[][] collisionBoxes)
+    public StructureDefinition(int[] size,
+                               ImmutableList<ImmutableList<Block>> blocks,
+                               ImmutableList<ImmutableList<Byte>> metadata,
+                               ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> blockSideAccess,
+                               float[][] collisionBoxes)
     {
-        this.size = size;
+        sbLayout = generate_sbLayout(size[0], size[1], size[2]);
+
         this.blocks = blocks;
         this.metadata = metadata;
         this.collisionBoxes = collisionBoxes;
         this.blockSideAccess = blockSideAccess;
+    }
+
+    private static boolean[][][] generate_sbLayout(int x, int y, int z)
+    {
+        final boolean[] xLine = new boolean[x];
+        final boolean[][] zLine = new boolean[z][];
+        final boolean[][][] yLine = new boolean[y][][];
+
+        for(int i=0; i < xLine.length; ++i) xLine[i] = true;
+        for(int i=0; i < zLine.length; ++i) zLine[i] = xLine;
+        for(int i=0; i < yLine.length; ++i) yLine[i] = zLine;
+
+        return yLine;
     }
 
     public Block getBlock(StructureBlockCoord coord)
@@ -131,7 +159,7 @@ public class StructurePattern
                 return blocks.get(layerCount).get(x);
         }
 
-        return Blocks.air;
+        return null;
     }
 
     public int getBlockMetadata(StructureBlockCoord coord)
@@ -146,14 +174,21 @@ public class StructurePattern
         if (metadata != null)
         {
             final int layerCount = getLayerCount(y, z);
+            final Block block = getBlock(x, y, z);
 
             if (checkNotOutOfBounds(metadata, x, layerCount))
                 meta = metadata.get(layerCount).get(x);
+
+            if (block != null)
+            {
+                final IStructurePatternMetaCorrecter metaCorrecter = META_CORRECTOR.get(block);
+
+                if(metaCorrecter != null)
+                    return metaCorrecter.correctMeta(meta, o, isMirrored);
+            }
         }
 
-        final IStructurePatternMetaCorrecter metaCorrecter = META_CORRECTOR.get(getBlock(x, y, z));
-
-        return metaCorrecter == null ? meta : metaCorrecter.correctMeta(meta, o, isMirrored);
+        return meta;
     }
 
     public StructureBlockSideAccess getSideAccess(int x, int y, int z, ForgeDirection direction, Orientation orientation)
@@ -180,16 +215,6 @@ public class StructurePattern
         return (((byte) x) << 16) + (((byte) y) << 8) + ((byte) z);
     }
 
-    private int getLayerCount(int y, int z)
-    {
-        return z + y*size.right;
-    }
-
-    private static <E> boolean checkNotOutOfBounds(ImmutableList<ImmutableList<E>> list, int x, int layerCount)
-    {
-        return layerCount < list.size() && layerCount > -1 && x < list.get(layerCount).size();
-    }
-
     public Vec3 getSize()
     {
         return Vec3.createVectorHelper(
@@ -213,38 +238,22 @@ public class StructurePattern
         return size.getRight();
     }
 
-    public Vec3 getHalfSize()
-    {
-        final Vec3 size = getSize();
-
-        size.xCoord /= 2;
-        size.yCoord /= 2;
-        size.zCoord /= 2;
-
-        return size;
-    }
-
     public float[][] getCollisionBoxes()
     {
         return collisionBoxes;
     }
 
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return new StructureDefinition(size,blocks,metadata,blockSideAccess, collisionBoxes);
+    }
+
     public String toString(){
         return Objects.toStringHelper(this)
-                .add("size", size)
                 .add("blocks", blocks)
                 .add("metadata", metadata)
                 .add("collisionBoxes", collisionBoxes)
                 .add("blockSideAccess", blockSideAccess)
                 .toString();
-    }
-
-    @SafeVarargs
-    protected static <E> void print(E... a)
-    {
-        final StringBuilder s = new StringBuilder(a.length);
-        for (final E b:a) s.append(b);
-
-        Logger.info(s.toString());
     }
 }
