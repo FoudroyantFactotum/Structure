@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.JsonDeserializer;
 import cpw.mods.fml.common.registry.GameRegistry;
 import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
+import mod.steamnsteel.structure.json.JSONStructureDefinition;
 import mod.steamnsteel.structure.registry.MetaCorrecter.SMCStoneStairs;
 import mod.steamnsteel.utility.Orientation;
 import net.minecraft.block.Block;

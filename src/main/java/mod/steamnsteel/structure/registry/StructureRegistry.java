@@ -17,6 +17,7 @@ package mod.steamnsteel.structure.registry;
 
 import mod.steamnsteel.TheMod;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.json.JSONStructureDefinition;
 import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResource;

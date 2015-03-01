@@ -1,51 +1,82 @@
 {
-  "size": [
-    3.0,
-    4.0,
-    3.0
-  ],
-  "blocksDefinition": [
-    {
-      "char": "p",
-      "block": "steamnsteel:blockPlotonium"
-    },
-    {
-      "char": "s",
-      "block": "steamnsteel:blockSteel"
-    },
-    {
-      "char": "g",
-      "block": "minecraft:glass_pane"
-    },
-    {
-      "char":"B",
-      "block": "minecraft:iron_bars"
-    }
-  ],
-  "pattern": [
-    [
-      "ppp",
-      " s ",
-      "ppp"
-    ],[
-      "ppp",
-      "BsB",
-      "pgp"
-    ],[
-      "ppp",
-      "BsB",
-      "pgp"
-    ],[
-      "ppp",
-      " s ",
-      "ppp"
+  "construction": {
+    "definition": [
+      {
+        "char": "p",
+        "block": "steamnsteel:blockPlotonium"
+      },
+      {
+        "char": "s",
+        "block": "steamnsteel:blockSteel"
+      },
+      {
+        "char": "g",
+        "block": "minecraft:glass_pane"
+      },
+      {
+        "char": "B",
+        "block": "minecraft:iron_bars"
+      }
+    ],
+    "pattern": [
+      [
+        "ppp",
+        " s ",
+        "ppp"
+      ],
+      [
+        "ppp",
+        "BsB",
+        "pgp"
+      ],
+      [
+        "ppp",
+        "BsB",
+        "pgp"
+      ],
+      [
+        "ppp",
+        " s ",
+        "ppp"
+      ]
+    ],
+    "adjustment": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "cleanUpOnBuild": true
+  },
+  "size": {
+    "configuration": [
+      [
+        "M--",
+        "---",
+        "---"
+      ],
+      [
+        "---",
+        "---",
+        "---"
+      ],
+      [
+        "---",
+        "---",
+        "---"
+      ],
+      [
+        "---",
+        "---",
+        "---"
+      ]
     ]
-  ],
-  "collisionBoxes": [
-    [0.7,3.5,0.7, 2.3,4.0,2.3],
-    [0.3,3.0,0.3, 2.7,3.5,2.7],
-    [0.0,1.0,0.0, 3.0,3.0,3.0],
-    [0.3,0.5,0.3, 2.7,1.0,2.7],
-    [0.7,0.0,0.7, 2.3,0.5,2.3]
-  ]
+  },
+    "collisionBoxes": [
+      [0.7,3.5,0.7, 2.3,4.0,2.3],
+      [0.3,3.0,0.3, 2.7,3.5,2.7],
+      [0.0,1.0,0.0, 3.0,3.0,3.0],
+      [0.3,0.5,0.3, 2.7,1.0,2.7],
+      [0.7,0.0,0.7, 2.3,0.5,2.3]
+    ]
+  }
 }
