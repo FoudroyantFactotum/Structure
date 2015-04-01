@@ -37,15 +37,19 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
+import static mod.steamnsteel.structure.coordinates.StructureBlockCoord.toStringNeighbour;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
+import static mod.steamnsteel.structure.registry.StructureDefinition.dehashLoc;
+import static mod.steamnsteel.structure.registry.StructureDefinition.hashLoc;
+import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, ISidedInventory, IPatternHolder
 {
     private static final int maskBlockID = 0xFFFFFF;
-    private static final byte shiftBlockIDX = Byte.SIZE * 2;
-    private static final byte shiftBlockIDY = Byte.SIZE * 1;
-    private static final byte shiftBlockIDZ = Byte.SIZE * 0;
 
     private static final byte shiftNeighbourBlocks = Byte.SIZE * 3;
 
@@ -53,14 +57,14 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     private static final String BLOCK_PATTERN_NAME = "blockPatternHash";
 
     private byte neighbourBlocks = 0x0;
-    private int blockID = -1;
+    private ImmutableTriple<Byte, Byte, Byte> blockID = ImmutableTriple.of((byte)0,(byte)0,(byte)0);
     private int blockPatternHash = "".hashCode();
 
     private Optional<AxisAlignedBB> renderBounds = Optional.absent();
     private boolean checkForMasterBlockType = true;
     private SteamNSteelStructureBlock structurePatternBlock = null;
 
-    protected Optional<Vec3> masterLocation = Optional.absent();
+    protected Optional<ImmutableTriple<Integer, Integer, Integer>> masterLocation = Optional.absent();
 
 
     protected abstract boolean hasSharedInventory();
@@ -114,10 +118,10 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         super.readFromNBT(nbt);
 
         final int blockInfo = nbt.getInteger(BLOCK_INFO);
-
-        blockID = blockInfo & maskBlockID;
-        neighbourBlocks = (byte)(blockInfo >>> shiftNeighbourBlocks);
         blockPatternHash = nbt.getInteger(BLOCK_PATTERN_NAME);
+
+        blockID = dehashLoc(blockInfo & maskBlockID);
+        neighbourBlocks = (byte)(blockInfo >>> shiftNeighbourBlocks);
     }
 
     @Override
@@ -125,7 +129,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         super.writeToNBT(nbt);
 
-        nbt.setInteger(BLOCK_INFO, blockID | neighbourBlocks << shiftNeighbourBlocks);
+        nbt.setInteger(BLOCK_INFO, getBlockID() | neighbourBlocks << shiftNeighbourBlocks);
         nbt.setInteger(BLOCK_PATTERN_NAME, blockPatternHash);
     }
 
@@ -135,7 +139,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         if (!renderBounds.isPresent())
         {
-            final Orientation o = Orientation.getdecodedOrientation(getWorldObj().getBlockMetadata(xCoord,yCoord,zCoord));
+            final Orientation o = getdecodedOrientation(getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord));
 
             final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) getBlockType();
             final StructureDefinition pattern = block.getPattern();
@@ -168,12 +172,17 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
 
     private StructureBlockSideAccess getSideAccess(int side)
     {//todo cache?
+        final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
         return getPattern().getSideAccess(
-                getBlockIDX(),
-                getBlockIDY(),
-                getBlockIDZ(),
-                ForgeDirection.values()[side],
-                Orientation.getdecodedOrientation(getWorldObj().getBlockMetadata(xCoord,yCoord,zCoord)));
+                blockID.getLeft(),
+                blockID.getMiddle(),
+                blockID.getRight(),
+                localToGlobal(
+                        ForgeDirection.values()[side],
+                        getdecodedOrientation(meta),
+                        isMirrored(meta)
+                )
+        );
     }
 
     @Override
@@ -195,7 +204,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     @Override
     public Block getTransmutedBlock()
     {
-        final Block block = getPattern().getBlock(getBlockIDX(),getBlockIDY(),getBlockIDZ());
+        final Block block = getPattern().getBlock(blockID.getLeft(), blockID.getMiddle(), blockID.getRight());
         return block == null ?
                 Blocks.air :
                 block;
@@ -204,60 +213,53 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     @Override
     public int getTransmutedMeta()
     {
-        final int meta = getWorldObj().getBlockMetadata(xCoord,yCoord,zCoord);
-        return getPattern().getBlockMetadata(
-                getBlockIDX(),
-                getBlockIDY(),
-                getBlockIDZ(),
-                Orientation.getdecodedOrientation(meta),
-                SteamNSteelStructureBlock.isMirrored(meta)
+        final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
+
+        return localToGlobal(
+                getPattern().getBlockMetadata(
+                        blockID.getLeft(),
+                        blockID.getMiddle(),
+                        blockID.getRight()
+                ),
+                getTransmutedBlock(),
+                getdecodedOrientation(meta),
+                isMirrored(meta)
         );
     }
 
-    public Vec3 getMasterLocation()
+    public ImmutableTriple<Integer, Integer, Integer> getMasterLocation()
     {
-        if (!masterLocation.isPresent())
+        //if (!masterLocation.isPresent())
             return getMasterLocation(getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord));
 
-        return masterLocation.get();
+        //return masterLocation.get();
     }
 
-    public Vec3 getMasterLocation(int meta)
+    public ImmutableTriple<Integer, Integer, Integer> getMasterLocation(int meta)
     {
-        if (!masterLocation.isPresent())
+        //if (!masterLocation.isPresent())
         {
-            final Orientation o = Orientation.getdecodedOrientation(meta);
-            final boolean isMirrored = SteamNSteelStructureBlock.isMirrored(meta);
+            final Orientation o = getdecodedOrientation(meta);
+            final boolean isMirrored = isMirrored(meta);
 
             return getMasterLocation(o,isMirrored);
         }
 
-        return masterLocation.get();
+        //return masterLocation.get();
     }
 
-    public Vec3 getMasterLocation(Orientation o, boolean isMirrored)
+    public ImmutableTriple<Integer, Integer, Integer> getMasterLocation(Orientation o, boolean isMirrored)
     {
-        if (!masterLocation.isPresent())
+        //if (!masterLocation.isPresent())
         {
-            Vec3 loc = Vec3.createVectorHelper(getBlockIDX(),getBlockIDY(),getBlockIDZ());
-
-            if (isMirrored)
-            {
-                final int z = getPattern().getSizeZ();
-                final int hlfZ = z / 2;
-                loc.zCoord -= hlfZ;
-                loc.zCoord *= -1;
-                loc.zCoord += hlfZ;
-                if (z % 2 == 0) loc.zCoord -= 1;
-            }
-
-            loc.rotateAroundY((float) o.getRotationValue());
-
-            loc.xCoord = xCoord - loc.xCoord;
-            loc.yCoord = yCoord - loc.yCoord;
-            loc.zCoord = zCoord - loc.zCoord;
-
-           masterLocation = Optional.of(loc);
+            final ImmutableTriple<Integer, Integer, Integer> size = getPattern().getBlockBounds();
+            masterLocation = Optional.of(localToGlobal(
+                    blockID.getLeft(), blockID.getMiddle(), blockID.getRight(),
+                    xCoord, yCoord, zCoord,
+                    o,
+                    isMirrored,
+                    size.getRight()
+            ));
         }
 
         return masterLocation.get();
@@ -265,29 +267,20 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
 
     private void setBlockID(int x, int y, int z)
     {
-        blockID = (((byte) x) << shiftBlockIDX) +
-                  (((byte) y) << shiftBlockIDY) +
-                  (((byte) z) << shiftBlockIDZ);
+        blockID = ImmutableTriple.of(
+                (byte) x,
+                (byte) y,
+                (byte) z
+        );
     }
 
     public int getBlockID()
     {
-        return blockID;
-    }
-
-    private byte getBlockIDX()
-    {
-        return (byte)(blockID >> shiftBlockIDX);
-    }
-
-    private byte getBlockIDY()
-    {
-        return (byte)(blockID >> shiftBlockIDY);
-    }
-
-    private byte getBlockIDZ()
-    {
-        return (byte)(blockID >> shiftBlockIDZ);
+        return hashLoc(
+                blockID.getLeft(),
+                blockID.getMiddle(),
+                blockID.getRight()
+        );
     }
 
     private void setNeighbour(ForgeDirection d)
@@ -301,22 +294,12 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         return (neighbourBlocks & d.flag) != 0;
     }
 
-    private static String toStringNeighbour(int n)
-    {
-        final StringBuilder builder = new StringBuilder(ForgeDirection.VALID_DIRECTIONS.length);
-
-        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
-            builder.append((n & d.flag) != 0 ? d.name().charAt(0):' ');
-
-        return builder.toString();
-    }
-
     @Override
     public String toString()
     {
         return Objects.toStringHelper(this)
                 .add("neighbourBlocks", toStringNeighbour(neighbourBlocks))
-                .add("blockID", Vec3.createVectorHelper(getBlockIDX(),getBlockIDY(),getBlockIDZ()))
+                .add("blockID", blockID)
                 .add("renderBounds", renderBounds)
                 .add("blockPatternHash", blockPatternHash)
                 .add("masterLocation", masterLocation)

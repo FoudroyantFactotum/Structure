@@ -58,7 +58,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
         StructureDefinition pattern = te.getPattern();
 
         if (pattern != null) {
-            final Block block = pattern.getBlock(coord);
+            final Block block = pattern.getBlock(coord.getLX(), coord.getLY(), coord.getLZ());
 
             if (block != null)
             {

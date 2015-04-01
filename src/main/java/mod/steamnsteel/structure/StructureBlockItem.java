@@ -21,7 +21,6 @@ import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -29,9 +28,11 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-import java.util.ArrayList;
 import java.util.List;
+
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class StructureBlockItem extends ItemBlock
 {
@@ -47,35 +48,36 @@ public class StructureBlockItem extends ItemBlock
 
         if (player == null) return false;
         final Orientation o = Orientation.getdecodedOrientation(BlockDirectional.getDirection(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5)));
-        final boolean isMirrored = player.isSneaking();
+        final boolean isMirrored = false; //player.isSneaking(); Disabled until fix :p todo fix structure mirroring
 
-        //find master block location
-        final Vec3 hlfSz = block.getPattern().getHalfSize();
-        hlfSz.xCoord *= -1; hlfSz.zCoord *= -1;
-        hlfSz.rotateAroundY((float)o.getRotationValue());
+            //find master block location
+            final ImmutableTriple<Integer, Integer, Integer> hSize = block.getPattern().getHalfBlockBounds();
+        final ImmutableTriple<Integer, Integer, Integer> ml = block.getPattern().getMasterLocation();
 
-        final int mx = x+(int)hlfSz.xCoord;
-        final int my = y+(int)hlfSz.yCoord;
-        final int mz = z+(int)hlfSz.zCoord;
-        final Vec3 mLoc = Vec3.createVectorHelper(mx,y, mz);
+        ImmutableTriple<Integer, Integer, Integer> mLoc
+                = localToGlobal(
+                hSize.getLeft() - ml.getLeft(), -ml.getMiddle(), hSize.getRight() - ml.getRight(),
+                x, y, z,
+                o, isMirrored, hSize.getRight());
 
-        final List<Entity> entitysWithinBounds = world.getEntitiesWithinAABBExcludingEntity(null,
+        /*final List<Entity> entitysWithinBounds = world.getEntitiesWithinAABBExcludingEntity(null,
             SteamNSteelStructureBlock.getBoundingBoxUsingPattern(mx, y, mz, block.getPattern(), o));
 
         if (entitysWithinBounds.contains(player))
         {
             Logger.info("placeBlockAt: Collision intersects player");
             return false;
-        }
+        }*/
 
         //check block locations
-        final StructureBlockIterator itr = new StructureBlockIterator(block.getPattern(), mLoc, o, player.isSneaking());
+        final StructureBlockIterator itr = new StructureBlockIterator(block.getPattern(), Vec3.createVectorHelper(mLoc.getLeft(),mLoc.getMiddle(), mLoc.getRight()), o, isMirrored);
 
+        Logger.info("Height: " + world.getActualHeight());
         while (itr.hasNext())
-            if (!itr.next().isAirBlock(world)) return false;
+            if (!itr.next().isReplaceable(world)) return false;
 
         //check and then shift entitys within the region todo fix motions.
-        for (final Entity entity : entitysWithinBounds)
+        /*for (final Entity entity : entitysWithinBounds)
         {
             final List<AxisAlignedBB> collisionBoxes = new ArrayList<AxisAlignedBB>(3);
             final AxisAlignedBB entityBounds = entity.boundingBox;
@@ -106,11 +108,13 @@ public class StructureBlockItem extends ItemBlock
             } else {
                 return false;
             }
-        }
+        }*/
 
-        world.setBlock((int)mLoc.xCoord, (int)mLoc.yCoord,(int)mLoc.zCoord, block, metadata, 0x3);
-        block.onBlockPlacedBy(world, (int)mLoc.xCoord, (int)mLoc.yCoord,(int)mLoc.zCoord, player, stack);
-        block.onPostBlockPlaced(world, (int)mLoc.xCoord, (int)mLoc.yCoord,(int)mLoc.zCoord, world.getBlockMetadata(x,y,z));
+        Logger.info("placeBlockAt: " + mLoc + " : " + world.getBlock(mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight()));
+
+        world.setBlock(mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), block, metadata, 0x3);
+        block.onBlockPlacedBy(world, mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), player, stack);
+        block.onPostBlockPlaced(world, mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), world.getBlockMetadata(x,y,z));
 
         return true;
     }

@@ -20,6 +20,8 @@ import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import com.google.gson.*;
+import cpw.mods.fml.common.registry.GameRegistry;
+import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.structure.registry.StructureBlockSideAccess;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import net.minecraft.block.Block;
@@ -34,7 +36,6 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
     public static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(StructureDefinition.class, StructureDefinition.getJsonDeserializer())
             .registerTypeAdapter(JsonStructureBlockSideAccess.class, new JsonStructureBlockSideAccess())
-            .registerTypeAdapter(JSONBlock.class, new JSONBlock())
             .create();
 
     private static final String IO = "I/O";
@@ -59,7 +60,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
             deserializeIO(builder, jsonObj.getAsJsonObject(IO));
 
         if (jsonObj.has(COLLISIONBOXES))
-            deserializeCollisionBoxes(builder, jsonObj.getAsJsonObject(COLLISIONBOXES));
+            deserializeCollisionBoxes(builder, jsonObj.get(COLLISIONBOXES));
 
         return builder.build();
     }
@@ -68,32 +69,35 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
     //  D e s e r i a l i z e   C o l l i s i o n   B o x e s
     //=========================================================
 
-    private static void deserializeCollisionBoxes(StructureDefinitionBuilder sdb, JsonObject json) throws JsonParseException
+    private static void deserializeCollisionBoxes(StructureDefinitionBuilder sdb, JsonElement json)
     {
         if (json.isJsonArray())
         {
             final JsonArray jsonCollisionBoxes = json.getAsJsonArray();
             final float[][] collisionBoxes = new float[jsonCollisionBoxes.size()][];
-            //todo shift offset into build.
-            final float offsetX = sdb.totalSize.getLeft()/2.0f - sdb.mps.getLeft();
-            final float offsetZ = sdb.totalSize.getRight()/2.0f - sdb.mps.getRight();
 
             for (int i = 0; i < collisionBoxes.length; ++i)
             {
                 final JsonArray jsonBox = jsonCollisionBoxes.get(i).getAsJsonArray();
 
-                collisionBoxes[i] = new float[]{
-                        jsonBox.get(0).getAsFloat() - offsetX,
-                        jsonBox.get(1).getAsFloat(),
-                        jsonBox.get(2).getAsFloat() - offsetZ,
+                if (jsonBox.size() == 6) {
+                    collisionBoxes[i] = new float[]{
+                            jsonBox.get(0).getAsFloat(),
+                            jsonBox.get(1).getAsFloat(),
+                            jsonBox.get(2).getAsFloat(),
 
-                        jsonBox.get(3).getAsFloat() - offsetX,
-                        jsonBox.get(4).getAsFloat(),
-                        jsonBox.get(5).getAsFloat() - offsetZ};
+                            jsonBox.get(3).getAsFloat(),
+                            jsonBox.get(4).getAsFloat(),
+                            jsonBox.get(5).getAsFloat()};
+                } else
+                    throw new JsonParseException(ERRORMSG + ": " + COLLISIONBOXES +
+                            " wrong length of list. Expected 6 got " + jsonBox.size());
             }
 
+            sdb.collisionBoxes = collisionBoxes;
+
         } else
-            throw new JsonParseException(ERRORMSG + ": Collision Boxes not a list");
+            throw new JsonParseException(ERRORMSG + ": " + COLLISIONBOXES +" not a list");
     }
 
     //=========================================================
@@ -109,7 +113,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
     private static final String CONSTRUCTION_ADJUSTMENT = "adjustment";
     private static final String CONSTRUCTION_CLEANUPONBUILD = "cleanUpOnBuild";
 
-    private static void deserializeConstruction(StructureDefinitionBuilder sdb, JsonObject json) throws JsonParseException
+    private static void deserializeConstruction(StructureDefinitionBuilder sdb, JsonObject json)
     {
         if (!deserializeConstructionHasAllComponents(json))
             throw new JsonParseException(ERRORMSG + ": Missing Tag under " + CONSTRUCTION);
@@ -219,7 +223,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                         {
                             builder.put(
                                     jsonBlock.get(CONSTRUCTION_DEFINITION_CHAR).getAsCharacter(),
-                                    gson.fromJson(jsonBlock.get(CONSTRUCTION_DEFINITION_BLOCK), Block.class)
+                                    getBlock(jsonBlock.get(CONSTRUCTION_DEFINITION_BLOCK))
                             );
                         } else
                             throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_DEFINITION + " missing \"" + CONSTRUCTION_DEFINITION_BLOCK + "\" tag");
@@ -332,7 +336,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
             throw new JsonParseException(ERRORMSG + ": " + IO + " missing tag");
 
         final ImmutableListMultimap<Character, StructureBlockSideAccess> accessMap
-                = deserializeIODefinition(json.getAsJsonObject(IO_DEFINITION));
+                = deserializeIODefinition(json.get(IO_DEFINITION));
 
         final Builder<Integer, ImmutableList<StructureBlockSideAccess>> ioConfig
                 = new Builder<Integer, ImmutableList<StructureBlockSideAccess>>();
@@ -351,12 +355,12 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
 
                 if (!Character.isSpaceChar(c))
                     ioConfig.put(
-                            StructureDefinition.getPosHash(x, jrs.getOuter(), jrs.getInner()),
+                            StructureDefinition.hashLoc(x, jrs.getOuter(), jrs.getInner()),
                             accessMap.get(c));
             }
         }
 
-        sdb.blockSideAccess = ioConfig.build();
+        sdb.sideAccess = ioConfig.build();
     }
 
     private static boolean deserializeIOHasAllComponents(JsonObject json)
@@ -365,7 +369,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                 json.has(IO_CONFIGURATION);
     }
 
-    private static ImmutableListMultimap<Character, StructureBlockSideAccess> deserializeIODefinition(JsonObject obj)
+    private static ImmutableListMultimap<Character, StructureBlockSideAccess> deserializeIODefinition(JsonElement obj)
     {
         final JsonArray ioDefinition = obj.getAsJsonArray();
         final ImmutableListMultimap.Builder<Character, StructureBlockSideAccess> builderSideInputDef
@@ -387,6 +391,23 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
     //=========================================================
     //                     U t i l i t y
     //=========================================================
+
+    private static Block getBlock(JsonElement json)
+    {
+        if (json.isJsonPrimitive())
+        {
+            final String blockName = json.getAsString();
+            final int blockDividePoint = blockName.indexOf(':');
+
+            if (blockDividePoint != -1)
+                return GameRegistry.findBlock(
+                        blockName.substring(0, blockDividePoint),
+                        blockName.substring(blockDividePoint + 1, blockName.length())
+                );
+        }
+
+        throw new JsonParseException("Block not in legible format");
+    }
 
     private static byte[][][] jagedCheck(byte[][][] array)
     {
@@ -428,33 +449,6 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                 throw new JsonParseException(ERRORMSG + ": " + errorLoc + " not a square z array");
 
         return array;
-    }
-
-
-    //=========================================================
-    // S t r u c t u r e   D e f i n i t i o n   B u i l d e r
-    //=========================================================
-
-    private final class StructureDefinitionBuilder
-    {
-        public BitSet[][] sbLayout;
-        public boolean cleanUpOnBuild = true;
-
-        public ImmutableTriple<Integer,Integer,Integer> adjustmentCtS;
-
-        public ImmutableTriple<Integer,Integer,Integer> totalSize;
-        public ImmutableTriple<Integer,Integer,Integer> mps;
-
-        public Block[][][] blocks;
-        public byte[][][] metadata;
-        public ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> blockSideAccess;
-        public float[][] collisionBoxes;
-
-        public StructureDefinition build()
-        {
-            //TODO Finish
-            return StructureDefinition.MISSING_STRUCTURE;
-        }
     }
 
 }

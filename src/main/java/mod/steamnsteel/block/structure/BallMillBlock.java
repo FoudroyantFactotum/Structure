@@ -58,7 +58,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
 
 
         if (pattern != null) {
-            final Block block = pattern.getBlock(coord);
+            final Block block = pattern.getBlock(coord.getLX(), coord.getLY(), coord.getLZ());
 
             if (block != null)
             {

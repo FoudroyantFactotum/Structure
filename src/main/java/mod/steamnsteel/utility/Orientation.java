@@ -19,7 +19,7 @@ package mod.steamnsteel.utility;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import net.minecraft.block.BlockDirectional;
-import net.minecraftforge.common.util.ForgeDirection;
+
 import java.util.Map;
 
 import static java.lang.Math.PI;
@@ -57,21 +57,6 @@ public enum Orientation
     public int encode()
     {
         return flag;
-    }
-
-    public ForgeDirection toForgeDirection()
-    {
-        switch (ordinal())
-        {
-            case 0:
-                return ForgeDirection.SOUTH;
-            case 1:
-                return ForgeDirection.WEST;
-            case 2:
-                return ForgeDirection.NORTH;
-            default: //East
-                return ForgeDirection.EAST;
-        }
     }
 
     public double getRotationValue()

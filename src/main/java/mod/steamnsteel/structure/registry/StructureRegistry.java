@@ -50,7 +50,7 @@ public class StructureRegistry
     {
         try
         {
-            final Field structurePattern = SteamNSteelStructureBlock.class.getDeclaredField("structurePattern");
+            final Field structurePattern = SteamNSteelStructureBlock.class.getDeclaredField("structureDefinition");
             structurePattern.setAccessible(true);
 
             for (SteamNSteelStructureBlock block: registeredStructures)

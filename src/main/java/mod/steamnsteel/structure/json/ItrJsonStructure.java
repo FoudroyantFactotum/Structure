@@ -48,11 +48,15 @@ public class ItrJsonStructure implements Iterator<JsonReadState<JsonElement>>
 
             if (ja.size() > -1 && ja.get(0).isJsonArray())
             {
-                final JsonArray ja2 = ja.get(0).getAsJsonArray();
-                if (ja2.size() > -1)
+                if (jaOuter.hasNext())
                 {
-                    jaInner = ja2.iterator();
-                    return;
+                    final JsonArray ja2 = jaOuter.next().getAsJsonArray();
+
+                    if (ja2.size() > -1) {
+                        jaInner = ja2.iterator();
+                        innerSize = ja2.size();
+                        return;
+                    }
                 }
             }
         }

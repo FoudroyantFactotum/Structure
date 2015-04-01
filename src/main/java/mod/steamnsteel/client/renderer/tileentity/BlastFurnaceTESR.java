@@ -72,14 +72,14 @@ public class BlastFurnaceTESR extends SteamNSteelTESR
         final int metadata = world.getBlockMetadata(x, y, z);
         final Orientation orientation = Orientation.getdecodedOrientation(metadata);
 
-        GL11.glRotatef(getAngleFromOrientation(orientation), 0.0F, 1.0F, 0.0F);
-        GL11.glTranslatef(OFFSET.left, OFFSET.middle, OFFSET.right);
-
         // If block is mirrored, flip faces and scale along -Z
         if ((metadata & SteamNSteelStructureBlock.flagMirrored) != 0) {
             GL11.glFrontFace(GL11.GL_CW);
             GL11.glScalef(1, 1, -1);
         }
+
+        GL11.glRotatef(getAngleFromOrientation(orientation), 0.0F, 1.0F, 0.0F);
+        GL11.glTranslatef(OFFSET.left, OFFSET.middle, OFFSET.right);
 
         // Bind the texture
         bindTexture(TEXTURE);

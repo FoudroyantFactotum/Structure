@@ -25,33 +25,45 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class StructureBlockCoord
 {
-    private final WorldBlockCoord worldCoord;
-    private final Vec3 localCoord;
-    private final Orientation orienetation;
-    private final Vec3 pSize;
+    private final int localCoordX;
+    private final int localCoordY;
+    private final int localCoordZ;
+
+    private final int localNeighbors;
+    private final boolean isMasterBlock;
+
+    private final Vec3 worldLocation;
+    private final Orientation orientation;
     private final boolean isMirrored;
 
-    public StructureBlockCoord(WorldBlockCoord worldCoord, Vec3 localCoord, Orientation orienetation, Vec3 pSize, boolean isMirrored)
-    {
-        this.worldCoord = worldCoord;
-        this.localCoord = localCoord;
-        this.orienetation = orienetation;
-        this.pSize = pSize;
+    private final WorldBlockCoord worldCoord;
 
+    public StructureBlockCoord(int localCoordX, int localCoordY, int localCoordZ, boolean isMasterBlock,
+                               int localNeighbors, Vec3 worldLocation,
+                               WorldBlockCoord worldCoord, Orientation orientation, boolean isMirrored)
+    {
+        this.localCoordX = localCoordX;
+        this.localCoordY = localCoordY;
+        this.localCoordZ = localCoordZ;
+
+        this.localNeighbors = localNeighbors;
+        this.isMasterBlock = isMasterBlock;
+
+        this.worldLocation = worldLocation;
+        this.orientation = orientation;
         this.isMirrored = isMirrored;
+        this.worldCoord = worldCoord;
     }
 
     public Block getBlock(IBlockAccess world)
     {
         return worldCoord.getBlock(world);
-    }
-
-    public Vec3 getSize()
-    {
-        return Vec3.createVectorHelper(pSize.xCoord,pSize.yCoord,pSize.zCoord);
     }
 
     public int getX()
@@ -81,17 +93,23 @@ public class StructureBlockCoord
 
     public void setMeta(World world, int meta, int flag)
     {
-        world.setBlockMetadataWithNotify(worldCoord.getX(),worldCoord.getY(),worldCoord.getZ(), meta, flag);
+        //todo redo
+        world.setBlockMetadataWithNotify(worldCoord.getX(), worldCoord.getY(), worldCoord.getZ(), meta, flag);
     }
 
     public void updateNeighbors(World world)
     {
-        world.notifyBlocksOfNeighborChange(worldCoord.getX(),worldCoord.getY(),worldCoord.getZ(), ModBlock.structureShape);
+        world.notifyBlocksOfNeighborChange(worldCoord.getX(), worldCoord.getY(), worldCoord.getZ(), ModBlock.structureShape);
     }
 
     public boolean isAirBlock(World world)
     {
         return worldCoord.isAirBlock(world);
+    }
+
+    public boolean isReplaceable(World world)
+    {
+        return worldCoord.getBlock(world).canReplace(world, worldCoord.getX(),worldCoord.getY(),worldCoord.getZ(),0,null);
     }
 
     public TileEntity getTileEntity(World world)
@@ -106,62 +124,37 @@ public class StructureBlockCoord
 
     public int getLX()
     {
-        return (int)localCoord.xCoord;
+        return localCoordX;
     }
 
     public int getLY()
     {
-        return (int)localCoord.yCoord;
+        return localCoordY;
     }
 
     public int getLZ()
     {
-        return (int) localCoord.zCoord;
+        return localCoordZ;
     }
 
     public Vec3 getLocal()
     {
-        return Vec3.createVectorHelper(localCoord.xCoord, localCoord.yCoord, localCoord.zCoord);
-    }
-
-    public Orientation getOrienetation()
-    {
-        return orienetation;
+        return Vec3.createVectorHelper(localCoordX, localCoordY, localCoordZ);
     }
 
     public boolean isMasterBlock()
     {
-        return getLX() == 0 && getLY() == 0 && (isMirrored ? pSize.zCoord-getLZ()-1 : getLZ()) == 0;
-    }
-
-    public boolean isMirrored()
-    {
-        return isMirrored;
+        return isMasterBlock;
     }
 
     public boolean hasLocalNeighbour(ForgeDirection d)
     {
-        if (d == ForgeDirection.NORTH || d == ForgeDirection.SOUTH)
-            if (isMirrored)
-                d = d.getOpposite();
+        return (localNeighbors & d.flag) != 0;
+    }
 
-        switch (d)
-        {
-            case DOWN:
-                return localCoord.yCoord > 0;
-            case UP:
-                return pSize.yCoord > localCoord.yCoord+1;
-            case NORTH:
-                return localCoord.zCoord > 0;
-            case SOUTH:
-                return pSize.zCoord > localCoord.zCoord+1;
-            case WEST:
-                return localCoord.xCoord > 0;
-            case EAST:
-                return pSize.xCoord > localCoord.xCoord+1;
-            default:
-                return false;
-        }
+    public String getLocalNeighbour()
+    {
+        return " \"" + toStringNeighbour(localNeighbors) + "\"";
     }
 
     public boolean isEdge()
@@ -175,32 +168,31 @@ public class StructureBlockCoord
 
     public boolean hasGlobalNeighbour(ForgeDirection d)
     {
-        //switch from local direction to global
-        switch (orienetation)
-        {
-            case SOUTH:
-                d = d.getRotation(ForgeDirection.DOWN).getRotation(ForgeDirection.DOWN);
-                break;
-            case WEST:
-                d = d.getRotation(ForgeDirection.UP);
-                break;
-            case EAST:
-                d = d.getRotation(ForgeDirection.DOWN);
-                break;
-            default://North
-        }
+        return hasLocalNeighbour(localToGlobal(d, orientation, isMirrored));
+    }
 
-        return hasLocalNeighbour(d);
+    public static String toStringNeighbour(int n)
+    {
+        final StringBuilder builder = new StringBuilder(ForgeDirection.VALID_DIRECTIONS.length);
+
+        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
+            builder.append((n & d.flag) != 0 ? d.name().charAt(0):' ');
+
+        return builder.toString();
     }
 
     @Override
     public String toString()
     {
         return Objects.toStringHelper(this)
-                .add("worldCoord",worldCoord)
-                .add("localCoord",localCoord)
-                .add("orienetation",orienetation)
-                .add("pSize",pSize)
+                .add("localCoord", ImmutableTriple.of(localCoordX,localCoordY,localCoordZ))
+                .add("localNeighbors", toStringNeighbour(localNeighbors))
+                .add("worldCoord", worldCoord)
+                .add("isMasterBlock",isMasterBlock)
+                .add("worldLocation", worldLocation)
+                .add("orientation", orientation)
+                .add("isMirrored", isMirrored)
+                .add("worldCoord", worldCoord)
                 .toString();
     }
 }

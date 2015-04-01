@@ -18,7 +18,9 @@ package mod.steamnsteel.structure.registry;
 import com.google.common.base.Objects;
 import net.minecraftforge.common.util.ForgeDirection;
 
-public class StructureBlockSideAccess
+import java.util.Arrays;
+
+public final class StructureBlockSideAccess
 {
     private static final int[] EMPTY_SLOTS = new int[0];
     public static final StructureBlockSideAccess MISSING_SIDE_ACCESS = new StructureBlockSideAccess();
@@ -63,27 +65,12 @@ public class StructureBlockSideAccess
         return (inputSides & side.flag) != 0;
     }
 
-    private static String arrayToString(int[] l)
-    {
-        final StringBuilder b = new StringBuilder(l.length);
-
-        b.append('[');
-        for (int i: l) {
-            b.append(i);
-            b.append(',');
-        }
-        b.deleteCharAt(b.length()-1);
-        b.append(']');
-
-        return b.toString();
-    }
-
     @Override
     public String toString()
     {
         return Objects.toStringHelper(this)
                 .add("inputSides", ForgeDirection.getOrientation(inputSides))
-                .add("accessibleSlots", arrayToString(accessibleSlots))
+                .add("accessibleSlots", Arrays.toString(accessibleSlots))
                 .add("canInsert", canInsert)
                 .add("canExtract", canExtract)
                 .toString();

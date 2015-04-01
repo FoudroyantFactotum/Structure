@@ -23,7 +23,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public class StructureShapeTE extends SteamNSteelStructureTE
 {//todo fix :p
@@ -48,7 +48,7 @@ public class StructureShapeTE extends SteamNSteelStructureTE
 
     public void getMasterTE()
     {
-        final Vec3 mLoc;
+        final ImmutableTriple<Integer, Integer, Integer> mloc;
 
         if (!masterLocation.isPresent())
         {
@@ -56,12 +56,12 @@ public class StructureShapeTE extends SteamNSteelStructureTE
             final Orientation o = Orientation.getdecodedOrientation(meta);
             final boolean isMirrored = SteamNSteelStructureBlock.isMirrored(meta);
 
-            mLoc = getMasterLocation(o, isMirrored);
+            mloc = getMasterLocation(o, isMirrored);
         } else
-            mLoc = masterLocation.get();
+            mloc = masterLocation.get();
 
         final TileEntity mTe = getWorldObj()
-                .getTileEntity((int) mLoc.xCoord, (int) mLoc.yCoord, (int) mLoc.zCoord);
+                .getTileEntity(mloc.getLeft(), mloc.getMiddle(), mloc.getRight());
 
         masterTileEntity =  Optional.fromNullable(mTe instanceof SteamNSteelStructureTE? (SteamNSteelStructureTE) mTe: null);
     }

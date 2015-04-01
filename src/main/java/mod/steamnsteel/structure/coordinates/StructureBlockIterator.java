@@ -17,74 +17,111 @@ package mod.steamnsteel.structure.coordinates;
 
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.utility.Orientation;
-import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
+import java.util.BitSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class StructureBlockIterator implements Iterator<StructureBlockCoord>
 {
     private final Vec3 worldLocation;
-    private Vec3 block;
 
-    private final ImmutableTriple<Integer,Integer,Integer> maxSize;
-    private final ImmutableTriple<Integer,Integer,Integer> minSize;
-
-    private final Orientation orienetation;
+    private final Orientation orientation;
     private final boolean mirrored;
 
-    private final Vec3 patternSize;
+    private final ImmutableTriple<Integer,Integer,Integer> mps;
 
-    private static final int rotationMatrix[][][] = {
-            {{-1, 0}, {0, -1}}, //south
-            {{0, 1}, {-1, 0}}, //west
-            {{1, 0}, {0, 1}}, // north
-            {{0, -1}, {1, 0}}, //east
-    };
+    private final BitSet[][] sbLayout;
+
+    private int rhx = -1;
+    private int rhy = 0;
+    private int rhz = 0;
+
+    private boolean readHeadEnd = false;
 
     public StructureBlockIterator(StructureDefinition sp, Vec3 worldLocation, Orientation orientation, Boolean mirrored)
     {
         this.worldLocation = worldLocation;
-        final Vec3 spSize = sp.getSize();
-        this.orienetation = orientation;
+        this.orientation = orientation;
         this.mirrored = mirrored;
 
-        patternSize = sp.getSize();
+        sbLayout = sp.getBlockLayout();
+        mps = sp.getLocalMasterLocation();
 
-        maxSize = ImmutableTriple.of(
-                (int)spSize.xCoord-1,
-                (int)spSize.yCoord-1,
-                (int)spSize.zCoord-1
-        );
-
-        minSize = ImmutableTriple.of(
-                0,
-                0,
-                0
-        );
-
-        this.block = Vec3.createVectorHelper(
-                maxSize.getLeft(),
-                maxSize.getMiddle(),
-                maxSize.getRight());
-
-        if (mirrored) block.zCoord = minSize.getRight();
+        shiftReadHead();
     }
 
     public void cleanIterator()
     {
-        block = Vec3.createVectorHelper(
-                maxSize.getLeft(),
-                maxSize.getMiddle(),
-                maxSize.getRight());
+        rhx = -1;
+        rhy = 0;
+        rhz = 0;
+
+        readHeadEnd = false;
+
+        shiftReadHead();
+    }
+
+    private void shiftReadHead()
+    {
+        while (rhy < sbLayout.length)
+        {
+            final BitSet[] zLine = sbLayout[rhy];
+
+            while (rhz < zLine.length)
+            {
+                final BitSet xLine = zLine[rhz];
+
+                while (++rhx < xLine.length())
+                    if (xLine.get(rhx))
+                        return;
+
+                rhx = -1;
+                ++rhz;
+            }
+
+            rhz = 0;
+            ++rhy;
+        }
+
+        readHeadEnd = true;
+    }
+
+    private int getNeighbors()
+    {
+        int neighbours = 0;
+        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
+        {
+            final int fdx = rhx+d.offsetX;
+            final int fdy = rhy+d.offsetY;
+            final int fdz = rhz+d.offsetZ;
+
+            if (fdy > -1 && fdy < sbLayout.length)
+                if (fdz > -1 && fdz < sbLayout[fdy].length)
+                    if (fdx > -1 && fdx < sbLayout[fdy][fdz].length())
+                        if (sbLayout[fdy][fdz].get(fdx))
+                            neighbours |= d.flag;
+        }
+
+        return neighbours;
+    }
+
+    private boolean isReadHeadOnMaster()
+    {
+        return  rhx == mps.getLeft() &&
+                rhy == mps.getMiddle() &&
+                rhz == mps.getRight();
     }
 
     @Override
     public boolean hasNext()
     {
-        return block.yCoord >= 0;
+        return !readHeadEnd;
     }
 
     @Override
@@ -93,36 +130,18 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         if (!hasNext())
             throw new NoSuchElementException();
 
-        final int d = orienetation.ordinal();
+        final StructureBlockCoord sb = new StructureBlockCoord(
+                rhx, rhy, rhz,
+                isReadHeadOnMaster(),
+                getNeighbors(),
+                worldLocation,
+                localToGlobal(-rhx, -rhy, -rhz, worldLocation, mps, orientation, mirrored, sbLayout[0].length),
+                orientation, mirrored
+        );
 
-        final double xF = rotationMatrix[d][0][0] * block.xCoord + rotationMatrix[d][0][1] * block.zCoord;
-        final double zF = rotationMatrix[d][1][0] * block.xCoord + rotationMatrix[d][1][1] * block.zCoord;
-        final double yF = block.yCoord;
+        shiftReadHead();
 
-        final Vec3 locPos = Vec3.createVectorHelper(block.xCoord,block.yCoord, mirrored ? maxSize.getRight()-block.zCoord : block.zCoord);
-
-        --block.xCoord;
-        if (block.xCoord < minSize.getLeft())
-        {
-            block.xCoord = maxSize.getLeft();
-            block.zCoord += mirrored ?1:-1;
-        }
-
-        if (block.zCoord < minSize.getRight() || block.zCoord > maxSize.getRight())
-        {
-            block.zCoord = mirrored ? minSize.getRight() : maxSize.getRight();
-            --block.yCoord;
-        }
-
-        return new StructureBlockCoord(
-                WorldBlockCoord.of(
-                    (int)(xF + worldLocation.xCoord),
-                    (int)(yF + worldLocation.yCoord),
-                    (int)(zF + worldLocation.zCoord)),
-                locPos,
-                orienetation,
-                patternSize,
-                mirrored);
+        return sb;
     }
 
     @Override
