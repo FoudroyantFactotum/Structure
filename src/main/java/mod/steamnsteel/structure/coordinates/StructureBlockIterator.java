@@ -16,6 +16,7 @@
 package mod.steamnsteel.structure.coordinates;
 
 import mod.steamnsteel.structure.registry.StructureDefinition;
+import mod.steamnsteel.structure.registry.StructureNeighbours;
 import mod.steamnsteel.utility.Orientation;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -92,9 +93,10 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         readHeadEnd = true;
     }
 
-    private int getNeighbors()
+    private byte getNeighbors()
     {
-        int neighbours = 0;
+        byte neighbours = 0;
+
         for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
         {
             final int fdx = rhx+d.offsetX;
@@ -133,7 +135,7 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         final StructureBlockCoord sb = new StructureBlockCoord(
                 rhx, rhy, rhz,
                 isReadHeadOnMaster(),
-                getNeighbors(),
+                new StructureNeighbours(getNeighbors()),
                 worldLocation,
                 localToGlobal(-rhx, -rhy, -rhz, worldLocation, mps, orientation, mirrored, sbLayout[0].length),
                 orientation, mirrored

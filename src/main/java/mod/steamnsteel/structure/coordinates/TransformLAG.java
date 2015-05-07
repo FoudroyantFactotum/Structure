@@ -23,13 +23,18 @@ import mod.steamnsteel.structure.registry.MetaCorrecter.SMCStoneStairs;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
+import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import java.util.List;
 
-public class TransformLAG
+import static com.google.common.base.Preconditions.checkNotNull;
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
+public final class TransformLAG
 {
     private static final ImmutableMap<Block,IStructurePatternMetaCorrecter> META_CORRECTOR;
 
@@ -144,4 +149,39 @@ public class TransformLAG
         return meta;
     }
 
+    //collision boxes
+    public static void localToGlobal(int x, int y, int z, AxisAlignedBB aabb, List<AxisAlignedBB> boundingBoxList, float[][] collB, Orientation o, boolean isMirrored, ImmutableTriple<Integer, Integer, Integer> size)
+    {
+        int lggrCt = 0;
+
+        final int[][] matrix = rotationMatrix[o.encode()];
+
+        //todo fix fish-e if statement
+        final int ntx = o == Orientation.SOUTH || o == Orientation.WEST? -1:0;
+        final int ntz = o == Orientation.SOUTH || o == Orientation.EAST? -1:0;
+        final int tx = matrix[0][0] * ntx + matrix[0][1] * ntz;
+        final int tz = matrix[1][0] * ntx + matrix[1][1] * ntz;
+
+        final AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(0, 0, 0, 0, 0, 0);
+
+        for (final float[] f: collB)
+        {
+            final float c1x = matrix[0][0] * f[0] + matrix[0][1] * f[2];
+            final float c1z = matrix[1][0] * f[0] + matrix[1][1] * f[2];
+
+            final float c2x = matrix[0][0] * f[3] + matrix[0][1] * f[5];
+            final float c2z = matrix[1][0] * f[3] + matrix[1][1] * f[5];
+
+            bb.minX = x + min(c1x, c2x) + tx;
+            bb.minY = y + f[1];
+            bb.minZ = z + min(c1z, c2z) + tz;
+
+            bb.maxX = x + max(c1x, c2x) + tx;
+            bb.maxY = y + f[4];
+            bb.maxZ = z + max(c1z, c2z) + tz;
+
+            if (aabb.intersectsWith(bb))
+                boundingBoxList.add(bb.copy());
+        }
+    }
 }

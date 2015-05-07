@@ -50,7 +50,7 @@
     "definition": [
       {
         "char": "I",
-        "sides": "U",
+        "sides": "E",
         "accessibleSlots": [0],
         "can-Item": "I"
       },
@@ -62,7 +62,7 @@
       },
       {
         "char": "i",
-        "sides": "U",
+        "sides": "W",
         "accessibleSlots": [1],
         "can-Item": "I"
       },
@@ -75,11 +75,11 @@
     ],
     "configuration": [
       [
-        "E   e",
-        "     "
-      ],[
         "     ",
-        "i   I"
+        "E   e"
+      ],[
+        "i   I",
+        "     "
       ]
     ]
   },

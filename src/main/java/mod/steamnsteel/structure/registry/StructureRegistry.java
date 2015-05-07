@@ -32,10 +32,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-public class StructureRegistry
+public  class StructureRegistry
 {
-    private static String STRUCTURE_LOCATION = "structure/";
-    private static String STRUCTURE_FILE_EXTENSION = ".structure.json";
+    private static final String STRUCTURE_LOCATION = "structure/";
+    private static final String STRUCTURE_FILE_EXTENSION = ".structure.json";
 
     private static Map<Integer, SteamNSteelStructureBlock> structures = new HashMap<Integer, SteamNSteelStructureBlock>();
 
@@ -53,8 +53,14 @@ public class StructureRegistry
             final Field structurePattern = SteamNSteelStructureBlock.class.getDeclaredField("structureDefinition");
             structurePattern.setAccessible(true);
 
+            final Field regHash = SteamNSteelStructureBlock.class.getDeclaredField("regHash");
+            regHash.setAccessible(true);
+
             for (SteamNSteelStructureBlock block: registeredStructures)
+            {
                 structurePattern.set(block, registerPattern(block));
+                regHash.set(block, block.getUnlocalizedName().hashCode());
+            }
 
             Logger.info("Loaded all " + registeredStructures.size() + " Registered Patterns");
 

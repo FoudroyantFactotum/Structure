@@ -17,8 +17,9 @@ package mod.steamnsteel.structure.IStructure;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public interface IStructureAspects
 {
-    boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float sx, float sy, float sz, int sbID, int sbx, int sby, int sbz);
+    boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float sx, float sy, float sz, ImmutableTriple<Byte, Byte, Byte> sbID, int sbx, int sby, int sbz);
 }

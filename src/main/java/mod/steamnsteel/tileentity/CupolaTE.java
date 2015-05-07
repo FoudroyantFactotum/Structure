@@ -290,7 +290,6 @@ public class CupolaTE extends SteamNSteelTE implements ISidedInventory
     public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
     {
         return slotIndex != OUTPUT && (slotIndex != INPUT_FUEL || TileEntityFurnace.isItemFuel(itemStack));
-
     }
 
     @Override

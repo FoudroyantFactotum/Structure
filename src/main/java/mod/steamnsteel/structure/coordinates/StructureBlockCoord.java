@@ -17,6 +17,7 @@ package mod.steamnsteel.structure.coordinates;
 
 import com.google.common.base.Objects;
 import mod.steamnsteel.library.ModBlock;
+import mod.steamnsteel.structure.registry.StructureNeighbours;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
@@ -31,11 +32,11 @@ import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class StructureBlockCoord
 {
-    private final int localCoordX;
-    private final int localCoordY;
-    private final int localCoordZ;
+    private final byte localCoordX;
+    private final byte localCoordY;
+    private final byte localCoordZ;
 
-    private final int localNeighbors;
+    private final StructureNeighbours localNeighbors;
     private final boolean isMasterBlock;
 
     private final Vec3 worldLocation;
@@ -45,12 +46,12 @@ public class StructureBlockCoord
     private final WorldBlockCoord worldCoord;
 
     public StructureBlockCoord(int localCoordX, int localCoordY, int localCoordZ, boolean isMasterBlock,
-                               int localNeighbors, Vec3 worldLocation,
+                               StructureNeighbours localNeighbors, Vec3 worldLocation,
                                WorldBlockCoord worldCoord, Orientation orientation, boolean isMirrored)
     {
-        this.localCoordX = localCoordX;
-        this.localCoordY = localCoordY;
-        this.localCoordZ = localCoordZ;
+        this.localCoordX = (byte)localCoordX;
+        this.localCoordY = (byte)localCoordY;
+        this.localCoordZ = (byte)localCoordZ;
 
         this.localNeighbors = localNeighbors;
         this.isMasterBlock = isMasterBlock;
@@ -109,7 +110,9 @@ public class StructureBlockCoord
 
     public boolean isReplaceable(World world)
     {
-        return worldCoord.getBlock(world).canReplace(world, worldCoord.getX(),worldCoord.getY(),worldCoord.getZ(),0,null);
+        return worldCoord.getY() < world.getActualHeight()-1 &&
+                world.getActualHeight() > 0 &&
+                        worldCoord.getBlock(world).canReplace(world, worldCoord.getX(),worldCoord.getY(),worldCoord.getZ(),0,null);
     }
 
     public TileEntity getTileEntity(World world)
@@ -122,24 +125,24 @@ public class StructureBlockCoord
         world.removeTileEntity(worldCoord.getX(),worldCoord.getY(),worldCoord.getZ());
     }
 
-    public int getLX()
+    public byte getLX()
     {
         return localCoordX;
     }
 
-    public int getLY()
+    public byte getLY()
     {
         return localCoordY;
     }
 
-    public int getLZ()
+    public byte getLZ()
     {
         return localCoordZ;
     }
 
-    public Vec3 getLocal()
+    public ImmutableTriple<Byte,Byte,Byte> getLocal()
     {
-        return Vec3.createVectorHelper(localCoordX, localCoordY, localCoordZ);
+        return ImmutableTriple.of(localCoordX, localCoordY, localCoordZ);
     }
 
     public boolean isMasterBlock()
@@ -149,12 +152,7 @@ public class StructureBlockCoord
 
     public boolean hasLocalNeighbour(ForgeDirection d)
     {
-        return (localNeighbors & d.flag) != 0;
-    }
-
-    public String getLocalNeighbour()
-    {
-        return " \"" + toStringNeighbour(localNeighbors) + "\"";
+        return localNeighbors.hasNeighbour(d);
     }
 
     public boolean isEdge()
@@ -168,17 +166,7 @@ public class StructureBlockCoord
 
     public boolean hasGlobalNeighbour(ForgeDirection d)
     {
-        return hasLocalNeighbour(localToGlobal(d, orientation, isMirrored));
-    }
-
-    public static String toStringNeighbour(int n)
-    {
-        final StringBuilder builder = new StringBuilder(ForgeDirection.VALID_DIRECTIONS.length);
-
-        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
-            builder.append((n & d.flag) != 0 ? d.name().charAt(0):' ');
-
-        return builder.toString();
+        return localNeighbors.hasNeighbour(localToGlobal(d, orientation, isMirrored));
     }
 
     @Override
@@ -186,7 +174,7 @@ public class StructureBlockCoord
     {
         return Objects.toStringHelper(this)
                 .add("localCoord", ImmutableTriple.of(localCoordX,localCoordY,localCoordZ))
-                .add("localNeighbors", toStringNeighbour(localNeighbors))
+                .add("localNeighbors", localNeighbors)
                 .add("worldCoord", worldCoord)
                 .add("isMasterBlock",isMasterBlock)
                 .add("worldLocation", worldLocation)

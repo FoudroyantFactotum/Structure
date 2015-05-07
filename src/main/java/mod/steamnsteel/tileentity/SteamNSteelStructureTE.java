@@ -20,17 +20,16 @@ import com.google.common.base.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.inventory.Inventory;
-import mod.steamnsteel.structure.IStructure.IPatternHolder;
+import mod.steamnsteel.structure.IStructure.IStructureSidedInventory;
 import mod.steamnsteel.structure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
 import mod.steamnsteel.structure.registry.StructureBlockSideAccess;
 import mod.steamnsteel.structure.registry.StructureDefinition;
+import mod.steamnsteel.structure.registry.StructureNeighbours;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.utility.Orientation;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -40,165 +39,67 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.getBoundingBoxUsingPattern;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
-import static mod.steamnsteel.structure.coordinates.StructureBlockCoord.toStringNeighbour;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.structure.registry.StructureDefinition.dehashLoc;
 import static mod.steamnsteel.structure.registry.StructureDefinition.hashLoc;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
-public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, ISidedInventory, IPatternHolder
+public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, IStructureSidedInventory
 {
-    private static final int maskBlockID = 0xFFFFFF;
+    public static final ImmutableTriple<Byte,Byte,Byte> ORIGIN_ZERO = ImmutableTriple.of((byte)0,(byte)0,(byte)0);
+    static final int maskBlockID = 0xFFFFFF;
+    static final byte shiftNeighbourBlocks = Byte.SIZE * 3;
 
-    private static final byte shiftNeighbourBlocks = Byte.SIZE * 3;
+    static final String BLOCK_INFO = "blockINFO";
+    static final String BLOCK_PATTERN_NAME = "blockPatternHash";
 
-    private static final String BLOCK_INFO = "blockINFO";
-    private static final String BLOCK_PATTERN_NAME = "blockPatternHash";
-
-    private byte neighbourBlocks = 0x0;
-    private ImmutableTriple<Byte, Byte, Byte> blockID = ImmutableTriple.of((byte)0,(byte)0,(byte)0);
-    private int blockPatternHash = "".hashCode();
+    private ImmutableTriple<Byte, Byte, Byte> blockID = ImmutableTriple.of((byte) 0, (byte) 0, (byte) 0);
+    private int patternHash = -1;
 
     private Optional<AxisAlignedBB> renderBounds = Optional.absent();
-    private boolean checkForMasterBlockType = true;
-    private SteamNSteelStructureBlock structurePatternBlock = null;
-
-    protected Optional<ImmutableTriple<Integer, Integer, Integer>> masterLocation = Optional.absent();
+    private StructureNeighbours neighbours = StructureNeighbours.MISSING_NEIGHBOURS;
 
 
-    protected abstract boolean hasSharedInventory();
-    protected abstract Inventory getSharedInventory();
+    //================================================================
+    //                 S T R U C T U R E   C O N F I G
+    //================================================================
 
-    //todo marked for Liquid/Steam management later on.
-    //protected abstract boolean hasSharedLiquidStorage();
-    //protected abstract ------- getSharedLiquidStorage();
+    @Override
+    public SteamNSteelStructureBlock getMasterBlockInstance()
+    {
+        return StructureRegistry.getBlock(patternHash);
+    }
+
+    @Override
+    public ImmutableTriple<Integer,Integer,Integer> getMasterLocation(int meta)
+    {
+        return ImmutableTriple.of(xCoord, yCoord, zCoord);
+    }
+
+    public int getRegHash()
+    {
+        return patternHash;
+    }
 
     @Override
     public StructureDefinition getPattern()
     {
-        return getMasterBlockInstance() != null ?
-                structurePatternBlock.getPattern() :
-                StructureDefinition.MISSING_STRUCTURE;
-    }
-
-    public SteamNSteelStructureBlock getMasterBlockInstance()
-    {
-        if (checkForMasterBlockType)
-        {
-            final SteamNSteelStructureBlock block = StructureRegistry.getBlock(blockPatternHash);
-
-            if (block != null)
-                structurePatternBlock = block;
-
-            checkForMasterBlockType = false;
-        }
-
-        return structurePatternBlock;
+        return StructureRegistry.getBlock(patternHash).getPattern();
     }
 
     @Override
-    public Packet getDescriptionPacket()
+    public StructureNeighbours getNeighbours()
     {
-        final NBTTagCompound nbt = new NBTTagCompound();
-        writeToNBT(nbt);
-
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, nbt);
+        return neighbours;
     }
 
     @Override
-    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
+    public void configureBlock(StructureBlockCoord sBlock, int patternHash)
     {
-        readFromNBT(packet.func_148857_g());
-    }
-
-    @Override
-    public void readFromNBT(NBTTagCompound nbt)
-    {
-        super.readFromNBT(nbt);
-
-        final int blockInfo = nbt.getInteger(BLOCK_INFO);
-        blockPatternHash = nbt.getInteger(BLOCK_PATTERN_NAME);
-
-        blockID = dehashLoc(blockInfo & maskBlockID);
-        neighbourBlocks = (byte)(blockInfo >>> shiftNeighbourBlocks);
-    }
-
-    @Override
-    public void writeToNBT(NBTTagCompound nbt)
-    {
-        super.writeToNBT(nbt);
-
-        nbt.setInteger(BLOCK_INFO, getBlockID() | neighbourBlocks << shiftNeighbourBlocks);
-        nbt.setInteger(BLOCK_PATTERN_NAME, blockPatternHash);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getRenderBoundingBox()
-    {
-        if (!renderBounds.isPresent())
-        {
-            final Orientation o = getdecodedOrientation(getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord));
-
-            final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) getBlockType();
-            final StructureDefinition pattern = block.getPattern();
-
-            renderBounds = pattern == StructureDefinition.MISSING_STRUCTURE ?
-                    Optional.of(INFINITE_EXTENT_AABB) :
-                    Optional.of(SteamNSteelStructureBlock.getBoundingBoxUsingPattern(xCoord,yCoord,zCoord,pattern,o));
-        }
-
-        return renderBounds.get();
-    }
-
-    @Override
-    public int[] getAccessibleSlotsFromSide(int side)
-    {
-        return getSideAccess(side).getAccessibleSlotsFromSide();
-    }
-
-    @Override
-    public boolean canInsertItem(int slotIndex, ItemStack itemStack, int side)
-    {
-        return getSideAccess(side).canInsertItem();
-    }
-
-    @Override
-    public boolean canExtractItem(int slotIndex, ItemStack itemStack, int side)
-    {
-        return getSideAccess(side).canExtractItem();
-    }
-
-    private StructureBlockSideAccess getSideAccess(int side)
-    {//todo cache?
-        final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
-        return getPattern().getSideAccess(
-                blockID.getLeft(),
-                blockID.getMiddle(),
-                blockID.getRight(),
-                localToGlobal(
-                        ForgeDirection.values()[side],
-                        getdecodedOrientation(meta),
-                        isMirrored(meta)
-                )
-        );
-    }
-
-    @Override
-    public void configureBlock(StructureBlockCoord sBlock)
-    {
-        setBlockID(sBlock.getLX(),sBlock.getLY(),sBlock.getLZ());
-
-        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
-            if (sBlock.hasGlobalNeighbour(d))
-                setNeighbour(d);
-    }
-
-    @Override
-    public void setBlockPattern(String name)
-    {
-        blockPatternHash = name.hashCode();
+        neighbours = new StructureNeighbours(sBlock);
+        this.patternHash = patternHash;
     }
 
     @Override
@@ -227,53 +128,6 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         );
     }
 
-    public ImmutableTriple<Integer, Integer, Integer> getMasterLocation()
-    {
-        //if (!masterLocation.isPresent())
-            return getMasterLocation(getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord));
-
-        //return masterLocation.get();
-    }
-
-    public ImmutableTriple<Integer, Integer, Integer> getMasterLocation(int meta)
-    {
-        //if (!masterLocation.isPresent())
-        {
-            final Orientation o = getdecodedOrientation(meta);
-            final boolean isMirrored = isMirrored(meta);
-
-            return getMasterLocation(o,isMirrored);
-        }
-
-        //return masterLocation.get();
-    }
-
-    public ImmutableTriple<Integer, Integer, Integer> getMasterLocation(Orientation o, boolean isMirrored)
-    {
-        //if (!masterLocation.isPresent())
-        {
-            final ImmutableTriple<Integer, Integer, Integer> size = getPattern().getBlockBounds();
-            masterLocation = Optional.of(localToGlobal(
-                    blockID.getLeft(), blockID.getMiddle(), blockID.getRight(),
-                    xCoord, yCoord, zCoord,
-                    o,
-                    isMirrored,
-                    size.getRight()
-            ));
-        }
-
-        return masterLocation.get();
-    }
-
-    private void setBlockID(int x, int y, int z)
-    {
-        blockID = ImmutableTriple.of(
-                (byte) x,
-                (byte) y,
-                (byte) z
-        );
-    }
-
     public int getBlockID()
     {
         return hashLoc(
@@ -283,27 +137,121 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         );
     }
 
-    private void setNeighbour(ForgeDirection d)
-    {
-        neighbourBlocks |= d.flag;
+    //================================================================
+    //                     I T E M   I N P U T
+    //================================================================
+
+    private StructureBlockSideAccess getSideAccess(int side)
+    {//todo cache?
+        final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
+
+        return getPattern().getSideAccess(
+                blockID.getLeft(),
+                blockID.getMiddle(),
+                blockID.getRight(),
+                localToGlobal(
+                        ForgeDirection.values()[side],
+                        getdecodedOrientation(meta),
+                        isMirrored(meta)
+                )
+        );
     }
 
     @Override
-    public boolean hasNeighbour(ForgeDirection d)
+    public int[] getAccessibleSlotsFromSide(int side)
     {
-        return (neighbourBlocks & d.flag) != 0;
+        return getSideAccess(side).getAccessibleSlotsFromSide();
+    }
+
+    @Override
+    public boolean canInsertItem(int slotIndex, ItemStack itemStack, int side)
+    {
+        return canStructreInsertItem(slotIndex, itemStack, side, ORIGIN_ZERO);
+    }
+
+    @Override
+    public boolean canExtractItem(int slotIndex, ItemStack itemStack, int side)
+    {
+        return canStructreExtractItem(slotIndex, itemStack, side, ORIGIN_ZERO);
+    }
+
+    @Override
+    public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
+    {
+        return slotIndex >= 0 && slotIndex < 4;
+    }
+
+    //================================================================
+    //                            N B T
+    //================================================================
+
+    @Override
+    public Packet getDescriptionPacket()
+    {
+        final NBTTagCompound nbt = new NBTTagCompound();
+        writeToNBT(nbt);
+
+        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, nbt);
+    }
+
+    @Override
+    public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
+    {
+        readFromNBT(packet.func_148857_g());
+    }
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
+
+        final int blockInfo = nbt.getInteger(BLOCK_INFO);
+        patternHash = nbt.getInteger(BLOCK_PATTERN_NAME);
+
+        blockID = dehashLoc(blockInfo & maskBlockID);
+        neighbours =  new StructureNeighbours((byte)(blockInfo >>> shiftNeighbourBlocks));
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+
+        nbt.setInteger(BLOCK_INFO, getBlockID() | neighbours.hashCode() << shiftNeighbourBlocks);
+        nbt.setInteger(BLOCK_PATTERN_NAME, patternHash);
+    }
+
+    //================================================================
+    //                    C L I E N T   S I D E
+    //================================================================
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public AxisAlignedBB getRenderBoundingBox()
+    {
+        if (!renderBounds.isPresent())
+        {
+            final Orientation o = getdecodedOrientation(getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord));
+
+            final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) getBlockType();
+            final StructureDefinition pattern = block.getPattern();
+
+            renderBounds = pattern == StructureDefinition.MISSING_STRUCTURE ?
+                    Optional.of(INFINITE_EXTENT_AABB) :
+                    Optional.of(getBoundingBoxUsingPattern(xCoord, yCoord, zCoord, pattern, o));
+        }
+
+        return renderBounds.get();
     }
 
     @Override
     public String toString()
     {
         return Objects.toStringHelper(this)
-                .add("neighbourBlocks", toStringNeighbour(neighbourBlocks))
+                .add("neighbourBlocks", neighbours)
                 .add("blockID", blockID)
                 .add("renderBounds", renderBounds)
-                .add("blockPatternHash", blockPatternHash)
-                .add("masterLocation", masterLocation)
-                .add("structurePattern", structurePatternBlock)
+                .add("blockPatternHash", patternHash)
                 .toString();
     }
 }

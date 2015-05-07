@@ -18,8 +18,7 @@ package mod.steamnsteel.proxy;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
-import mod.steamnsteel.client.renderer.item.CupolaItemRenderer;
-import mod.steamnsteel.client.renderer.item.PlotoniumChestItemRenderer;
+import mod.steamnsteel.client.renderer.item.*;
 import mod.steamnsteel.client.renderer.tileentity.*;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.tileentity.*;
@@ -44,6 +43,9 @@ public class ClientRenderProxy extends RenderProxy
 
     private void registerItemRenderers()
     {
+        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.ballMill), new BallMillItemRenderer());
+        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.blastFurnace), new BlastFurnaceItemRenderer());
+        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.boiler), new BoilerItemRenderer());
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.cupola), new CupolaItemRenderer());
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.chestPlotonium), new PlotoniumChestItemRenderer());
     }

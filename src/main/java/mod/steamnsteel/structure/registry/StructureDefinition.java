@@ -22,7 +22,6 @@ import com.google.gson.JsonDeserializer;
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.structure.json.JSONStructureDefinition;
 import net.minecraft.block.Block;
-import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
@@ -79,7 +78,7 @@ public class StructureDefinition
     }
 
     public Block getBlock(int x, int y, int z)
-    { //todo use short sc and
+    {
         if (blocks != null)
             if (blocks.length > y)
                 if (blocks[y].length > z)
@@ -90,7 +89,7 @@ public class StructureDefinition
     }
 
     public int getBlockMetadata(int x, int y, int z)
-    {//todo use short sc and
+    {
         if (metadata != null)
             if (metadata.length > y)
                 if (metadata[y].length > z)
@@ -177,14 +176,6 @@ public class StructureDefinition
                 .add("sbLayout", Arrays.toString(sbLayout))
                 .add("cleanUpOnBuild", cleanUpOnBuild)
                 .toString();
-    }
-
-    public Vec3 getHalfSize() {
-        return Vec3.createVectorHelper(
-                sbLayout[0][0].length()/2.0f,
-                sbLayout.length/2.0f,
-                sbLayout[0].length/2.0f
-        );
     }
 
     public ImmutableTriple<Integer, Integer, Integer> getMasterLocation()

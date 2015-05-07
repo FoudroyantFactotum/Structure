@@ -16,13 +16,12 @@
 package mod.steamnsteel.tileentity;
 
 
-import com.google.common.base.Objects;
 import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.inventory.Inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.Vec3;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public class BallMillTE extends SteamNSteelStructureTE
 {//TODO complete class
@@ -45,18 +44,6 @@ public class BallMillTE extends SteamNSteelStructureTE
     {
         super.writeToNBT(nbt);
         inventory.writeToNBT(nbt);
-    }
-
-    @Override
-    protected boolean hasSharedInventory()
-    {
-        return true;
-    }
-
-    @Override
-    protected Inventory getSharedInventory()
-    {
-        return inventory;
     }
 
     @Override
@@ -135,9 +122,18 @@ public class BallMillTE extends SteamNSteelStructureTE
     @Override
     public String toString()
     {
-        return Objects.toStringHelper(this)
-                .add("position", Vec3.createVectorHelper(xCoord, yCoord, zCoord))
-                .add("inventory", inventory)
-                .toString();
+        return inventory.toString();
+    }
+
+    @Override
+    public boolean canStructreInsertItem(int slot, ItemStack item, int side, ImmutableTriple<Byte, Byte, Byte> blockID)
+    {
+        return true;
+    }
+
+    @Override
+    public boolean canStructreExtractItem(int slot, ItemStack item, int side, ImmutableTriple<Byte, Byte, Byte> blockID)
+    {
+        return true;
     }
 }

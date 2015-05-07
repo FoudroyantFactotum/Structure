@@ -35,7 +35,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
 {
     public static final Gson gson = new GsonBuilder()
             .registerTypeAdapter(StructureDefinition.class, StructureDefinition.getJsonDeserializer())
-            .registerTypeAdapter(JsonStructureBlockSideAccess.class, new JsonStructureBlockSideAccess())
+            .registerTypeAdapter(StructureBlockSideAccess.class, new JsonStructureBlockSideAccess())
             .create();
 
     private static final String IO = "I/O";

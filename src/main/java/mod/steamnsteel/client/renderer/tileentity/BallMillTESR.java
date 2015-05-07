@@ -29,7 +29,7 @@ import org.lwjgl.opengl.GL11;
 
 public class BallMillTESR extends SteamNSteelTESR
 {
-    private static final ResourceLocation TEXTURE = getResourceLocation(BallMillBlock.NAME);
+    public static final ResourceLocation TEXTURE = getResourceLocation(BallMillBlock.NAME);
     private static final ImmutableTriple<Float, Float, Float> SCALE = ImmutableTriple.of(1.0f, 1.0f, 1.0f);
     private static final ImmutableTriple<Float, Float, Float> OFFSET = ImmutableTriple.of(1.5f, 0.0f, 0.5f);
 

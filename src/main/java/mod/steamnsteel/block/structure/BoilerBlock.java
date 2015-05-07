@@ -49,7 +49,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
 
     @Override
     @SideOnly(Side.CLIENT)
-    protected void spawnBreakParticle(World world, SteamNSteelStructureTE te, StructureBlockCoord coord, float sx, float sy, float sz)
+    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, StructureBlockCoord coord, float sx, float sy, float sz)
     {
         final int x = coord.getX();
         final int y = coord.getY();

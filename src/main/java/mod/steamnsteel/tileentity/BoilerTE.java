@@ -15,9 +15,9 @@
  */
 package mod.steamnsteel.tileentity;
 
-import mod.steamnsteel.inventory.Inventory;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public class BoilerTE extends SteamNSteelStructureTE
 {//TODO complete class
@@ -25,18 +25,6 @@ public class BoilerTE extends SteamNSteelStructureTE
     public int getSizeInventory()
     {
         return 0;
-    }
-
-    @Override
-    protected boolean hasSharedInventory()
-    {
-        return false;
-    }
-
-    @Override
-    protected Inventory getSharedInventory()
-    {
-        return null;
     }
 
     @Override
@@ -101,6 +89,18 @@ public class BoilerTE extends SteamNSteelStructureTE
 
     @Override
     public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean canStructreInsertItem(int slot, ItemStack item, int side, ImmutableTriple<Byte, Byte, Byte> blockID)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean canStructreExtractItem(int slot, ItemStack item, int side, ImmutableTriple<Byte, Byte, Byte> blockID)
     {
         return false;
     }

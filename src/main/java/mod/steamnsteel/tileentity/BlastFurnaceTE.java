@@ -23,6 +23,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.Vec3;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public class BlastFurnaceTE extends SteamNSteelStructureTE
 {//TODO complete class
@@ -46,18 +47,6 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     {
         super.writeToNBT(nbt);
         inventory.writeToNBT(nbt);
-    }
-
-    @Override
-    protected boolean hasSharedInventory()
-    {
-        return true;
-    }
-
-    @Override
-    protected Inventory getSharedInventory()
-    {
-        return inventory;
     }
 
     @Override
@@ -142,5 +131,17 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
                 .add("position", Vec3.createVectorHelper(xCoord,yCoord,zCoord))
                 .add("inventory", inventory)
                 .toString();
+    }
+
+    @Override
+    public boolean canStructreInsertItem(int slot, ItemStack item, int side, ImmutableTriple<Byte, Byte, Byte> blockID)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean canStructreExtractItem(int slot, ItemStack item, int side, ImmutableTriple<Byte, Byte, Byte> blockID)
+    {
+        return false;
     }
 }

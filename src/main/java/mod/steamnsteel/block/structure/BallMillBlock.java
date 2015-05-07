@@ -24,8 +24,10 @@ import mod.steamnsteel.tileentity.BallMillTE;
 import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.Random;
 
@@ -48,21 +50,21 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
 
     @Override
     @SideOnly(Side.CLIENT)
-    protected void spawnBreakParticle(World world, SteamNSteelStructureTE te, StructureBlockCoord coord, float sx, float sy, float sz)
+    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, StructureBlockCoord coord, float sx, float sy, float sz)
     {
         final int x = coord.getX();
         final int y = coord.getY();
         final int z = coord.getZ();
 
-        StructureDefinition pattern = te.getPattern();
+        final StructureDefinition pattern = te.getPattern();
 
-
-        if (pattern != null) {
+        if (pattern != null)
+        {
             final Block block = pattern.getBlock(coord.getLX(), coord.getLY(), coord.getLZ());
 
             if (block != null)
             {
-                for (int i = 0; i < 5; ++i)
+                for (int i = 0; i < 1; ++i)
                 {
                     world.spawnParticle("explode", x + rndRC(), y + 1, z + rndRC(), sx, sy, sz);
                     world.spawnParticle("explode", x, y + 0.5, z, sx, sy, sz);
@@ -78,4 +80,10 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
         return new BallMillTE();
     }
 
+    @Override
+    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float sx, float sy, float sz, ImmutableTriple<Byte, Byte, Byte> sbID, int sbx, int sby, int sbz)
+    {
+        print("Items: ", world.getTileEntity(x,y,z));
+        return false;
+    }
 }

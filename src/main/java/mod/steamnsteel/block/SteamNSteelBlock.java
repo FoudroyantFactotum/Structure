@@ -19,7 +19,6 @@ package mod.steamnsteel.block;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.TheMod;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.renderer.texture.IIconRegister;
@@ -52,15 +51,5 @@ public abstract class SteamNSteelBlock extends Block
     public void registerBlockIcons(IIconRegister iconRegister)
     {
         blockIcon = iconRegister.registerIcon(getUnwrappedUnlocalizedName(getUnlocalizedName()));
-    }
-
-    //todo remove function below
-    @SafeVarargs
-    protected static <E> void print(E... a)
-    {
-        final StringBuilder s = new StringBuilder(a.length);
-        for (final E b:a) s.append(b);
-
-        Logger.info(s.toString());
     }
 }

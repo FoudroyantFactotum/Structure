@@ -15,20 +15,21 @@
  */
 package mod.steamnsteel.structure;
 
+import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.IStructure.IPatternHolder;
+import mod.steamnsteel.structure.IStructure.IStructureNeighboursHolder;
 import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
-import mod.steamnsteel.structure.registry.StructureDefinition;
 import net.minecraft.block.Block;
-import net.minecraftforge.common.util.ForgeDirection;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-public interface IStructureTE
+public interface IStructureTE extends IPatternHolder, IStructureNeighboursHolder
 {
-    StructureDefinition getPattern();
-
-    boolean hasNeighbour(ForgeDirection d);
     Block getTransmutedBlock();
     int getTransmutedMeta();
 
+    int getRegHash();
+    ImmutableTriple<Integer,Integer,Integer> getMasterLocation(int meta);
+    SteamNSteelStructureBlock getMasterBlockInstance();
 
-    void setBlockPattern(String name);
-    void configureBlock(StructureBlockCoord sBlock);
+    void configureBlock(StructureBlockCoord sBlock, int patternHash);
 }

@@ -71,6 +71,6 @@ public class JsonStructureBlockSideAccess implements JsonDeserializer<StructureB
             if (d.name().charAt(0) == c)
                 return d.flag;
 
-        return ForgeDirection.UNKNOWN.flag;
+        throw new JsonParseException("No Known Flag");
     }
 }

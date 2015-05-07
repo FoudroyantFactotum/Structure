@@ -28,6 +28,8 @@ import java.util.BitSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import static mod.steamnsteel.structure.registry.StructureDefinition.dehashLoc;
+
 public final class StructureDefinitionBuilder
 {
     public BitSet[][] sbLayout;
@@ -116,7 +118,7 @@ public final class StructureDefinitionBuilder
 
         for (Integer i: sideAccess.keySet())
             //check hash to see if exists in size for optimization
-            if (!checkForValidBlockLocation(sbLayout, StructureDefinition.dehashLoc(i)))
+            if (!checkForValidBlockLocation(sbLayout, dehashLoc(i)))
                 remove.add(i);
 
 
@@ -129,7 +131,7 @@ public final class StructureDefinitionBuilder
             //todo correct logger
             for (Integer i : sideAccess.keySet())
                 if (remove.contains(i))
-                    Logger.info("Leftover side access @" + StructureDefinition.dehashLoc(i)
+                    Logger.info("Leftover side access @" + dehashLoc(i)
                         + " for " + sideAccess.get(i));
                 else
                     sideAccessReplacement.put(i, sideAccess.get(i));
@@ -144,7 +146,7 @@ public final class StructureDefinitionBuilder
                                            ImmutableTriple<Integer,Integer,Integer> mps,
                                            ImmutableTriple<Float, Float, Float> hlfSz)
     {
-        final float xShift = mps.getLeft() + hlfSz.getLeft();
+        /*final float xShift = mps.getLeft() + hlfSz.getLeft();
         final int   yShift = mps.getMiddle();
         final float zShift = mps.getLeft() + hlfSz.getLeft();
 
@@ -152,7 +154,7 @@ public final class StructureDefinitionBuilder
         {
             box[0] -= xShift; box[1] -= yShift; box[2] -= zShift;
             box[3] -= xShift; box[4] -= yShift; box[5] -= zShift;
-        }
+        }*/
     }
 
     private static boolean checkForValidBlockLocation(BitSet[][] sbLayout, ImmutableTriple<Byte,Byte,Byte> loc)
