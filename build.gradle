@@ -39,46 +39,46 @@ minecraft {
 }
 
 repositories
-{
-    maven
-    {
-        name = "ChickenBones"
-        url = "http://chickenbones.net/maven/"
-    }
-}
+        {
+            maven
+                    {
+                        name = "ChickenBones"
+                        url = "http://chickenbones.net/maven/"
+                    }
+        }
 
 dependencies
-{
-    compile 'codechicken:CodeChickenLib:1.7.10-1.1.1.99:dev'
-    compile 'codechicken:CodeChickenCore:1.7.10-1.0.2.9:dev'
-    compile 'codechicken:NotEnoughItems:1.7.10-1.0.2.15:dev'
-}
+        {
+            compile 'codechicken:CodeChickenLib:1.7.10-1.1.1.106:dev'
+            compile 'codechicken:CodeChickenCore:1.7.10-1.0.4.29:dev'
+            compile 'codechicken:NotEnoughItems:1.7.10-1.0.3.72:dev'
+        }
 
 processResources
-{
-    // this will ensure that this task is redone when the versions change.
-    inputs.property "version", project.version
-    inputs.property "mcversion", project.minecraft.version
+        {
+            // this will ensure that this task is redone when the versions change.
+            inputs.property "version", project.version
+            inputs.property "mcversion", project.minecraft.version
 
-    // replace stuff in the files we want.
-    from(sourceSets.main.resources.srcDirs) {
-        include '**/*.info'
-        include '**/*.properties'
+            // replace stuff in the files we want.
+            from(sourceSets.main.resources.srcDirs) {
+                include '**/*.info'
+                include '**/*.properties'
 
-        // replaces
-        expand ([
-                'mod_version': version,
-                'forge_version': config.forge_version,
-                'minecraft_version': config.minecraft_version
-        ])
-    }
+                // replaces
+                expand ([
+                        'mod_version': version,
+                        'forge_version': config.forge_version,
+                        'minecraft_version': config.minecraft_version
+                ])
+            }
 
-    // copy everything else, thats we didnt do before
-    from(sourceSets.main.resources.srcDirs) {
-        exclude '**/*.info'
-        exclude '**/*.properties'
-    }
-}
+            // copy everything else, thats we didnt do before
+            from(sourceSets.main.resources.srcDirs) {
+                exclude '**/*.info'
+                exclude '**/*.properties'
+            }
+        }
 
 // add a source jar
 task sourceJar(type: Jar) {
@@ -97,3 +97,14 @@ artifacts {
     archives sourceJar
     archives deobfJar
 }
+
+task copyChicken(type: Copy, dependsOn: "extractUserDev") {
+    from { configurations.compile }
+    include "**/*Chicken*.jar", "**/*NotEnoughItems*.jar"
+    exclude "**/CodeChickenLib*" // because CCC downloads it anyways.. -_-
+    into file("./run/mods") // paralell to the assets dir
+    mustRunAfter "deobfBinJar"
+    mustRunAfter "repackMinecraft"
+}
+tasks.setupDevWorkspace.dependsOn copyChicken
+tasks.setupDecompWorkspace.dependsOn copyChicken

@@ -22,23 +22,17 @@ import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
 import mod.steamnsteel.tileentity.BlastFurnaceTE;
 import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-
-import java.util.Random;
 
 public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
     public static final String NAME = "blastFurnace";
 
     @SideOnly(Side.CLIENT)
-    private static final Random rnd = new Random(System.currentTimeMillis());
-
-    @SideOnly(Side.CLIENT)
     private static float rndRC()
     {
-        return rnd.nextFloat()*4.0f-2.0f;
+        return ((float)Math.random())*1.0f-0.5f;
     }
 
     public BlastFurnaceBlock()
@@ -55,28 +49,13 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
         final int z = coord.getZ();
 
         for (int i = 0; i < 5; ++i) {
-            world.spawnParticle("explode", x + rndRC(), y + 1, z + rndRC(), sx, sy, sz);
-            world.spawnParticle("explode", x, y + 0.5, z, sx, sy, sz);
-            world.spawnParticle("explode", x + rndRC(), y, z + rndRC(), sx, sy, sz);
+            world.spawnParticle("explode", x + rndRC(), y + 0.5,  z + rndRC(), sx, sy, sz);
         }
-
     }
 
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
         return new BlastFurnaceTE();
-    }
-
-    @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float p_149727_7_, float p_149727_8_, float p_149727_9_)
-    {
-        if (!world.isRemote)
-        {
-            final BlastFurnaceTE te = (BlastFurnaceTE) world.getTileEntity(x,y,z);
-
-            print(te);
-        }
-    return false;
     }
 }

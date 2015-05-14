@@ -79,6 +79,10 @@ public class StructureDefinition
 
     public Block getBlock(int x, int y, int z)
     {
+        x = x + mps.getLeft();
+        y = y + mps.getMiddle();
+        z = z + mps.getRight();
+
         if (blocks != null)
             if (blocks.length > y)
                 if (blocks[y].length > z)
@@ -90,6 +94,10 @@ public class StructureDefinition
 
     public int getBlockMetadata(int x, int y, int z)
     {
+        x = x + mps.getLeft();
+        y = y + mps.getMiddle();
+        z = z + mps.getRight();
+
         if (metadata != null)
             if (metadata.length > y)
                 if (metadata[y].length > z)
@@ -101,6 +109,10 @@ public class StructureDefinition
 
     public StructureBlockSideAccess getSideAccess(int x, int y, int z, ForgeDirection direction)
     {
+        x = x + mps.getLeft();
+        y = y + mps.getMiddle();
+        z = z + mps.getRight();
+
         if (sideAccess != null)
         {
             final int hash = hashLoc(x, y, z);
@@ -178,6 +190,7 @@ public class StructureDefinition
                 .toString();
     }
 
+    //todo why are there two duplicates. getLocalMasterLocation
     public ImmutableTriple<Integer, Integer, Integer> getMasterLocation()
     {
         return mps;

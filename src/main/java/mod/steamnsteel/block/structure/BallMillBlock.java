@@ -81,7 +81,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
     }
 
     @Override
-    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float sx, float sy, float sz, ImmutableTriple<Byte, Byte, Byte> sbID, int sbx, int sby, int sbz)
+    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, ImmutableTriple<Byte, Byte, Byte> sbID, int sbx, int sby, int sbz)
     {
         print("Items: ", world.getTileEntity(x,y,z));
         return false;

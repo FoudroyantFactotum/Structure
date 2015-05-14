@@ -39,7 +39,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.getBoundingBoxUsingPattern;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.structure.registry.StructureDefinition.dehashLoc;
@@ -55,7 +54,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     static final String BLOCK_INFO = "blockINFO";
     static final String BLOCK_PATTERN_NAME = "blockPatternHash";
 
-    private ImmutableTriple<Byte, Byte, Byte> blockID = ImmutableTriple.of((byte) 0, (byte) 0, (byte) 0);
+    private ImmutableTriple<Byte, Byte, Byte> blockID = ORIGIN_ZERO;
     private int patternHash = -1;
 
     private Optional<AxisAlignedBB> renderBounds = Optional.absent();
@@ -78,6 +77,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         return ImmutableTriple.of(xCoord, yCoord, zCoord);
     }
 
+    @Override
     public int getRegHash()
     {
         return patternHash;
@@ -86,7 +86,9 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     @Override
     public StructureDefinition getPattern()
     {
-        return StructureRegistry.getBlock(patternHash).getPattern();
+        final SteamNSteelStructureBlock block = StructureRegistry.getBlock(patternHash);
+
+        return block == null? null: block.getPattern();
     }
 
     @Override
@@ -128,7 +130,14 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         );
     }
 
-    public int getBlockID()
+    @Override
+    public ImmutableTriple<Byte, Byte, Byte> getBlockID()
+    {
+        return blockID;
+    }
+
+
+    public int getHashedBlockID()
     {
         return hashLoc(
                 blockID.getLeft(),
@@ -217,7 +226,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         super.writeToNBT(nbt);
 
-        nbt.setInteger(BLOCK_INFO, getBlockID() | neighbours.hashCode() << shiftNeighbourBlocks);
+        nbt.setInteger(BLOCK_INFO, getHashedBlockID() | neighbours.hashCode() << shiftNeighbourBlocks);
         nbt.setInteger(BLOCK_PATTERN_NAME, patternHash);
     }
 
@@ -238,7 +247,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
 
             renderBounds = pattern == StructureDefinition.MISSING_STRUCTURE ?
                     Optional.of(INFINITE_EXTENT_AABB) :
-                    Optional.of(getBoundingBoxUsingPattern(xCoord, yCoord, zCoord, pattern, o));
+                    Optional.of(localToGlobal(xCoord, yCoord,zCoord, blockID, getPattern(), o, false));
         }
 
         return renderBounds.get();

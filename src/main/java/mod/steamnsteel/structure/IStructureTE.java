@@ -28,8 +28,9 @@ public interface IStructureTE extends IPatternHolder, IStructureNeighboursHolder
     int getTransmutedMeta();
 
     int getRegHash();
-    ImmutableTriple<Integer,Integer,Integer> getMasterLocation(int meta);
     SteamNSteelStructureBlock getMasterBlockInstance();
+    ImmutableTriple<Integer,Integer,Integer> getMasterLocation(int meta);
 
     void configureBlock(StructureBlockCoord sBlock, int patternHash);
+    ImmutableTriple<Byte, Byte, Byte> getBlockID();
 }

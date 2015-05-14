@@ -32,6 +32,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public class StructureParticlePacket implements IMessage
@@ -49,7 +50,7 @@ public class StructureParticlePacket implements IMessage
         this.z = z;
 
         this.structureHash = structureHash;
-        orientationAndMirror = o.encode() | boolToInt(mirror) << SteamNSteelStructureBlock.flagMirrored;
+        orientationAndMirror = o.encode() | (mirror? flagMirrored : 0);
 
     }
 
@@ -82,55 +83,52 @@ public class StructureParticlePacket implements IMessage
 
     public static class Handler implements IMessageHandler<StructureParticlePacket, IMessage>
     {
-
         @Override
         public IMessage onMessage(StructureParticlePacket msg, MessageContext ctx)
         {
             final World world = Minecraft.getMinecraft().theWorld;
-            final SteamNSteelStructureBlock block = StructureRegistry.getBlock(msg.structureHash);//deal with incorrect hash
+            final SteamNSteelStructureBlock block = StructureRegistry.getBlock(msg.structureHash);//todo deal with incorrect hash
+
+            int particleCount = 0;
 
             final float sAjt = 0.05f;
+
+            final TileEntity te = world.getTileEntity(msg.x, msg.y, msg.z);
+
+            if (!(te instanceof SteamNSteelStructureTE))
+                return null;
 
             final StructureBlockIterator itr = new StructureBlockIterator(
                     block.getPattern(),
                     Vec3.createVectorHelper(msg.x, msg.y, msg.z),
                     getdecodedOrientation(msg.orientationAndMirror),
-                    SteamNSteelStructureBlock.isMirrored(msg.orientationAndMirror)
+                    isMirrored(msg.orientationAndMirror)
             );
 
             while (itr.hasNext())
             {
                 final StructureBlockCoord coord = itr.next();
 
-                final TileEntity te = coord.getTileEntity(world);
+                float xSpeed = 0.0f;
+                float ySpeed = 0.0f;
+                float zSpeed = 0.0f;
 
-                if (te instanceof SteamNSteelStructureTE)
+                for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
                 {
-                    float xSpeed = 0.0f;
-                    float ySpeed = 0.0f;
-                    float zSpeed = 0.0f;
-
-                    for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+                    if (!coord.hasGlobalNeighbour(d))
                     {
-                        if (!coord.hasGlobalNeighbour(d))
-                        {
-                            xSpeed += d.offsetX;
-                            ySpeed += d.offsetY;
-                            zSpeed += d.offsetZ;
-                        }
+                        xSpeed += d.offsetX;
+                        ySpeed += d.offsetY;
+                        zSpeed += d.offsetZ;
                     }
-
-                    block.spawnBreakParticle(world, (SteamNSteelStructureTE) te, coord, xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
                 }
 
+                if (particleCount++ % 9 == 0)
+                    world.spawnParticle("hugeexplosion", coord.getX(), coord.getY(),coord.getZ(), xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
+                //block.spawnBreakParticle(world, (SteamNSteelStructureTE) te, coord, xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
             }
 
             return null;
         }
-    }
-
-    private static int boolToInt(boolean val)
-    {
-        return val ? 1 : 0;
     }
 }

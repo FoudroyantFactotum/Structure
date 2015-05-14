@@ -428,9 +428,11 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
         for (final BitSet[] i:array)
             if (i.length == array[0].length)
             {
-                for (final BitSet ii : i)
+                /*for (final BitSet ii : i)
                     if (ii.length() != i[0].length())
-                        throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " not a square x array");
+                        throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " not a square x array");*/
+
+                //need xline bit test jaged as length only counts true bits.
             } else
                 throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " not a square z array");
 

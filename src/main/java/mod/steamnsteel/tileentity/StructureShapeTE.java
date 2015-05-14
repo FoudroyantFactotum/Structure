@@ -97,7 +97,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
                 blockID.getLeft(), blockID.getMiddle(), blockID.getRight(),
                 xCoord, yCoord, zCoord,
                 getdecodedOrientation(meta), isMirrored(meta),
-                getPattern().getBlockBounds().getRight()
+                getPattern()
         );
     }
 
@@ -117,7 +117,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
                     blockID.getLeft(), blockID.getMiddle(), blockID.getRight(),
                     xCoord, yCoord, zCoord,
                     getdecodedOrientation(meta), isMirrored(meta),
-                    getPattern().getBlockBounds().getRight()));
+                    getPattern()));
         }
 
         return masterLocation.get();
@@ -158,6 +158,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
         this.patternHash = patternHash;
     }
 
+    @Override
     public ImmutableTriple<Byte, Byte, Byte> getBlockID()
     {
         return blockID;

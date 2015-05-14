@@ -28,6 +28,7 @@ import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.print;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class StructureBlockItem extends ItemBlock
@@ -54,13 +55,16 @@ public class StructureBlockItem extends ItemBlock
                 = localToGlobal(
                 hSize.getLeft() - ml.getLeft(), -ml.getMiddle(), hSize.getRight() - ml.getRight(),
                 x, y, z,
-                o, isMirrored, hSize.getRight());
+                o, isMirrored, block.getPattern());
+
+        if (!world.isRemote) print("ltg ITEM @", mLoc, " : SD ", block.getPattern());
 
         //check block locations
         final StructureBlockIterator itr = new StructureBlockIterator(block.getPattern(), Vec3.createVectorHelper(mLoc.getLeft(),mLoc.getMiddle(), mLoc.getRight()), o, isMirrored);
 
         while (itr.hasNext())
-            if (!itr.next().isReplaceable(world)) return false;
+            if (!itr.next().isReplaceable(world))
+                return false;
 
 
 

@@ -20,6 +20,7 @@ import com.google.common.collect.ImmutableMap.Builder;
 import cpw.mods.fml.common.registry.GameRegistry;
 import mod.steamnsteel.structure.registry.IStructurePatternMetaCorrecter;
 import mod.steamnsteel.structure.registry.MetaCorrecter.SMCStoneStairs;
+import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
@@ -73,6 +74,11 @@ public final class TransformLAG
     }
 
 
+    //===============================================================================
+    //                              T R A N S F O R M S
+    //===============================================================================
+
+
     private static final int[][][] rotationMatrix = {
             {{-1, 0}, {0, -1}}, //south
             {{0, 1}, {-1, 0}}, //west
@@ -80,13 +86,14 @@ public final class TransformLAG
             {{0, -1}, {1, 0}}, //east
     };
 
-    public static WorldBlockCoord localToGlobal(int lx, int ly, int lz, Vec3 worldLoc, ImmutableTriple<Integer, Integer, Integer> ml, Orientation o, boolean ismirrored, int zSize)
+    //from master with local to external
+    public static WorldBlockCoord localToGlobal(int lx, int ly, int lz, Vec3 worldLoc, Orientation o, boolean ismirrored, StructureDefinition sd)
     {
         final ImmutableTriple<Integer, Integer, Integer> loc
-                = localToGlobal(lx, ly, lz,
-                (int) worldLoc.xCoord - ml.getLeft(), (int) worldLoc.yCoord - ml.getMiddle(), (int) worldLoc.zCoord - ml.getRight(),
+                = localToGlobal(-lx, -ly, -lz,
+                (int) worldLoc.xCoord, (int) worldLoc.yCoord, (int) worldLoc.zCoord,
                 o, ismirrored,
-                zSize
+                sd
         );
 
         return WorldBlockCoord.of(
@@ -96,14 +103,15 @@ public final class TransformLAG
         );
     }
 
-    public static ImmutableTriple<Integer, Integer, Integer> localToGlobal(int lx, int ly, int lz, int gx, int gy, int gz, Orientation o, boolean ismirrored, int zSize)
+    //from external with local to master
+    public static ImmutableTriple<Integer, Integer, Integer> localToGlobal(int lx, int ly, int lz, int gx, int gy, int gz, Orientation o, boolean ismirrored, StructureDefinition sd)
     {
         final int rotIndex = o.encode();
 
         if (ismirrored)
         {
             lz *= -1;
-            if (zSize % 2 == 0) ++lz;
+            if (sd.getBlockBounds().getRight() % 2 == 0) ++lz;
         }
 
         final int rx = rotationMatrix[rotIndex][0][0] * lx + rotationMatrix[rotIndex][0][1] * lz;
@@ -141,6 +149,7 @@ public final class TransformLAG
         return d;
     }
 
+    //meta corrector
     public static int localToGlobal(int meta, Block block, Orientation o, boolean ismirrored)
     {
         if (META_CORRECTOR.containsKey(block))
@@ -152,8 +161,6 @@ public final class TransformLAG
     //collision boxes
     public static void localToGlobal(int x, int y, int z, AxisAlignedBB aabb, List<AxisAlignedBB> boundingBoxList, float[][] collB, Orientation o, boolean isMirrored, ImmutableTriple<Integer, Integer, Integer> size)
     {
-        int lggrCt = 0;
-
         final int[][] matrix = rotationMatrix[o.encode()];
 
         //todo fix fish-e if statement
@@ -183,5 +190,57 @@ public final class TransformLAG
             if (aabb.intersectsWith(bb))
                 boundingBoxList.add(bb.copy());
         }
+    }
+
+    //Bounding box
+    public static AxisAlignedBB localToGlobal(int gx, int gy, int gz, ImmutableTriple<Byte,Byte,Byte> local, StructureDefinition sd, Orientation o, boolean ismirrored)
+    {
+        final int l_lbx = local.getLeft()   + sd.getLocalMasterLocation().getLeft();
+        final int l_lby = local.getMiddle() + sd.getLocalMasterLocation().getMiddle();
+        final int l_lbz = local.getRight()  + sd.getLocalMasterLocation().getRight();
+
+        final int l_ubx = local.getLeft()   - sd.getBlockBounds().getLeft();
+        final int l_uby = local.getMiddle() - sd.getBlockBounds().getMiddle();
+        final int l_ubz = local.getRight()  - sd.getBlockBounds().getRight();
+
+        final ImmutableTriple<Integer, Integer, Integer> lb
+                = localToGlobal(l_lbx, l_lby, l_lbz, gx, gy, gz, o, ismirrored, sd);
+
+        final ImmutableTriple<Integer, Integer, Integer> ub
+                = localToGlobal(l_ubx, l_uby, l_ubz, gx, gy, gz, o, ismirrored, sd);
+
+        final int[][] matrix = rotationMatrix[o.encode()];
+
+        //todo fix fish-e if statement
+        final int ntx = o == Orientation.SOUTH || o == Orientation.WEST? -1:0;
+        final int ntz = o == Orientation.SOUTH || o == Orientation.EAST? -1:0;
+        final int tx = matrix[0][0] * ntx + matrix[0][1] * ntz;
+        final int tz = matrix[1][0] * ntx + matrix[1][1] * ntz;
+
+        return AxisAlignedBB.getBoundingBox(
+                lb.getLeft() + tx, lb.getMiddle(), lb.getRight() + tz,
+                ub.getLeft() + tx, ub.getMiddle(), ub.getRight() + tz
+        );
+
+
+        /*final ImmutableTriple<Integer,Integer,Integer> size = sd.getBlockBounds();
+        final Vec3 bbSize = Vec3.createVectorHelper(
+                size.getLeft() - 0.5,
+                size.getMiddle(),
+                size.getRight() - 0.5);
+        final Vec3 b = Vec3.createVectorHelper(-0.5,0,-0.5);
+        final float rot = (float) o.getRotationValue();
+
+        bbSize.rotateAroundY(rot);
+        b.rotateAroundY(rot);
+
+        return AxisAlignedBB.getBoundingBox(
+                x + 0.5 + min(b.xCoord, bbSize.xCoord),
+                y,
+                z + 0.5 + min(b.zCoord, bbSize.zCoord),
+
+                x + 0.5 + max(b.xCoord, bbSize.xCoord),
+                y + bbSize.yCoord,
+                z + 0.5 + max(b.zCoord, bbSize.zCoord));*/
     }
 }

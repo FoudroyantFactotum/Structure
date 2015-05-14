@@ -145,6 +145,11 @@ public class StructureBlockCoord
         return ImmutableTriple.of(localCoordX, localCoordY, localCoordZ);
     }
 
+    public ImmutableTriple<Integer,Integer,Integer> getGlobal()
+    {
+        return ImmutableTriple.of(worldCoord.getX(), worldCoord.getY(), worldCoord.getZ());
+    }
+
     public boolean isMasterBlock()
     {
         return isMasterBlock;

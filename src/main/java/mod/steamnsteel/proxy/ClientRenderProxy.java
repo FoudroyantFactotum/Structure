@@ -57,5 +57,7 @@ public class ClientRenderProxy extends RenderProxy
         ClientRegistry.bindTileEntitySpecialRenderer(BoilerTE.class, new BoilerTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(CupolaTE.class, new CupolaTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(PlotoniumChestTE.class, new PlotoniumChestTESR());
+
+        ClientRegistry.bindTileEntitySpecialRenderer(ExampleTE.class, new ExampleTESR());
     }
 }

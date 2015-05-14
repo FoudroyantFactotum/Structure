@@ -15,7 +15,7 @@
  */
 package mod.steamnsteel.block;
 
-import cpw.mods.fml.common.network.NetworkRegistry.TargetPoint;
+import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.TheMod;
@@ -32,6 +32,7 @@ import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
+import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
@@ -48,12 +49,11 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import java.util.List;
 import java.util.Random;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
+import static mod.steamnsteel.block.structure.StructureShapeBlock.EMPTY_BOUNDS;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
-public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock implements IPatternHolder, IStructureAspects
+public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock implements IPatternHolder, IStructureAspects, ITileEntityProvider
 {
     public static final int flagMirrored = 1 << 2;
     public static final int maskMeta = 0x7;
@@ -90,6 +90,8 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                         mirror
                 );
 
+        int no=0;
+
         //place Blocks
         while (itr.hasNext())
         {
@@ -100,7 +102,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
             final IStructureTE ssBlock = (IStructureTE) block.getTileEntity(world);
             if (ssBlock == null) {
-                if (!world.isRemote) Logger.info("[ERROR]:onBlockPlacedBy: te missing");//todo remove debug code
+                if (!world.isRemote) print(no++, " te missing @L", block.getLocal(), " : @G", block.getGlobal());//todo remove debug code
             }else
             {
                 ssBlock.configureBlock(block, regHash);
@@ -168,26 +170,20 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     }
 
     @Override
-    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float sx, float sy, float sz)
+    public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz)
     {
-        if (!world.isRemote)
-            print("master");
-
-        return onStructureBlockActivated(world,x,y,z,player,meta,sx,sy,sz,SteamNSteelStructureTE.ORIGIN_ZERO,x,y,z);
+        return onStructureBlockActivated(world,x,y,z,player,side,sx,sy,sz,SteamNSteelStructureTE.ORIGIN_ZERO,x,y,z);
     }
 
     @Override
-    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float sx, float sy, float sz, ImmutableTriple<Byte, Byte, Byte> sbID, int sbx, int sby, int sbz) {
-        if (!world.isRemote)
-            print("onStructureBlockActivated: MB", Vec3.createVectorHelper(x,y,z), " : L", sbID, " : SB", Vec3.createVectorHelper(sbx, sby, sbz), " : " + world.getTileEntity(sbx,sby,sbz));
-
+    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, ImmutableTriple<Byte, Byte, Byte> sbID, int sbx, int sby, int sbz) {
         return false;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer)
-    {//todo just call particle packet?
+    {
         final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
 
         if (te != null)
@@ -243,12 +239,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBoxFromPool(World world, int x, int y, int z)
     {
-        final ImmutableTriple<Integer, Integer, Integer> ml = getPattern().getMasterLocation();
-
-        return getBoundingBoxUsingPattern(x - ml.getLeft(), y - ml.getMiddle(), z - ml.getRight(),
-                getPattern(),
-                getdecodedOrientation(world.getBlockMetadata(x, y, z))
-        );
+        return EMPTY_BOUNDS;
     }
 
 
@@ -281,16 +272,22 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 {
                     world.setBlock(x, y, z, te.getTransmutedBlock(), te.getTransmutedMeta(), 0x3);
 
+                    if (!world.isRemote)
+                    {
+                        if (te.getBlockID().equals(SteamNSteelStructureTE.ORIGIN_ZERO))
+                        {
+                            print("NETWORK: particles");
+                            TheMod.instance.network.sendToAllAround(
+                                    new StructureParticlePacket(x, y, z, hash, getdecodedOrientation(meta), isMirrored(meta)),
+                                    new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
+                            );
+                        }
+                    }
+
                     return;
                 }
             }
         }
-
-        if (!world.isRemote)
-            TheMod.instance.network.sendToAllAround(
-                    new StructureParticlePacket(x,y,z,hash, getdecodedOrientation(meta), isMirrored(meta)),
-                    new TargetPoint(world.provider.dimensionId, x,y,z, 30)
-            );
     }
 
     private static boolean neighborCheck(int meta, int nMeta, Block block)
@@ -300,38 +297,6 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 return false;
 
         return true;
-    }
-
-    /***
-     * Builds AxisAlignedBB for outline of the {@link StructureDefinition} size. (outline only due to box potential being inverted)
-     * @param x     Global x-coord of bottom back left corner of structure
-     * @param y     Global y-coord of bottom back left corner of structure
-     * @param z     Global z-coord of bottom back left corner of structure
-     * @param sd    {@link StructureDefinition} box definition
-     * @param o     {@link Orientation} Orientation of structure
-     * @return      new AxisAlignedBB for structure
-     */
-    public static AxisAlignedBB getBoundingBoxUsingPattern(int x, int y, int z, StructureDefinition sd, Orientation o)
-    {//todo fix
-        final ImmutableTriple<Integer,Integer,Integer> size = sd.getBlockBounds();
-        final Vec3 bbSize = Vec3.createVectorHelper(
-                size.getLeft() - 0.5,
-                size.getMiddle(),
-                size.getRight() - 0.5);
-        final Vec3 b = Vec3.createVectorHelper(-0.5,0,-0.5);
-        final float rot = (float) o.getRotationValue();
-
-        bbSize.rotateAroundY(rot);
-        b.rotateAroundY(rot);
-
-        return AxisAlignedBB.getBoundingBox(
-                x + 0.5 + min(b.xCoord, bbSize.xCoord),
-                y,
-                z + 0.5 + min(b.zCoord, bbSize.zCoord),
-
-                x + 0.5 + max(b.xCoord, bbSize.xCoord),
-                y + bbSize.yCoord,
-                z + 0.5 + max(b.zCoord, bbSize.zCoord));
     }
 
     public static void breakStructure(World world, Vec3 mloc, StructureDefinition sp, Orientation o, boolean isMirrored, boolean isCreative)

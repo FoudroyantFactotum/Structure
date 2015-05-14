@@ -28,10 +28,7 @@ import mod.steamnsteel.block.resource.ore.*;
 import mod.steamnsteel.block.resource.structure.PlotoniumRuinFloor;
 import mod.steamnsteel.block.resource.structure.PlotoniumRuinPillar;
 import mod.steamnsteel.block.resource.structure.PlotoniumRuinWall;
-import mod.steamnsteel.block.structure.BallMillBlock;
-import mod.steamnsteel.block.structure.BlastFurnaceBlock;
-import mod.steamnsteel.block.structure.BoilerBlock;
-import mod.steamnsteel.block.structure.StructureShapeBlock;
+import mod.steamnsteel.block.structure.*;
 import mod.steamnsteel.structure.StructureBlockItem;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.*;
@@ -72,6 +69,8 @@ public final class ModBlock
     public static final SteamNSteelBlock ruinPillarPlotonium = new PlotoniumRuinPillar();
     public static final SteamNSteelBlock ruinWallPlotonium = new PlotoniumRuinWall();
 
+    public static final SteamNSteelStructureBlock example = new ExampleBlock();
+
     private ModBlock()
     {
         throw new AssertionError();
@@ -85,6 +84,8 @@ public final class ModBlock
         GameRegistry.registerTileEntity(CupolaTE.class, getTEName(CupolaBlock.NAME));
         GameRegistry.registerTileEntity(PlotoniumChestTE.class, getTEName(PlotoniumChest.NAME));
         GameRegistry.registerTileEntity(StructureShapeTE.class, getTEName(StructureShapeBlock.NAME));
+
+        GameRegistry.registerTileEntity(ExampleTE.class, getTEName(ExampleBlock.NAME));
     }
 
     private static String getTEName(String name) { return "tile." + name;}
@@ -94,6 +95,7 @@ public final class ModBlock
         GameRegistry.registerBlock(chestPlotonium, PlotoniumChest.NAME);
         GameRegistry.registerBlock(cupola, CupolaBlock.NAME);
         GameRegistry.registerBlock(structureShape, StructureShapeBlock.NAME);
+        registerStructures(example, ExampleBlock.NAME);
         registerStructures(ballMill, BallMillBlock.NAME);
         registerStructures(blastFurnace, BlastFurnaceBlock.NAME);
         registerStructures(boiler, BoilerBlock.NAME);

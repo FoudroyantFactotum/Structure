@@ -37,6 +37,8 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
 
     private final ImmutableTriple<Integer,Integer,Integer> mps;
 
+    //todo is this needed;
+    private final StructureDefinition sd;
     private final BitSet[][] sbLayout;
 
     private int rhx = -1;
@@ -45,14 +47,15 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
 
     private boolean readHeadEnd = false;
 
-    public StructureBlockIterator(StructureDefinition sp, Vec3 worldLocation, Orientation orientation, Boolean mirrored)
+    public StructureBlockIterator(StructureDefinition sd, Vec3 worldLocation, Orientation orientation, Boolean mirrored)
     {
         this.worldLocation = worldLocation;
         this.orientation = orientation;
         this.mirrored = mirrored;
 
-        sbLayout = sp.getBlockLayout();
-        mps = sp.getLocalMasterLocation();
+        this.sd = sd;
+        sbLayout = sd.getBlockLayout();
+        mps = sd.getLocalMasterLocation();
 
         shiftReadHead();
     }
@@ -132,12 +135,16 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         if (!hasNext())
             throw new NoSuchElementException();
 
+        final int fx = rhx - mps.getLeft();
+        final int fy = rhy - mps.getMiddle();
+        final int fz = rhz - mps.getRight();
+
         final StructureBlockCoord sb = new StructureBlockCoord(
-                rhx, rhy, rhz,
+                fx, fy, fz,
                 isReadHeadOnMaster(),
                 new StructureNeighbours(getNeighbors()),
                 worldLocation,
-                localToGlobal(-rhx, -rhy, -rhz, worldLocation, mps, orientation, mirrored, sbLayout[0].length),
+                localToGlobal(fx, fy, fz, worldLocation, orientation, mirrored, sd),
                 orientation, mirrored
         );
 
