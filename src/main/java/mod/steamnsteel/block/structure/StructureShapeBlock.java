@@ -154,34 +154,4 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
         super.onNeighborBlockChange(world, x, y, z, block);
         onSharedNeighbourBlockChange(world, x, y, z, ((StructureShapeTE) world.getTileEntity(x, y, z)).getRegHash(), block);
     }
-
-    //todo remove debug functions below
-
-    /*@Override
-    public boolean renderAsNormalBlock() {
-        return false;
-    }
-
-    @Override
-    public int getRenderType()
-    {
-        return 0;
-    }
-
-    @Override
-    public int getRenderBlockPass() {
-        return 1;
-    }
-
-    @Override
-    public boolean isOpaqueCube()
-    {
-        return false;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public IIcon getIcon(int side, int meta)
-    {
-        return Blocks.stained_glass.getIcon(side, meta);
-    }*/
 }

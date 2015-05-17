@@ -34,6 +34,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.print;
 
 public final class TransformLAG
 {
@@ -153,8 +154,10 @@ public final class TransformLAG
     public static int localToGlobal(int meta, Block block, Orientation o, boolean ismirrored)
     {
         if (META_CORRECTOR.containsKey(block))
+        {
+            print("META_CORRECTER : ", (byte)meta, " : ", META_CORRECTOR.get(block).correctMeta((byte) meta, o, ismirrored));
             return META_CORRECTOR.get(block).correctMeta((byte) meta, o, ismirrored);
-
+        }
         return meta;
     }
 
@@ -195,9 +198,9 @@ public final class TransformLAG
     //Bounding box
     public static AxisAlignedBB localToGlobal(int gx, int gy, int gz, ImmutableTriple<Byte,Byte,Byte> local, StructureDefinition sd, Orientation o, boolean ismirrored)
     {
-        final int l_lbx = local.getLeft()   + sd.getLocalMasterLocation().getLeft();
-        final int l_lby = local.getMiddle() + sd.getLocalMasterLocation().getMiddle();
-        final int l_lbz = local.getRight()  + sd.getLocalMasterLocation().getRight();
+        final int l_lbx = local.getLeft()   + sd.getMasterLocation().getLeft();
+        final int l_lby = local.getMiddle() + sd.getMasterLocation().getMiddle();
+        final int l_lbz = local.getRight()  + sd.getMasterLocation().getRight();
 
         final int l_ubx = local.getLeft()   - sd.getBlockBounds().getLeft();
         final int l_uby = local.getMiddle() - sd.getBlockBounds().getMiddle();

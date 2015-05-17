@@ -23,8 +23,6 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.relauncher.Side;
 import mod.steamnsteel.api.crafting.CraftingManager;
 import mod.steamnsteel.api.crafting.IAlloyManager;
 import mod.steamnsteel.configuration.ConfigurationHandler;
@@ -34,8 +32,8 @@ import mod.steamnsteel.gui.GuiHandler;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.library.ModItem;
 import mod.steamnsteel.proxy.Proxies;
-import mod.steamnsteel.structure.net.StructureParticlePacket;
 import mod.steamnsteel.structure.registry.StructureRegistry;
+import mod.steamnsteel.utility.ModNetwork;
 import mod.steamnsteel.world.WorldGen;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -65,8 +63,6 @@ public class TheMod
     @Mod.Instance
     public static TheMod instance;
 
-    public SimpleNetworkWrapper network;
-
     @Mod.EventHandler
     public void onFMLPreInitialization(FMLPreInitializationEvent event)
     {
@@ -76,10 +72,7 @@ public class TheMod
 
         ModItem.init();
         ModBlock.init();
-
-        //simple Custom packet
-        network =  NetworkRegistry.INSTANCE.newSimpleChannel(MOD_ID);
-        network.registerMessage(StructureParticlePacket.Handler.class, StructureParticlePacket.class, 1, Side.CLIENT);
+        ModNetwork.init();
     }
 
     @SuppressWarnings("AssignmentToStaticFieldFromInstanceMethod")

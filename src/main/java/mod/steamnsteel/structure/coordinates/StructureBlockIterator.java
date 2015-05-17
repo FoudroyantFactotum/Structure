@@ -55,9 +55,24 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
 
         this.sd = sd;
         sbLayout = sd.getBlockLayout();
-        mps = sd.getLocalMasterLocation();
+        mps = sd.getMasterLocation();
 
         shiftReadHead();
+    }
+
+    public Orientation getOrientation()
+    {
+        return orientation;
+    }
+
+    public StructureDefinition getStructureDefinition()
+    {
+        return sd;
+    }
+
+    public Vec3 getWorldLocation()
+    {
+        return Vec3.createVectorHelper(worldLocation.xCoord, worldLocation.yCoord, worldLocation.zCoord);
     }
 
     public void cleanIterator()

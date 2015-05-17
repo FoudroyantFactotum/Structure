@@ -88,7 +88,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         final SteamNSteelStructureBlock block = StructureRegistry.getBlock(patternHash);
 
-        return block == null? null: block.getPattern();
+        return block == null? StructureDefinition.MISSING_STRUCTURE : block.getPattern();
     }
 
     @Override

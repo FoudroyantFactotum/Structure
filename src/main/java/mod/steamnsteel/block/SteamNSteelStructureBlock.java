@@ -18,7 +18,6 @@ package mod.steamnsteel.block;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import mod.steamnsteel.TheMod;
 import mod.steamnsteel.block.structure.StructureShapeBlock;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.structure.IStructure.IPatternHolder;
@@ -26,9 +25,11 @@ import mod.steamnsteel.structure.IStructure.IStructureAspects;
 import mod.steamnsteel.structure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
 import mod.steamnsteel.structure.coordinates.StructureBlockIterator;
+import mod.steamnsteel.structure.net.StructureParticleChoice;
 import mod.steamnsteel.structure.net.StructureParticlePacket;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
+import mod.steamnsteel.utility.ModNetwork;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
@@ -67,6 +68,11 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         return structureDefinition;
     }
 
+    public int getRegHash()
+    {
+        return regHash;
+    }
+
     @Override
     public void onBlockPlacedBy(World world, int x, int y, int z, EntityLivingBase entity, ItemStack itemStack)
     {
@@ -79,7 +85,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         if (mirror)
         {
             meta |= flagMirrored;
-            world.setBlockMetadataWithNotify(x,y,z,meta,0x2);
+            world.setBlockMetadataWithNotify(x, y, z, meta, 0x2);
         }
 
         final StructureBlockIterator itr =
@@ -90,8 +96,11 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                         mirror
                 );
 
-        int no=0;
+        formStructure(world, itr, meta);
+    }
 
+    public void formStructure(World world, StructureBlockIterator itr, int meta)
+    {
         //place Blocks
         while (itr.hasNext())
         {
@@ -101,12 +110,8 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 block.setBlock(world, ModBlock.structureShape, meta, 0x2);
 
             final IStructureTE ssBlock = (IStructureTE) block.getTileEntity(world);
-            if (ssBlock == null) {
-                if (!world.isRemote) print(no++, " te missing @L", block.getLocal(), " : @G", block.getGlobal());//todo remove debug code
-            }else
-            {
-                ssBlock.configureBlock(block, regHash);
-            }
+
+            ssBlock.configureBlock(block, regHash);
         }
     }
 
@@ -270,15 +275,15 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
                 if (neighborCheck(meta, nMeta, nBlock))
                 {
+                    //Break all things!
                     world.setBlock(x, y, z, te.getTransmutedBlock(), te.getTransmutedMeta(), 0x3);
 
                     if (!world.isRemote)
                     {
                         if (te.getBlockID().equals(SteamNSteelStructureTE.ORIGIN_ZERO))
                         {
-                            print("NETWORK: particles");
-                            TheMod.instance.network.sendToAllAround(
-                                    new StructureParticlePacket(x, y, z, hash, getdecodedOrientation(meta), isMirrored(meta)),
+                            ModNetwork.network.sendToAllAround(
+                                    new StructureParticlePacket(x, y, z, hash, getdecodedOrientation(meta), isMirrored(meta), StructureParticleChoice.BOOM),
                                     new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
                             );
                         }
@@ -311,9 +316,12 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         while (itr.hasNext())
         {
             final StructureBlockCoord coord = itr.next();
-            final Block block = sp.getBlock(coord.getLX(),coord.getLY(),coord.getLZ());
+            final Block block = sp.getBlock(coord.getLX(), coord.getLY(), coord.getLZ());
+            final int meta = sp.getBlockMetadata(coord.getLX(), coord.getLY(), coord.getLZ());
 
-            coord.setBlock(world, block == null? Blocks.air : block, 0, 0x2);
+            coord.setBlock(world, block == null? Blocks.air : block,
+                    localToGlobal(meta, block == null? Blocks.air : block, o, false)
+                    , 0x2);
             coord.removeTileEntity(world);
         }
 

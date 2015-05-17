@@ -126,7 +126,9 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     @Override
     public StructureDefinition getPattern()
     {
-        return StructureRegistry.getBlock(patternHash).getPattern();
+        final SteamNSteelStructureBlock block = StructureRegistry.getBlock(patternHash);
+
+        return block == null? StructureDefinition.MISSING_STRUCTURE : block.getPattern();
     }
 
     @Override
@@ -147,7 +149,12 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     @Override
     public int getTransmutedMeta()
     {
-        return getPattern().getBlockMetadata(blockID.getLeft(), blockID.getMiddle(), blockID.getRight());
+        return localToGlobal(
+                getPattern().getBlockMetadata(blockID.getLeft(), blockID.getMiddle(), blockID.getRight()),
+                getTransmutedBlock(),
+                getdecodedOrientation(getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord)),
+                false// :/ mirroring
+        );
     }
 
     @Override

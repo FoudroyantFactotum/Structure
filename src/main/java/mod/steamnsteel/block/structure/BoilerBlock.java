@@ -24,22 +24,19 @@ import mod.steamnsteel.tileentity.BoilerTE;
 import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-
-import java.util.Random;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
     public static final String NAME = "boiler";
 
     @SideOnly(Side.CLIENT)
-    private static final Random rnd = new Random();
-
-    @SideOnly(Side.CLIENT)
     private static float rndRC()
     {
-        return rnd.nextFloat()*4.0f-2.0f;
+        return ((float)Math.random())*1.0f-0.5f;
     }
 
     public BoilerBlock()
@@ -78,4 +75,10 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
         return new BoilerTE();
     }
 
+    @Override
+    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, ImmutableTriple<Byte, Byte, Byte> sbID, int sbx, int sby, int sbz)
+    {
+        print("MASTER TE: ", world.getTileEntity(x,y,z));
+        return super.onStructureBlockActivated(world, x, y, z, player, side, sx, sy, sz, sbID, sbx, sby, sbz);
+    }
 }

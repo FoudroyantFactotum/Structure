@@ -29,14 +29,9 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-import java.util.Random;
-
 public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
     public static final String NAME = "ballMill";
-
-    @SideOnly(Side.CLIENT)
-    private static final Random rnd = new Random(System.currentTimeMillis());
 
     public BallMillBlock()
     {
@@ -45,7 +40,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
 
     private static float rndRC()
     {
-        return rnd.nextFloat()*2.0f-1.0f;
+        return ((float)Math.random())*1.0f-0.5f;
     }
 
     @Override

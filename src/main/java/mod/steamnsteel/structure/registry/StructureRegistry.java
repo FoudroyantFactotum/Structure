@@ -27,12 +27,9 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-public  class StructureRegistry
+public final class StructureRegistry
 {
     private static final String STRUCTURE_LOCATION = "structure/";
     private static final String STRUCTURE_FILE_EXTENSION = ".structure.json";
@@ -105,6 +102,11 @@ public  class StructureRegistry
         structures.put(unlocName.hashCode(), block);
 
         return blockPattern;
+    }
+
+    public static Collection<SteamNSteelStructureBlock> getStructureList()
+    {
+        return structures.values();
     }
 
     public static SteamNSteelStructureBlock getBlock(int hash)

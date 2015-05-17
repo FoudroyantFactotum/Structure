@@ -104,4 +104,10 @@ public class BoilerTE extends SteamNSteelStructureTE
     {
         return false;
     }
+
+    @Override
+    public String toString()
+    {
+        return getPattern().toString();
+    }
 }

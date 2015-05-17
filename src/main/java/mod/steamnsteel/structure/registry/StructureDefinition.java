@@ -43,6 +43,7 @@ public class StructureDefinition
 
     private ImmutableTriple<Integer,Integer,Integer> adjustmentCtS;
     private ImmutableTriple<Integer,Integer,Integer> mps;
+    private ImmutableTriple<Integer,Integer,Integer> tfps;
 
     private Block[][][] blocks;
     private byte[][][] metadata;
@@ -59,6 +60,7 @@ public class StructureDefinition
 
                                 ImmutableTriple<Integer,Integer,Integer> adjustmentCtS,
                                 ImmutableTriple<Integer,Integer,Integer> mps,
+                                ImmutableTriple<Integer,Integer,Integer> tfps,
 
                                 Block[][][] blocks,
                                 byte[][][] metadata,
@@ -70,6 +72,7 @@ public class StructureDefinition
 
         this.adjustmentCtS = adjustmentCtS;
         this.mps = mps;
+        this.tfps = tfps;
 
         this.blocks = blocks;
         this.metadata = metadata;
@@ -151,9 +154,14 @@ public class StructureDefinition
                         sbLayout[0].length/2);
     }
 
-    public ImmutableTriple<Integer,Integer,Integer> getLocalMasterLocation()
+    public ImmutableTriple<Integer,Integer,Integer> getMasterLocation()
     {
         return mps;
+    }
+
+    public ImmutableTriple<Integer,Integer,Integer> getToolBuildLocation()
+    {
+        return tfps;
     }
 
     public static int hashLoc(int x, int y, int z)
@@ -185,14 +193,9 @@ public class StructureDefinition
                 .add("sideAccess", sideAccess)
                 .add("adjustmentCtS", adjustmentCtS)
                 .add("mps", mps)
+                .add("tfps", tfps)
                 .add("sbLayout", Arrays.toString(sbLayout))
                 .add("cleanUpOnBuild", cleanUpOnBuild)
                 .toString();
-    }
-
-    //todo why are there two duplicates. getLocalMasterLocation
-    public ImmutableTriple<Integer, Integer, Integer> getMasterLocation()
-    {
-        return mps;
     }
 }

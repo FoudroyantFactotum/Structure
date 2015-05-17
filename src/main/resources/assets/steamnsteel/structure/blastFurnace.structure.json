@@ -14,8 +14,8 @@
         "block": "minecraft:lava"
       },
       {
-        "char": "g",
-        "block": "minecraft:glass"
+        "char": "p",
+        "block": "minecraft:glass_pane"
       }
     ],
     "pattern": [
@@ -24,50 +24,20 @@
         "TbT",
         "TTT"
       ],[
-        "bgb",
-        "g g",
-        "bgb"
+        "bbb",
+        "plp",
+        "ppp"
       ],[
         "bbb",
         "TbT",
         "TTT"
       ]
     ],
-    "pattern": [
-      [
-        "TTT",
-        "   ",
-        "TTT"
-      ],[
-        "   ",
-        "   ",
-        "   "
-      ],[
-        "TTT",
-        "   ",
-        "TTT"
-      ]
-    ],
-    "pattern": [
-      [
-        "   ",
-        "   ",
-        "   "
-      ],[
-        "   ",
-        "   ",
-        "   "
-      ],[
-        "   ",
-        "   ",
-        "   "
-      ]
-    ],
     "metadata": [
       [
-        "777",
+        "666",
         "405",
-        "666"
+        "777"
       ],[
         "000",
         "000",
@@ -94,7 +64,7 @@
       ],[
         "---",
         "---",
-        "---"
+        "-T-"
       ],[
         "---",
         "---",

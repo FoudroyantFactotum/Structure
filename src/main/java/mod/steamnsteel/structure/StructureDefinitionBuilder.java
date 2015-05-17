@@ -37,6 +37,7 @@ public final class StructureDefinitionBuilder
 
     public ImmutableTriple<Integer,Integer,Integer> adjustmentCtS = ImmutableTriple.of(0,0,0);
     public ImmutableTriple<Integer,Integer,Integer> mps;
+    public ImmutableTriple<Integer,Integer,Integer> tfps;//todo at constrains test
 
     public Block[][][] blocks;
     public byte[][][] metadata;
@@ -67,6 +68,9 @@ public final class StructureDefinitionBuilder
         if (mps == null)
             mps = ImmutableTriple.of(0, 0, 0);
 
+        if (tfps == null)
+            tfps = mps;
+
         translateCollisions(collisionBoxes, mps,
                 ImmutableTriple.of(
                         sbLayout[0][0].length()/2.0f,
@@ -80,6 +84,7 @@ public final class StructureDefinitionBuilder
                 cleanUpOnBuild,
                 adjustmentCtS,
                 mps,
+                tfps,
                 blocks,
                 metadata,
                 sideAccess,

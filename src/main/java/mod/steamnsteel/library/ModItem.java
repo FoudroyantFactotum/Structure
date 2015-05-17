@@ -25,6 +25,7 @@ import mod.steamnsteel.item.resource.Niter;
 import mod.steamnsteel.item.resource.Sulfur;
 import mod.steamnsteel.item.resource.ingot.*;
 import mod.steamnsteel.item.tool.*;
+import mod.steamnsteel.structure.BuildFormTool;
 import net.minecraft.item.Item;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -59,6 +60,8 @@ public final class ModItem
     public static final SSToolShovel shovelSteel = new SSToolShovel(STEEL);
     public static final SSToolSword swordBronze = new SSToolSword(BRONZE);
     public static final SSToolSword swordSteel = new SSToolSword(STEEL);
+
+    public static final BuildFormTool buildToolForm = new BuildFormTool();
 
     public static final SteamNSteelItem anachDoodad = new AnachDoodad();
     public static final SteamNSteelItem dustNiter = new Niter();
@@ -135,6 +138,8 @@ public final class ModItem
         GameRegistry.registerItem(pickBronze, pickBronze.getUndecoratedName());
         GameRegistry.registerItem(axeBronze, axeBronze.getUndecoratedName());
         GameRegistry.registerItem(hoeBronze, hoeBronze.getUndecoratedName());
+
+        GameRegistry.registerItem(buildToolForm, buildToolForm.getUndecoratedName()+ "_form");
 
         GameRegistry.registerItem(shovelSteel, shovelSteel.getUndecoratedName());
         GameRegistry.registerItem(pickSteel, pickSteel.getUndecoratedName());

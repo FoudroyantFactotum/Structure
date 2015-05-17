@@ -310,13 +310,31 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
         {
             bs.set(x);
 
-            //need to know location of master as it may not be in the corner.
-            if (Character.toUpperCase(c) == 'M')
+            switch (Character.toUpperCase(c))
             {
-                if (sdb.mps == null)
-                    sdb.mps = ImmutableTriple.of(x, jrs.getOuter(), jrs.getInner());
-                else
-                    throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " Master specified more then one");
+                case 'M':
+                    //need to know location of master as it may not be in the corner.
+                    if (sdb.mps == null)
+                        sdb.mps = ImmutableTriple.of(x, jrs.getOuter(), jrs.getInner());
+                    else
+                        throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " Master specified more then once");
+
+                    break;
+
+                case 'T':
+                    //need to know location of Tool Form Pos as it may not be at the master
+                    if (sdb.tfps == null)
+                        sdb.tfps = ImmutableTriple.of(x, jrs.getOuter(), jrs.getInner());
+                    else
+                        throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " Tool Form Pos specified more then once");
+
+                    break;
+
+                case '-':
+                    break;
+
+                default:
+                    throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " Unrecognised char " + c);
             }
         }
     }

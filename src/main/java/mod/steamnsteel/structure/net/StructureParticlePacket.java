@@ -43,7 +43,7 @@ public class StructureParticlePacket implements IMessage
         //no op
     }
 
-    public StructureParticlePacket(int x, int y, int z, int structureHash, Orientation o, boolean mirror)
+    public StructureParticlePacket(int x, int y, int z, int structureHash, Orientation o, boolean mirror, StructureParticleChoice sc)
     {
         this.x = x;
         this.y = y;
@@ -51,12 +51,13 @@ public class StructureParticlePacket implements IMessage
 
         this.structureHash = structureHash;
         orientationAndMirror = o.encode() | (mirror? flagMirrored : 0);
-
+        this.sc = sc;
     }
 
     private int x,y,z;
     private int structureHash;
     private int orientationAndMirror;
+    private StructureParticleChoice sc;
 
     @Override
     public void fromBytes(ByteBuf buf)
@@ -67,6 +68,7 @@ public class StructureParticlePacket implements IMessage
 
         structureHash = ByteBufUtils.readVarInt(buf, 5);
         orientationAndMirror = ByteBufUtils.readVarShort(buf);
+        sc = StructureParticleChoice.values()[ByteBufUtils.readVarShort(buf)];
     }
 
     @Override
@@ -79,6 +81,7 @@ public class StructureParticlePacket implements IMessage
         ByteBufUtils.writeVarInt(buf, structureHash, 5);
 
         ByteBufUtils.writeVarShort(buf, orientationAndMirror);
+        ByteBufUtils.writeVarShort(buf, sc.ordinal());
     }
 
     public static class Handler implements IMessageHandler<StructureParticlePacket, IMessage>
@@ -113,6 +116,7 @@ public class StructureParticlePacket implements IMessage
                 float ySpeed = 0.0f;
                 float zSpeed = 0.0f;
 
+
                 for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
                 {
                     if (!coord.hasGlobalNeighbour(d))
@@ -123,9 +127,15 @@ public class StructureParticlePacket implements IMessage
                     }
                 }
 
-                if (particleCount++ % 9 == 0)
-                    world.spawnParticle("hugeexplosion", coord.getX(), coord.getY(),coord.getZ(), xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
-                //block.spawnBreakParticle(world, (SteamNSteelStructureTE) te, coord, xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
+                switch (msg.sc)
+                {
+                    case BOOM:
+                        if (particleCount++ % 9 != 0)
+                            world.spawnParticle("hugeexplosion", coord.getX(), coord.getY(),coord.getZ(), xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
+                        break;
+                    case BUILD:
+                        block.spawnBreakParticle(world, (SteamNSteelStructureTE) te, coord, xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
+                }
             }
 
             return null;

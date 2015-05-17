@@ -1,11 +1,16 @@
 {
   "construction": {
-    "definition": [],
+    "definition": [
+      {
+        "char":"c",
+        "block":"steamnsteel:blockSteel"
+      }
+    ],
     "pattern": [
       [
-        ".       .",
+        ".ccccccc.",
         "         ",
-        ".       ."
+        ".ccccccc."
       ],[
         ".       .",
         ".       .",
@@ -16,7 +21,7 @@
         "..     .."
       ],[
         ".........",
-        "...   ...",
+        "...ccc...",
         "........."
       ]
     ],

@@ -112,54 +112,52 @@ public class ExampleTE extends SteamNSteelStructureTE
         nbt.setBoolean(EYE_LIGHTS, isLightsActive);
     }
 
-
-
     @Override
     public void updateEntity()
     {
-        final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
-
-        //print("Direction: ", Orientation.getdecodedOrientation(meta));
-
-        if (getPattern() == null)
+        if (ISACTIVATE)
         {
-            if (!worldObj.isRemote) print("getPattern Error: ID ", getRegHash(), " : ", dehashLoc(getHashedBlockID()), " : ", ImmutableTriple.of(xCoord, yCoord, zCoord));
-            return;
+            final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
+
+            ISACTIVATE = false;
+            if (getPattern() == null)
+            {
+                if (!worldObj.isRemote)
+                    print("getPattern Error: ID ", getRegHash(), " : ", dehashLoc(getHashedBlockID()), " : ", ImmutableTriple.of(xCoord, yCoord, zCoord));
+                return;
+            }
+
+            final ImmutableTriple<Integer, Integer, Integer> b1L = localToGlobal(
+                    -2, -1, -2,
+                    xCoord, yCoord, zCoord,
+                    getdecodedOrientation(meta), isMirrored(meta),
+                    getPattern());
+
+            final ImmutableTriple<Integer, Integer, Integer> b2L = localToGlobal(
+                    -4, -1, -2,
+                    xCoord, yCoord, zCoord,
+                    getdecodedOrientation(meta), isMirrored(meta),
+                    getPattern());
+
+            final ImmutableTriple<Integer, Integer, Integer> b3L = localToGlobal(
+                    -3, 1, -3,
+                    xCoord, yCoord, zCoord,
+                    getdecodedOrientation(meta), isMirrored(meta),
+                    getPattern());
+
+            setLightsBlocks(b1L);
+            setLightsBlocks(b2L);
+            setLightsBlocks(b3L);
+
         }
-
-        final ImmutableTriple<Integer,Integer,Integer> b1L = localToGlobal(
-                -2, -1, -2,
-                xCoord, yCoord, zCoord,
-                getdecodedOrientation(meta), isMirrored(meta),
-                getPattern());
-
-        final ImmutableTriple<Integer,Integer,Integer> b2L = localToGlobal(
-                -4, -1, -2,
-                xCoord, yCoord, zCoord,
-                getdecodedOrientation(meta), isMirrored(meta),
-                getPattern());
-
-        final ImmutableTriple<Integer,Integer,Integer> b3L = localToGlobal(
-                -3, 1, -3,
-                xCoord, yCoord, zCoord,
-                getdecodedOrientation(meta), isMirrored(meta),
-                getPattern());
-
-        delayTick++;
-
-        if (ISACTIVATE) setLightsBlocks(b1L);
-        if (ISACTIVATE) setLightsBlocks(b2L);
-        if (ISACTIVATE) setLightsBlocks(b3L);
-
-        if (delayTick%11 == 0) isLightsActive ^= true;
     }
 
     private void setLightsBlocks(ImmutableTriple<Integer,Integer,Integer> b1L)
     {
         final Block b1 = getWorldObj().getBlock(b1L.getLeft(), b1L.getMiddle(), b1L.getRight());
 
-        if (b1 == Blocks.lit_redstone_lamp || b1 == Blocks.redstone_lamp)
+        if (b1 == Blocks.obsidian || b1 == Blocks.emerald_block)
             getWorldObj().setBlock(b1L.getLeft(), b1L.getMiddle(), b1L.getRight(),
-                    isLightsActive? Blocks.lit_redstone_lamp: Blocks.redstone_lamp);
+                    b1 == Blocks.obsidian? Blocks.emerald_block: Blocks.obsidian);
     }
 }

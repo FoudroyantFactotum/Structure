@@ -66,8 +66,6 @@ public class StructureBlockItem extends ItemBlock
             if (!itr.next().isReplaceable(world))
                 return false;
 
-
-
         world.setBlock(mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), block, metadata, 0x3);
         block.onBlockPlacedBy(world, mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), player, stack);
         block.onPostBlockPlaced(world, mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), world.getBlockMetadata(x,y,z));
@@ -75,11 +73,5 @@ public class StructureBlockItem extends ItemBlock
         return true;
     }
 
-    private static double capSize(double s, double cs)
-    {
-        if (s > cs) s = cs;
-        if (s < -cs) s = -cs;
 
-        return s;
-    }
 }
