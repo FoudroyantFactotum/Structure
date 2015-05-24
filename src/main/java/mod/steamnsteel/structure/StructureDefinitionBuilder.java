@@ -17,22 +17,17 @@ package mod.steamnsteel.structure;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableMap.Builder;
 import mod.steamnsteel.structure.registry.StructureBlockSideAccess;
 import mod.steamnsteel.structure.registry.StructureDefinition;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.BitSet;
-import java.util.LinkedHashSet;
-import java.util.Set;
-
-import static mod.steamnsteel.structure.registry.StructureDefinition.dehashLoc;
 
 public final class StructureDefinitionBuilder
 {
-    public BitSet[][] sbLayout;
+    public BitSet sbLayout;
+    public ImmutableTriple<Integer, Integer, Integer> sbLayoutSize;
     public boolean cleanUpOnBuild = true;
 
     public ImmutableTriple<Integer,Integer,Integer> adjustmentCtS = ImmutableTriple.of(0,0,0);
@@ -43,6 +38,8 @@ public final class StructureDefinitionBuilder
     public byte[][][] metadata;
     public ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> sideAccess;
     public float[][] collisionBoxes;
+
+    private int xzSize;
 
     public StructureDefinition build()
     {
@@ -59,6 +56,8 @@ public final class StructureDefinitionBuilder
             mps = null;
         }
 
+        xzSize = sbLayoutSize.getLeft()*sbLayoutSize.getRight();
+
         if (sideAccess != null)
             sideAccess = cleanIODefinition(sbLayout, sideAccess);
 
@@ -73,14 +72,15 @@ public final class StructureDefinitionBuilder
 
         translateCollisions(collisionBoxes, mps,
                 ImmutableTriple.of(
-                        sbLayout[0][0].length()/2.0f,
-                        sbLayout.length/2.0f,
-                        sbLayout[0].length/2.0f)
+                        sbLayoutSize.getLeft()/2.0f,
+                        sbLayoutSize.getMiddle()/2.0f,
+                        sbLayoutSize.getRight()/2.0f)
         );
 
 
         return new StructureDefinition(
                 sbLayout,
+                sbLayoutSize,
                 cleanUpOnBuild,
                 adjustmentCtS,
                 mps,
@@ -92,17 +92,15 @@ public final class StructureDefinitionBuilder
         );
     }
 
-    private static BitSet[][] generate_sbLayout(int x, int y, int z)
+    private BitSet generate_sbLayout(int x, int y, int z)
     {
-        final BitSet xLine = new BitSet(x);
-        final BitSet[] zLine = new BitSet[z];
-        final BitSet[][] yLine = new BitSet[y][];
+        final BitSet line = new BitSet(x*y*z);
 
-        for(int i=0; i < xLine.length(); ++i)   xLine.set(i);
-        for(int i=0; i < zLine.length; ++i)     zLine[i] = xLine;
-        for(int i=0; i < yLine.length; ++i)     yLine[i] = zLine;
+        for(int i=0; i < line.length(); ++i)   line.set(i);
 
-        return yLine;
+        sbLayoutSize = ImmutableTriple.of(x,y,z);
+
+        return line;
     }
 
     private static float[][] generator_collisionBoxes(int x, int y, int z)
@@ -114,12 +112,12 @@ public final class StructureDefinitionBuilder
     }
 
     private ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> cleanIODefinition(
-            BitSet[][] sbLayout,
+            BitSet sbLayout,
             ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> sideAccess
     )
     {
         //TODO optimize StructureBlockSideAccessList
-        final Set<Integer> remove = new LinkedHashSet<Integer>(1);
+        /*final Set<Integer> remove = new LinkedHashSet<Integer>(1);
 
         for (Integer i: sideAccess.keySet())
             //check hash to see if exists in size for optimization
@@ -142,7 +140,7 @@ public final class StructureDefinitionBuilder
                     sideAccessReplacement.put(i, sideAccess.get(i));
 
             return sideAccessReplacement.build();
-        }
+        }*/
 
         return sideAccess;
     }
@@ -162,12 +160,12 @@ public final class StructureDefinitionBuilder
         }*/
     }
 
-    private static boolean checkForValidBlockLocation(BitSet[][] sbLayout, ImmutableTriple<Byte,Byte,Byte> loc)
+    private boolean checkForValidBlockLocation(BitSet sbLayout, ImmutableTriple<Byte,Byte,Byte> loc)
     {
-        if (sbLayout.length > loc.getMiddle())
-            if (sbLayout[loc.getMiddle()].length > loc.getRight())
-                if (sbLayout[loc.getMiddle()][loc.getRight()].length() > loc.getLeft())
-                    return sbLayout[loc.getMiddle()][loc.getRight()].get(loc.getLeft());
+        if (sbLayoutSize.getMiddle() > loc.getMiddle())
+            if (sbLayoutSize.getRight() > loc.getRight())
+                if (sbLayoutSize.getLeft() > loc.getLeft())
+                    return sbLayout.get(loc.getLeft() + sbLayoutSize.getLeft()*loc.getRight() + xzSize*loc.getMiddle());
 
         return false;
     }

@@ -38,10 +38,12 @@ public class StructureDefinition
         return jsonDeserializer;
     }
 
-    private BitSet[][] sbLayout;
-    private boolean cleanUpOnBuild = true;
+    private BitSet sbLayout;
+    ImmutableTriple<Integer, Integer, Integer> sbLayoutSize;
 
+    private boolean cleanUpOnBuild = true;
     private ImmutableTriple<Integer,Integer,Integer> adjustmentCtS;
+
     private ImmutableTriple<Integer,Integer,Integer> mps;
     private ImmutableTriple<Integer,Integer,Integer> tfps;
 
@@ -55,10 +57,12 @@ public class StructureDefinition
         //noop
     }
 
-    public StructureDefinition(BitSet[][] sbLayout,
-                                boolean cleanUpOnBuild,
+    public StructureDefinition(BitSet sbLayout,
+                               ImmutableTriple<Integer, Integer, Integer> sbLayoutSize,
 
+                                boolean cleanUpOnBuild,
                                 ImmutableTriple<Integer,Integer,Integer> adjustmentCtS,
+
                                 ImmutableTriple<Integer,Integer,Integer> mps,
                                 ImmutableTriple<Integer,Integer,Integer> tfps,
 
@@ -68,9 +72,11 @@ public class StructureDefinition
                                 float[][] collisionBoxes)
     {
         this.sbLayout = sbLayout;
-        this.cleanUpOnBuild = cleanUpOnBuild;
+        this.sbLayoutSize = sbLayoutSize;
 
+        this.cleanUpOnBuild = cleanUpOnBuild;
         this.adjustmentCtS = adjustmentCtS;
+
         this.mps = mps;
         this.tfps = tfps;
 
@@ -129,29 +135,22 @@ public class StructureDefinition
         return StructureBlockSideAccess.MISSING_SIDE_ACCESS;
     }
 
-    public BitSet[][] getBlockLayout()
+    public BitSet getBlockLayout()
     {
         return sbLayout;
     }
 
     public ImmutableTriple<Integer,Integer,Integer> getBlockBounds()
     {
-        return sbLayout == null ?
-                ImmutableTriple.of(0,0,0):
-                ImmutableTriple.of(
-                        sbLayout[0][0].length(),
-                        sbLayout.length,
-                        sbLayout[0].length);
+        return sbLayoutSize;
     }
 
     public ImmutableTriple<Integer,Integer,Integer> getHalfBlockBounds()
     {
-        return sbLayout == null ?
-                ImmutableTriple.of(0,0,0):
-                ImmutableTriple.of(
-                        sbLayout[0][0].length()/2,
-                        sbLayout.length/2,
-                        sbLayout[0].length/2);
+        return ImmutableTriple.of(
+                        sbLayoutSize.getLeft()/2,
+                        sbLayoutSize.getMiddle()/2,
+                        sbLayoutSize.getRight()/2);
     }
 
     public ImmutableTriple<Integer,Integer,Integer> getMasterLocation()
@@ -194,7 +193,8 @@ public class StructureDefinition
                 .add("adjustmentCtS", adjustmentCtS)
                 .add("mps", mps)
                 .add("tfps", tfps)
-                .add("sbLayout", Arrays.toString(sbLayout))
+                .add("sbLayoutSize", sbLayoutSize)
+                .add("sbLayout", sbLayout)
                 .add("cleanUpOnBuild", cleanUpOnBuild)
                 .toString();
     }

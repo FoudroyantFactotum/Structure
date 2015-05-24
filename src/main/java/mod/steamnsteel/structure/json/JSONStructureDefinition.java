@@ -281,35 +281,44 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
         {
             final JsonArray jsonConfiguration = json.getAsJsonArray(SIZE_CONFIGURATION);
             final ItrJsonStructure itjs = new ItrJsonStructure(jsonConfiguration);
-            final BitSet[][] blockLocation = new BitSet[itjs.getOuterSize()][];
+            BitSet blockLocation = null;
+
+            int x = -2;
+            int y = itjs.getOuterSize();
+            int z = itjs.getInnerSize();
+
+            int xzSize = 0;
 
             while (itjs.hasNext())
             {
                 final JsonReadState<JsonElement> jrs = itjs.next();
 
                 final char[] xLine = jrs.getValue().getAsString().toUpperCase().toCharArray();
-                final BitSet bs = new BitSet(xLine.length);
 
-                if (blockLocation[jrs.getOuter()] == null)
-                    blockLocation[jrs.getOuter()] = new BitSet[itjs.getInnerSize()];
+                if (x == -2)//first pass
+                {
+                    x = xLine.length;
+                    blockLocation = new BitSet(x*y*z);
+                    xzSize = x*z;
+                }
+                else if (xLine.length != x)
+                    throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " x-line not const");
 
-                blockLocation[jrs.getOuter()][jrs.getInner()] = bs;
-
-                for (int x=0; x<xLine.length; ++x)
-                    sizeConfigurationIOWrite(xLine[x], bs, x, jrs, sdb);
+                for (int h=0; h<xLine.length; ++h)
+                    if (sizeConfigurationIOWrite(xLine[h], h, jrs, sdb))
+                        blockLocation.set(h + x*jrs.getInner() + xzSize*jrs.getOuter());
             }
 
-            sdb.sbLayout = jagedCheck(blockLocation);
+            sdb.sbLayoutSize = ImmutableTriple.of(x,y,z);
+            sdb.sbLayout = blockLocation;//jagedCheck(blockLocation);
         }
     }
 
-    private static void sizeConfigurationIOWrite(char c, BitSet bs, int x, JsonReadState jrs, StructureDefinitionBuilder sdb)
+    private static boolean sizeConfigurationIOWrite(char c, int x, JsonReadState jrs, StructureDefinitionBuilder sdb)
     {
         //flip bit to represent block
         if (!Character.isSpaceChar(c))
         {
-            bs.set(x);
-
             switch (Character.toUpperCase(c))
             {
                 case 'M':
@@ -336,7 +345,10 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                 default:
                     throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " Unrecognised char " + c);
             }
+            return true;
+
         }
+        return false;
     }
 
     //=========================================================
@@ -437,22 +449,6 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                         throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_METADATA + " not a square x array");
             } else
                 throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_METADATA + " not a square z array");
-
-        return array;
-    }
-
-    private static BitSet[][] jagedCheck(BitSet[][] array)
-    {
-        for (final BitSet[] i:array)
-            if (i.length == array[0].length)
-            {
-                /*for (final BitSet ii : i)
-                    if (ii.length() != i[0].length())
-                        throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " not a square x array");*/
-
-                //need xline bit test jaged as length only counts true bits.
-            } else
-                throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " not a square z array");
 
         return array;
     }

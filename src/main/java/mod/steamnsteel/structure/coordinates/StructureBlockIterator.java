@@ -37,13 +37,16 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
     private final ImmutableTriple<Integer,Integer,Integer> mps;
 
     private final StructureDefinition sd;
-    private final BitSet[][] sbLayout;
+    private final ImmutableTriple<Integer, Integer, Integer> sbLayoutSize;
+    private final BitSet sbLayout;
 
     private int rhx = -1;
     private int rhy = 0;
     private int rhz = 0;
 
     private boolean readHeadEnd = false;
+
+    private final int xzSize;
 
     public StructureBlockIterator(StructureDefinition sd, ImmutableTriple<Integer, Integer, Integer> worldLocation, Orientation orientation, Boolean mirrored)
     {
@@ -53,8 +56,11 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         this.mirrored = mirrored;
 
         this.sd = sd;
+        sbLayoutSize = sd.getBlockBounds();
         sbLayout = sd.getBlockLayout();
         mps = sd.getMasterLocation();
+
+        xzSize = sbLayoutSize.getLeft()*sbLayoutSize.getRight();
 
         shiftReadHead();
     }
@@ -87,16 +93,14 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
 
     private void shiftReadHead()
     {
-        while (rhy < sbLayout.length)
+        while (rhy < sbLayoutSize.getMiddle())
         {
-            final BitSet[] zLine = sbLayout[rhy];
-
-            while (rhz < zLine.length)
+            while (rhz < sbLayoutSize.getRight())
             {
-                final BitSet xLine = zLine[rhz];
-
-                while (++rhx < xLine.length())
-                    if (xLine.get(rhx))
+                while (++rhx < sbLayoutSize.getLeft())
+                    if (sbLayout.get(rhx +
+                            (sbLayoutSize.getLeft()*rhz) +
+                            (xzSize*rhy)))
                         return;
 
                 rhx = -1;
@@ -120,10 +124,13 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
             final int fdy = rhy+d.offsetY;
             final int fdz = rhz+d.offsetZ;
 
-            if (fdy > -1 && fdy < sbLayout.length)
-                if (fdz > -1 && fdz < sbLayout[fdy].length)
-                    if (fdx > -1 && fdx < sbLayout[fdy][fdz].length())
-                        if (sbLayout[fdy][fdz].get(fdx))
+            if (fdy > -1 && fdy < sbLayoutSize.getMiddle())
+                if (fdz > -1 && fdz < sbLayoutSize.getRight())
+                    if (fdx > -1 && fdx < sbLayoutSize.getLeft())
+                        if (sbLayout.get(fdx +
+                                        (sbLayoutSize.getLeft()*rhz) +
+                                        (xzSize*rhy)
+                        ))
                             neighbours |= d.flag;
         }
 
