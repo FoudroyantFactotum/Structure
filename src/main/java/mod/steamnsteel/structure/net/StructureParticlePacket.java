@@ -28,11 +28,12 @@ import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.Orientation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.flagMirrored;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public class StructureParticlePacket implements IMessage
@@ -103,7 +104,7 @@ public class StructureParticlePacket implements IMessage
 
             final StructureBlockIterator itr = new StructureBlockIterator(
                     block.getPattern(),
-                    Vec3.createVectorHelper(msg.x, msg.y, msg.z),
+                    ImmutableTriple.of(msg.x, msg.y, msg.z),
                     getdecodedOrientation(msg.orientationAndMirror),
                     isMirrored(msg.orientationAndMirror)
             );

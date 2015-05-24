@@ -25,7 +25,6 @@ import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
@@ -34,7 +33,6 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.print;
 
 public final class TransformLAG
 {
@@ -88,11 +86,13 @@ public final class TransformLAG
     };
 
     //from master with local to external
-    public static WorldBlockCoord localToGlobal(int lx, int ly, int lz, Vec3 worldLoc, Orientation o, boolean ismirrored, StructureDefinition sd)
+    public static WorldBlockCoord fromMasterlocalToGlobal(int lx, int ly, int lz,
+                                                          ImmutableTriple<Integer, Integer, Integer> worldLoc,
+                                                          Orientation o, boolean ismirrored, StructureDefinition sd)
     {
         final ImmutableTriple<Integer, Integer, Integer> loc
                 = localToGlobal(-lx, -ly, -lz,
-                (int) worldLoc.xCoord, (int) worldLoc.yCoord, (int) worldLoc.zCoord,
+                worldLoc.getLeft(), worldLoc.getMiddle(), worldLoc.getRight(),
                 o, ismirrored,
                 sd
         );
@@ -105,7 +105,9 @@ public final class TransformLAG
     }
 
     //from external with local to master
-    public static ImmutableTriple<Integer, Integer, Integer> localToGlobal(int lx, int ly, int lz, int gx, int gy, int gz, Orientation o, boolean ismirrored, StructureDefinition sd)
+    public static ImmutableTriple<Integer, Integer, Integer> localToGlobal(int lx, int ly, int lz,
+                                                                           int gx, int gy, int gz,
+                                                                           Orientation o, boolean ismirrored, StructureDefinition sd)
     {
         final int rotIndex = o.encode();
 
@@ -154,10 +156,8 @@ public final class TransformLAG
     public static int localToGlobal(int meta, Block block, Orientation o, boolean ismirrored)
     {
         if (META_CORRECTOR.containsKey(block))
-        {
-            print("META_CORRECTER : ", (byte)meta, " : ", META_CORRECTOR.get(block).correctMeta((byte) meta, o, ismirrored));
             return META_CORRECTOR.get(block).correctMeta((byte) meta, o, ismirrored);
-        }
+
         return meta;
     }
 
@@ -224,26 +224,5 @@ public final class TransformLAG
                 lb.getLeft() + tx, lb.getMiddle(), lb.getRight() + tz,
                 ub.getLeft() + tx, ub.getMiddle(), ub.getRight() + tz
         );
-
-
-        /*final ImmutableTriple<Integer,Integer,Integer> size = sd.getBlockBounds();
-        final Vec3 bbSize = Vec3.createVectorHelper(
-                size.getLeft() - 0.5,
-                size.getMiddle(),
-                size.getRight() - 0.5);
-        final Vec3 b = Vec3.createVectorHelper(-0.5,0,-0.5);
-        final float rot = (float) o.getRotationValue();
-
-        bbSize.rotateAroundY(rot);
-        b.rotateAroundY(rot);
-
-        return AxisAlignedBB.getBoundingBox(
-                x + 0.5 + min(b.xCoord, bbSize.xCoord),
-                y,
-                z + 0.5 + min(b.zCoord, bbSize.zCoord),
-
-                x + 0.5 + max(b.xCoord, bbSize.xCoord),
-                y + bbSize.yCoord,
-                z + 0.5 + max(b.zCoord, bbSize.zCoord));*/
     }
 }

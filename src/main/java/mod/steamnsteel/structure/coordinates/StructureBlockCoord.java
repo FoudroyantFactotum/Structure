@@ -22,7 +22,6 @@ import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -39,14 +38,16 @@ public class StructureBlockCoord
     private final StructureNeighbours localNeighbors;
     private final boolean isMasterBlock;
 
-    private final Vec3 worldLocation;
+    private final ImmutableTriple<Integer, Integer, Integer> worldMasterLocation;
+
     private final Orientation orientation;
     private final boolean isMirrored;
 
     private final WorldBlockCoord worldCoord;
 
     public StructureBlockCoord(int localCoordX, int localCoordY, int localCoordZ, boolean isMasterBlock,
-                               StructureNeighbours localNeighbors, Vec3 worldLocation,
+                               StructureNeighbours localNeighbors,
+                               ImmutableTriple<Integer, Integer, Integer> worldMasterLocation,
                                WorldBlockCoord worldCoord, Orientation orientation, boolean isMirrored)
     {
         this.localCoordX = (byte)localCoordX;
@@ -56,7 +57,8 @@ public class StructureBlockCoord
         this.localNeighbors = localNeighbors;
         this.isMasterBlock = isMasterBlock;
 
-        this.worldLocation = worldLocation;
+        this.worldMasterLocation = worldMasterLocation;
+
         this.orientation = orientation;
         this.isMirrored = isMirrored;
         this.worldCoord = worldCoord;
@@ -182,7 +184,7 @@ public class StructureBlockCoord
                 .add("localNeighbors", localNeighbors)
                 .add("worldCoord", worldCoord)
                 .add("isMasterBlock",isMasterBlock)
-                .add("worldLocation", worldLocation)
+                .add("worldMasterLocation", worldMasterLocation)
                 .add("orientation", orientation)
                 .add("isMirrored", isMirrored)
                 .add("worldCoord", worldCoord)

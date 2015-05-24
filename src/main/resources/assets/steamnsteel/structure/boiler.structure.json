@@ -14,29 +14,29 @@
         "block": "minecraft:glass_pane"
       },
       {
-        "char": "B",
-        "block": "minecraft:iron_bars"
+        "char": "l",
+        "block": "minecraft:lava"
       }
     ],
     "pattern": [
       [
         "ppp",
-        " s ",
+        "sss",
         "ppp"
       ],
       [
         "ppp",
-        "BsB",
+        "sls",
         "pgp"
       ],
       [
         "ppp",
-        "BsB",
+        "sls",
         "pgp"
       ],
       [
         "ppp",
-        " s ",
+        "sss",
         "ppp"
       ]
     ],

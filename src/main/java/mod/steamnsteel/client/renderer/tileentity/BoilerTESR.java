@@ -30,8 +30,8 @@ import org.lwjgl.opengl.GL11;
 public class BoilerTESR extends SteamNSteelTESR
 {
     public static final ResourceLocation TEXTURE = getResourceLocation(BoilerBlock.NAME);
-    private static final ImmutableTriple<Float, Float, Float> SCALE = ImmutableTriple.of(1.0f, 1.0f, 1.0f);
-    private static final ImmutableTriple<Float, Float, Float> OFFSET = ImmutableTriple.of(1.0f, 0.0f, 1.0f);
+    private static  ImmutableTriple<Float, Float, Float> SCALE = ImmutableTriple.of(1.0f, 1.0f, 1.0f);
+    private static  ImmutableTriple<Float, Float, Float> OFFSET = ImmutableTriple.of(1.0f, 0.0f, 1.0f);
 
     private final BoilerModel model = new BoilerModel();
 

@@ -68,8 +68,6 @@ public final class StructureRegistry
         {
             Logger.info("\n\n\nIllegalAccessException: " + e.getLocalizedMessage() + "\n\n\n");
         }
-
-        registeredStructures = null;
     }
 
     private StructureRegistry()

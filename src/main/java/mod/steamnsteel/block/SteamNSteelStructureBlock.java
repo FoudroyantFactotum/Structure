@@ -42,7 +42,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
@@ -91,7 +90,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         final StructureBlockIterator itr =
                 new StructureBlockIterator(
                         getPattern(),
-                        Vec3.createVectorHelper(x, y, z),
+                        ImmutableTriple.of(x,y,z),
                         o,
                         mirror
                 );
@@ -121,7 +120,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         final StructureBlockIterator itr =
                 new StructureBlockIterator(
                         getPattern(),
-                        Vec3.createVectorHelper(x, y, z),
+                        ImmutableTriple.of(x,y,z),
                         getdecodedOrientation(meta),
                         isMirrored(meta)
                 );
@@ -153,7 +152,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         final boolean isPlayerCreative = player != null && player.capabilities.isCreativeMode;
 
         if (te != null)
-            breakStructure(world, Vec3.createVectorHelper(x, y, z), getPattern(), getdecodedOrientation(meta), isMirrored(meta), isPlayerCreative);
+            breakStructure(world, ImmutableTriple.of(x, y, z), getPattern(), getdecodedOrientation(meta), isMirrored(meta), isPlayerCreative);
         else
             world.setBlockToAir(x,y,z);
 
@@ -200,7 +199,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
             final StructureBlockIterator itr = new StructureBlockIterator(
                     getPattern(),
-                    Vec3.createVectorHelper(x, y, z),
+                    ImmutableTriple.of(x,y,z),
                     o,
                     isMirrored
             );
@@ -304,7 +303,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         return true;
     }
 
-    public static void breakStructure(World world, Vec3 mloc, StructureDefinition sp, Orientation o, boolean isMirrored, boolean isCreative)
+    public static void breakStructure(World world, ImmutableTriple<Integer, Integer, Integer> mloc, StructureDefinition sp, Orientation o, boolean isMirrored, boolean isCreative)
     {
         final StructureBlockIterator itr = new StructureBlockIterator(
                 sp,

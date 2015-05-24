@@ -18,7 +18,6 @@ package mod.steamnsteel.structure.coordinates;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureNeighbours;
 import mod.steamnsteel.utility.Orientation;
-import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
@@ -26,18 +25,17 @@ import java.util.BitSet;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.fromMasterlocalToGlobal;
 
 public class StructureBlockIterator implements Iterator<StructureBlockCoord>
 {
-    private final Vec3 worldLocation;
+    private final ImmutableTriple<Integer, Integer, Integer> worldLocation;
 
     private final Orientation orientation;
     private final boolean mirrored;
 
     private final ImmutableTriple<Integer,Integer,Integer> mps;
 
-    //todo is this needed;
     private final StructureDefinition sd;
     private final BitSet[][] sbLayout;
 
@@ -47,9 +45,10 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
 
     private boolean readHeadEnd = false;
 
-    public StructureBlockIterator(StructureDefinition sd, Vec3 worldLocation, Orientation orientation, Boolean mirrored)
+    public StructureBlockIterator(StructureDefinition sd, ImmutableTriple<Integer, Integer, Integer> worldLocation, Orientation orientation, Boolean mirrored)
     {
         this.worldLocation = worldLocation;
+
         this.orientation = orientation;
         this.mirrored = mirrored;
 
@@ -70,9 +69,9 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         return sd;
     }
 
-    public Vec3 getWorldLocation()
+    public ImmutableTriple<Integer, Integer, Integer> getWorldLocation()
     {
-        return Vec3.createVectorHelper(worldLocation.xCoord, worldLocation.yCoord, worldLocation.zCoord);
+        return worldLocation;
     }
 
     public void cleanIterator()
@@ -159,7 +158,7 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
                 isReadHeadOnMaster(),
                 new StructureNeighbours(getNeighbors()),
                 worldLocation,
-                localToGlobal(fx, fy, fz, worldLocation, orientation, mirrored, sd),
+                fromMasterlocalToGlobal(fx, fy, fz, worldLocation, orientation, mirrored, sd),
                 orientation, mirrored
         );
 

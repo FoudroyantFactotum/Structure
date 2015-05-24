@@ -24,7 +24,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
@@ -60,7 +59,7 @@ public class StructureBlockItem extends ItemBlock
         if (!world.isRemote) print("ltg ITEM @", mLoc, " : SD ", block.getPattern());
 
         //check block locations
-        final StructureBlockIterator itr = new StructureBlockIterator(block.getPattern(), Vec3.createVectorHelper(mLoc.getLeft(),mLoc.getMiddle(), mLoc.getRight()), o, isMirrored);
+        final StructureBlockIterator itr = new StructureBlockIterator(block.getPattern(), mLoc, o, isMirrored);
 
         while (itr.hasNext())
             if (!itr.next().isReplaceable(world))

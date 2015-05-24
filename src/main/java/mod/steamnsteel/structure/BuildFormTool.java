@@ -56,18 +56,18 @@ public class BuildFormTool extends SSToolShovel
 
             if (res != null)
             {
-                final Vec3 blkLoc = res.getLeft().getWorldLocation();
+                final ImmutableTriple<Integer, Integer, Integer> blkLoc = res.getLeft().getWorldLocation();
                 print("Uber-Structure-Search found matching Structure : ", res.getRight(), " : ", blkLoc, " : ", res.getLeft().getOrientation());
 
                 final int meta = res.getLeft().getOrientation().encode();
                 final SteamNSteelStructureBlock block = res.getRight();
 
-                world.setBlock((int) blkLoc.xCoord, (int) blkLoc.yCoord, (int) blkLoc.zCoord, block, meta, 0x3);
+                world.setBlock(blkLoc.getLeft(), blkLoc.getMiddle(), blkLoc.getRight(), block, meta, 0x3);
                 block.formStructure(world, res.getLeft(), meta);
-                block.onPostBlockPlaced(world, (int) blkLoc.xCoord, (int) blkLoc.yCoord, (int) blkLoc.zCoord, meta);
+                block.onPostBlockPlaced(world, blkLoc.getLeft(), blkLoc.getMiddle(), blkLoc.getRight(), meta);
 
                ModNetwork.network.sendToAllAround(
-                        new StructureParticlePacket((int) blkLoc.xCoord, (int) blkLoc.yCoord, (int) blkLoc.zCoord, block.getRegHash(), getdecodedOrientation(meta), isMirrored(meta), StructureParticleChoice.BUILD),
+                        new StructureParticlePacket(blkLoc.getLeft(), blkLoc.getMiddle(), blkLoc.getRight(), block.getRegHash(), getdecodedOrientation(meta), isMirrored(meta), StructureParticleChoice.BUILD),
                         new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
                 );
             }
@@ -88,6 +88,7 @@ public class BuildFormTool extends SSToolShovel
             final StructureDefinition sd = ssBlock.getPattern();
 
             final ImmutableTriple<Integer, Integer, Integer> tl = sd.getToolBuildLocation();
+            final ImmutableTriple<Integer, Integer, Integer> t2 = sd.getMasterLocation();
 
             //every Direction nsew
             nextOrientation:
@@ -95,14 +96,14 @@ public class BuildFormTool extends SSToolShovel
             {
                 final ImmutableTriple<Integer,Integer,Integer> pml =
                         localToGlobal(
-                                tl.getLeft(), tl.getMiddle(), tl.getRight(),
+                                tl.getLeft() - t2.getLeft(), tl.getMiddle() - t2.getMiddle(), tl.getRight() - t2 .getRight(),
                                 (int)loc.xCoord, (int)loc.yCoord, (int)loc.zCoord,
                                 o, false, sd
                         );
 
                 final StructureBlockIterator itr = new StructureBlockIterator(
                         sd,
-                        vecFromImmutTri(pml),
+                        pml,
                         o,
                         false//mirroring :p
                 );
@@ -124,10 +125,5 @@ public class BuildFormTool extends SSToolShovel
 
         //nothing matches
         return null;
-    }
-
-    private static Vec3 vecFromImmutTri(ImmutableTriple<Integer, Integer, Integer> val)
-    {
-        return Vec3.createVectorHelper(val.getLeft(), val.getMiddle(), val.getRight());
     }
 }
