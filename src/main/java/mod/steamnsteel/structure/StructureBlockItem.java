@@ -27,7 +27,6 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.print;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class StructureBlockItem extends ItemBlock
@@ -55,8 +54,6 @@ public class StructureBlockItem extends ItemBlock
                 hSize.getLeft() - ml.getLeft(), -ml.getMiddle(), hSize.getRight() - ml.getRight(),
                 x, y, z,
                 o, isMirrored, block.getPattern());
-
-        if (!world.isRemote) print("ltg ITEM @", mLoc, " : SD ", block.getPattern());
 
         //check block locations
         final StructureBlockIterator itr = new StructureBlockIterator(block.getPattern(), mLoc, o, isMirrored);

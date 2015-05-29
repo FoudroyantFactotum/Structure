@@ -20,6 +20,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelMachineBlock;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructureTE;
+import mod.steamnsteel.structure.coordinates.TransformLAG;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.StructureShapeTE;
 import net.minecraft.block.Block;
@@ -38,12 +39,11 @@ import java.util.List;
 import java.util.Random;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public final class StructureShapeBlock extends SteamNSteelMachineBlock implements ITileEntityProvider
 {
-    public static boolean _DEBUG = true;
+    public static boolean _DEBUG = false;
     public static final String NAME = "structureShape";
     public static final AxisAlignedBB EMPTY_BOUNDS = AxisAlignedBB.getBoundingBox(0, 0, 0, 0, 0, 0);
 
@@ -76,7 +76,7 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
             final ImmutableTriple<Integer, Integer, Integer> mloc = te.getMasterLocation(meta);
             final StructureDefinition sp = te.getPattern();
 
-            localToGlobal(mloc.getLeft(), mloc.getMiddle(), mloc.getRight(),
+            TransformLAG.localToGlobalCollisionBoxes(mloc.getLeft(), mloc.getMiddle(), mloc.getRight(),
                     aabb, boundingBoxList, sp.getCollisionBoxes(), getdecodedOrientation(meta), isMirrored(meta), sp.getBlockBounds());
         }
     }

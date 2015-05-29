@@ -4,7 +4,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.relauncher.Side;
 import mod.steamnsteel.TheMod;
-import mod.steamnsteel.structure.net.StructureParticlePacket;
+import mod.steamnsteel.structure.net.StructurePacket;
 
 public final class ModNetwork
 {
@@ -14,6 +14,6 @@ public final class ModNetwork
     {
         network = NetworkRegistry.INSTANCE.newSimpleChannel(TheMod.MOD_ID);
 
-        network.registerMessage(StructureParticlePacket.Handler.class, StructureParticlePacket.class, 1, Side.CLIENT);
+        network.registerMessage(StructurePacket.Handler.class, StructurePacket.class, 1, Side.CLIENT);
     }
 }

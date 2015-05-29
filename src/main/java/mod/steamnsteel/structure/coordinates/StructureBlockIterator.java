@@ -161,6 +161,7 @@ public class StructureBlockIterator implements Iterator<StructureBlockCoord>
         final int fz = rhz - mps.getRight();
 
         final StructureBlockCoord sb = new StructureBlockCoord(
+                sd,
                 fx, fy, fz,
                 isReadHeadOnMaster(),
                 new StructureNeighbours(getNeighbors()),

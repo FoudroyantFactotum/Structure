@@ -23,6 +23,7 @@ import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureSidedInventory;
 import mod.steamnsteel.structure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
+import mod.steamnsteel.structure.coordinates.TransformLAG;
 import mod.steamnsteel.structure.registry.StructureBlockSideAccess;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureNeighbours;
@@ -240,14 +241,15 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         if (!renderBounds.isPresent())
         {
-            final Orientation o = getdecodedOrientation(getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord));
-
             final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) getBlockType();
             final StructureDefinition pattern = block.getPattern();
 
-            renderBounds = pattern == StructureDefinition.MISSING_STRUCTURE ?
-                    Optional.of(INFINITE_EXTENT_AABB) :
-                    Optional.of(localToGlobal(xCoord, yCoord,zCoord, blockID, getPattern(), o, false));
+            if (pattern == StructureDefinition.MISSING_STRUCTURE)
+                return INFINITE_EXTENT_AABB;
+
+            final Orientation o = getdecodedOrientation(getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord));
+
+            renderBounds = Optional.of(TransformLAG.localToGlobalBoundingBox(xCoord, yCoord, zCoord, blockID, getPattern(), o, false));
         }
 
         return renderBounds.get();

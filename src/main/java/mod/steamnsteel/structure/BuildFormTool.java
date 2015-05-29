@@ -21,8 +21,8 @@ import mod.steamnsteel.item.tool.SSToolShovel;
 import mod.steamnsteel.library.Material;
 import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
 import mod.steamnsteel.structure.coordinates.StructureBlockIterator;
-import mod.steamnsteel.structure.net.StructureParticleChoice;
-import mod.steamnsteel.structure.net.StructureParticlePacket;
+import mod.steamnsteel.structure.net.StructurePacket;
+import mod.steamnsteel.structure.net.StructurePacketOption;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.utility.ModNetwork;
@@ -36,7 +36,6 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.print;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
@@ -50,29 +49,28 @@ public class BuildFormTool extends SSToolShovel
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        //if (world.isRemote)
+        if (!world.isRemote)
         {
             final Pair<StructureBlockIterator, SteamNSteelStructureBlock> res = uberStructureSearch(world, x, y, z);
 
             if (res != null)
             {
                 final ImmutableTriple<Integer, Integer, Integer> blkLoc = res.getLeft().getWorldLocation();
-                print("Uber-Structure-Search found matching Structure : ", res.getRight(), " : ", blkLoc, " : ", res.getLeft().getOrientation());
+                //print("Uber-Structure-Search found matching Structure : ", res.getRight(), " : ", blkLoc, " : ", res.getLeft().getOrientation());
 
                 final int meta = res.getLeft().getOrientation().encode();
                 final SteamNSteelStructureBlock block = res.getRight();
 
-                world.setBlock(blkLoc.getLeft(), blkLoc.getMiddle(), blkLoc.getRight(), block, meta, 0x3);
-                block.formStructure(world, res.getLeft(), meta);
+                world.setBlock(blkLoc.getLeft(), blkLoc.getMiddle(), blkLoc.getRight(), block, meta, 0x2);
+                block.formStructure(world, res.getLeft(), meta, 0x2);
                 block.onPostBlockPlaced(world, blkLoc.getLeft(), blkLoc.getMiddle(), blkLoc.getRight(), meta);
 
                ModNetwork.network.sendToAllAround(
-                        new StructureParticlePacket(blkLoc.getLeft(), blkLoc.getMiddle(), blkLoc.getRight(), block.getRegHash(), getdecodedOrientation(meta), isMirrored(meta), StructureParticleChoice.BUILD),
+                        new StructurePacket(blkLoc.getLeft(), blkLoc.getMiddle(), blkLoc.getRight(), block.getRegHash(), getdecodedOrientation(meta), isMirrored(meta), StructurePacketOption.BLOCK_PARTICLE_BUILD),
                         new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
                 );
-            }
-            else
-                print("Uber-Structure-Search failed!");
+            } //else
+                //print("No Structure Found");
         }
 
         return false;

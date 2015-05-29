@@ -162,7 +162,7 @@ public final class TransformLAG
     }
 
     //collision boxes
-    public static void localToGlobal(int x, int y, int z, AxisAlignedBB aabb, List<AxisAlignedBB> boundingBoxList, float[][] collB, Orientation o, boolean isMirrored, ImmutableTriple<Integer, Integer, Integer> size)
+    public static void localToGlobalCollisionBoxes(int x, int y, int z, AxisAlignedBB aabb, List<AxisAlignedBB> boundingBoxList, float[][] collB, Orientation o, boolean isMirrored, ImmutableTriple<Integer, Integer, Integer> size)
     {
         final int[][] matrix = rotationMatrix[o.encode()];
 
@@ -196,7 +196,7 @@ public final class TransformLAG
     }
 
     //Bounding box
-    public static AxisAlignedBB localToGlobal(int gx, int gy, int gz, ImmutableTriple<Byte,Byte,Byte> local, StructureDefinition sd, Orientation o, boolean ismirrored)
+    public static AxisAlignedBB localToGlobalBoundingBox(int gx, int gy, int gz, ImmutableTriple<Byte, Byte, Byte> local, StructureDefinition sd, Orientation o, boolean ismirrored)
     {
         final int l_lbx = local.getLeft()   + sd.getMasterLocation().getLeft();
         final int l_lby = local.getMiddle() + sd.getMasterLocation().getMiddle();

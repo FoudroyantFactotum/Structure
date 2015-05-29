@@ -41,9 +41,9 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
     private static final String IO = "I/O";
     private static final String SIZE = "size";
     private static final String CONSTRUCTION = "construction";
-    private static final String COLLISIONBOXES = "collisionBoxes";
+    private static final String COLLISION_BOXES = "collisionBoxes";
 
-    private static final String ERRORMSG = "Can't deserialize structure definition";
+    private static final String ERROR_MSG = "Can't deserialize structure definition";
 
     @Override
     public StructureDefinition deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
@@ -59,8 +59,8 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
         if (jsonObj.has(IO))
             deserializeIO(builder, jsonObj.getAsJsonObject(IO));
 
-        if (jsonObj.has(COLLISIONBOXES))
-            deserializeCollisionBoxes(builder, jsonObj.get(COLLISIONBOXES));
+        if (jsonObj.has(COLLISION_BOXES))
+            deserializeCollisionBoxes(builder, jsonObj.get(COLLISION_BOXES));
 
         return builder.build();
     }
@@ -90,14 +90,14 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                             jsonBox.get(4).getAsFloat(),
                             jsonBox.get(5).getAsFloat()};
                 } else
-                    throw new JsonParseException(ERRORMSG + ": " + COLLISIONBOXES +
+                    throw new JsonParseException(ERROR_MSG + ": " + COLLISION_BOXES +
                             " wrong length of list. Expected 6 got " + jsonBox.size());
             }
 
             sdb.collisionBoxes = collisionBoxes;
 
         } else
-            throw new JsonParseException(ERRORMSG + ": " + COLLISIONBOXES +" not a list");
+            throw new JsonParseException(ERROR_MSG + ": " + COLLISION_BOXES +" not a list");
     }
 
     //=========================================================
@@ -116,7 +116,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
     private static void deserializeConstruction(StructureDefinitionBuilder sdb, JsonObject json)
     {
         if (!deserializeConstructionHasAllComponents(json))
-            throw new JsonParseException(ERRORMSG + ": Missing Tag under " + CONSTRUCTION);
+            throw new JsonParseException(ERROR_MSG + ": Missing Tag under " + CONSTRUCTION);
 
         final ImmutableMap<Character, Block> blockDefinitions = deserializeConstructionDefinition(json.get(CONSTRUCTION_DEFINITION));
 
@@ -166,7 +166,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                     if (blockDefinitions.containsKey(c))
                         b = blockDefinitions.get(c);
                     else
-                        throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_PATTERN + " Missing block definition for " + c);
+                        throw new JsonParseException(ERROR_MSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_PATTERN + " Missing block definition for " + c);
 
                 xla[x] = b;
             }
@@ -201,7 +201,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
             return jagedCheck(meta);
         }
 
-        throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_METADATA);
+        throw new JsonParseException(ERROR_MSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_METADATA);
     }
 
     private static ImmutableMap<Character, Block> deserializeConstructionDefinition(JsonElement json)
@@ -226,11 +226,11 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                                     getBlock(jsonBlock.get(CONSTRUCTION_DEFINITION_BLOCK))
                             );
                         } else
-                            throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_DEFINITION + " missing \"" + CONSTRUCTION_DEFINITION_BLOCK + "\" tag");
+                            throw new JsonParseException(ERROR_MSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_DEFINITION + " missing \"" + CONSTRUCTION_DEFINITION_BLOCK + "\" tag");
                     } else
-                        throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_DEFINITION +" missing \""+ CONSTRUCTION_DEFINITION_CHAR + "\" tag");
+                        throw new JsonParseException(ERROR_MSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_DEFINITION +" missing \""+ CONSTRUCTION_DEFINITION_CHAR + "\" tag");
                 } else
-                    throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_DEFINITION + " not in correct form");
+                    throw new JsonParseException(ERROR_MSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_DEFINITION + " not in correct form");
             }
 
             //Implicit blocks
@@ -238,7 +238,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
 
             return builder.build();
         }
-        throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_DEFINITION + " not a list");
+        throw new JsonParseException(ERROR_MSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_DEFINITION + " not a list");
     }
 
     private static boolean deserializeConstructionCleanUpOnBuild(JsonElement json)
@@ -247,7 +247,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
         {
             return json.getAsBoolean();
         }
-        throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + " " + CONSTRUCTION_CLEANUPONBUILD + " is incorrect type");
+        throw new JsonParseException(ERROR_MSG + ": " + CONSTRUCTION + " " + CONSTRUCTION_CLEANUPONBUILD + " is incorrect type");
     }
 
     private static ImmutableTriple<Integer, Integer, Integer> deserializeConstructionAdjustment(JsonElement json)
@@ -263,9 +263,9 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                         ja.get(2).getAsInt()
                 );
 
-            throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + " " + CONSTRUCTION_ADJUSTMENT + " is wrong length (not len of 3)");
+            throw new JsonParseException(ERROR_MSG + ": " + CONSTRUCTION + " " + CONSTRUCTION_ADJUSTMENT + " is wrong length (not len of 3)");
         }
-        throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + " " + CONSTRUCTION_ADJUSTMENT + " is incorrect type");
+        throw new JsonParseException(ERROR_MSG + ": " + CONSTRUCTION + " " + CONSTRUCTION_ADJUSTMENT + " is incorrect type");
     }
 
 
@@ -302,7 +302,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                     xzSize = x*z;
                 }
                 else if (xLine.length != x)
-                    throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " x-line not const");
+                    throw new JsonParseException(ERROR_MSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " x-line not const");
 
                 for (int h=0; h<xLine.length; ++h)
                     if (sizeConfigurationIOWrite(xLine[h], h, jrs, sdb))
@@ -326,7 +326,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                     if (sdb.mps == null)
                         sdb.mps = ImmutableTriple.of(x, jrs.getOuter(), jrs.getInner());
                     else
-                        throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " Master specified more then once");
+                        throw new JsonParseException(ERROR_MSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " Master specified more then once");
 
                     break;
 
@@ -335,7 +335,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                     if (sdb.tfps == null)
                         sdb.tfps = ImmutableTriple.of(x, jrs.getOuter(), jrs.getInner());
                     else
-                        throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " Tool Form Pos specified more then once");
+                        throw new JsonParseException(ERROR_MSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " Tool Form Pos specified more then once");
 
                     break;
 
@@ -343,7 +343,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
                     break;
 
                 default:
-                    throw new JsonParseException(ERRORMSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " Unrecognised char " + c);
+                    throw new JsonParseException(ERROR_MSG + ": " + SIZE + "-" + SIZE_CONFIGURATION + " Unrecognised char " + c);
             }
             return true;
 
@@ -363,7 +363,7 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
     private static void deserializeIO(StructureDefinitionBuilder sdb, JsonObject json)
     {
         if (!deserializeIOHasAllComponents(json))
-            throw new JsonParseException(ERRORMSG + ": " + IO + " missing tag");
+            throw new JsonParseException(ERROR_MSG + ": " + IO + " missing tag");
 
         final ImmutableListMultimap<Character, StructureBlockSideAccess> accessMap
                 = deserializeIODefinition(json.get(IO_DEFINITION));
@@ -446,9 +446,9 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
             {
                 for (final byte[] ii : i)
                     if (ii.length != i[0].length)
-                        throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_METADATA + " not a square x array");
+                        throw new JsonParseException(ERROR_MSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_METADATA + " not a square x array");
             } else
-                throw new JsonParseException(ERRORMSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_METADATA + " not a square z array");
+                throw new JsonParseException(ERROR_MSG + ": " + CONSTRUCTION + "-" + CONSTRUCTION_METADATA + " not a square z array");
 
         return array;
     }
@@ -460,9 +460,9 @@ public class JSONStructureDefinition implements JsonDeserializer<StructureDefini
             {
                 for (final E[] ii : i)
                     if (ii.length != i[0].length)
-                        throw new JsonParseException(ERRORMSG + ": " + errorLoc+ " not a square x array");
+                        throw new JsonParseException(ERROR_MSG + ": " + errorLoc+ " not a square x array");
             } else
-                throw new JsonParseException(ERRORMSG + ": " + errorLoc + " not a square z array");
+                throw new JsonParseException(ERROR_MSG + ": " + errorLoc + " not a square z array");
 
         return array;
     }

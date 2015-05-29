@@ -25,8 +25,9 @@ import mod.steamnsteel.structure.IStructure.IStructureAspects;
 import mod.steamnsteel.structure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
 import mod.steamnsteel.structure.coordinates.StructureBlockIterator;
-import mod.steamnsteel.structure.net.StructureParticleChoice;
-import mod.steamnsteel.structure.net.StructureParticlePacket;
+import mod.steamnsteel.structure.coordinates.TransformLAG;
+import mod.steamnsteel.structure.net.StructurePacketOption;
+import mod.steamnsteel.structure.net.StructurePacket;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.ModNetwork;
@@ -95,10 +96,10 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                         mirror
                 );
 
-        formStructure(world, itr, meta);
+        formStructure(world, itr, meta, 0x2);
     }
 
-    public void formStructure(World world, StructureBlockIterator itr, int meta)
+    public void formStructure(World world, StructureBlockIterator itr, int meta, int flag)
     {
         //place Blocks
         while (itr.hasNext())
@@ -106,7 +107,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             final StructureBlockCoord block = itr.next();
 
             if (!block.isMasterBlock())
-                block.setBlock(world, ModBlock.structureShape, meta, 0x2);
+                block.setBlock(world, ModBlock.structureShape, meta, flag);
 
             final IStructureTE ssBlock = (IStructureTE) block.getTileEntity(world);
 
@@ -129,6 +130,8 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         while (itr.hasNext())
         {
             final StructureBlockCoord block = itr.next();
+
+            block.markBlockUpdate(world);
 
             if (block.isEdge())
                 block.updateNeighbors(world);
@@ -164,7 +167,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     {
         final int meta = world.getBlockMetadata(x,y,z);
 
-        localToGlobal(x,y,z,aabb, boundingBoxList, getPattern().getCollisionBoxes(), getdecodedOrientation(meta), isMirrored(meta), getPattern().getBlockBounds());
+        TransformLAG.localToGlobalCollisionBoxes(x, y, z, aabb, boundingBoxList, getPattern().getCollisionBoxes(), getdecodedOrientation(meta), isMirrored(meta), getPattern().getBlockBounds());
     }
 
     @Override
@@ -282,7 +285,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                         if (te.getBlockID().equals(SteamNSteelStructureTE.ORIGIN_ZERO))
                         {
                             ModNetwork.network.sendToAllAround(
-                                    new StructureParticlePacket(x, y, z, hash, getdecodedOrientation(meta), isMirrored(meta), StructureParticleChoice.BOOM),
+                                    new StructurePacket(x, y, z, hash, getdecodedOrientation(meta), isMirrored(meta), StructurePacketOption.BOOM_PARTICLE),
                                     new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
                             );
                         }

@@ -17,6 +17,7 @@ package mod.steamnsteel.structure.coordinates;
 
 import com.google.common.base.Objects;
 import mod.steamnsteel.library.ModBlock;
+import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureNeighbours;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
@@ -31,6 +32,8 @@ import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class StructureBlockCoord
 {
+    private StructureDefinition sd;
+
     private final byte localCoordX;
     private final byte localCoordY;
     private final byte localCoordZ;
@@ -45,11 +48,13 @@ public class StructureBlockCoord
 
     private final WorldBlockCoord worldCoord;
 
-    public StructureBlockCoord(int localCoordX, int localCoordY, int localCoordZ, boolean isMasterBlock,
+    public StructureBlockCoord(StructureDefinition sd, int localCoordX, int localCoordY, int localCoordZ, boolean isMasterBlock,
                                StructureNeighbours localNeighbors,
                                ImmutableTriple<Integer, Integer, Integer> worldMasterLocation,
                                WorldBlockCoord worldCoord, Orientation orientation, boolean isMirrored)
     {
+        this.sd = sd;
+
         this.localCoordX = (byte)localCoordX;
         this.localCoordY = (byte)localCoordY;
         this.localCoordZ = (byte)localCoordZ;
@@ -176,6 +181,16 @@ public class StructureBlockCoord
         return localNeighbors.hasNeighbour(localToGlobal(d, orientation, isMirrored));
     }
 
+    public void markBlockUpdate(World world)
+    {
+        world.markBlockForUpdate(worldCoord.getX(), worldCoord.getY(), worldCoord.getZ());
+    }
+
+    public StructureDefinition getStructureDefinition()
+    {
+        return sd;
+    }
+
     @Override
     public String toString()
     {
@@ -188,6 +203,7 @@ public class StructureBlockCoord
                 .add("orientation", orientation)
                 .add("isMirrored", isMirrored)
                 .add("worldCoord", worldCoord)
+                .add("StructureDefinition", sd)
                 .toString();
     }
 }

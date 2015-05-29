@@ -21,6 +21,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
 import mod.steamnsteel.structure.coordinates.StructureBlockIterator;
 import mod.steamnsteel.structure.registry.StructureRegistry;
@@ -32,19 +33,18 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.flagMirrored;
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
-public class StructureParticlePacket implements IMessage
+public class StructurePacket implements IMessage
 {
 
-    public StructureParticlePacket()
+    public StructurePacket()
     {
         //no op
     }
 
-    public StructureParticlePacket(int x, int y, int z, int structureHash, Orientation o, boolean mirror, StructureParticleChoice sc)
+    public StructurePacket(int x, int y, int z, int structureHash, Orientation o, boolean mirror, StructurePacketOption sc)
     {
         this.x = x;
         this.y = y;
@@ -58,7 +58,7 @@ public class StructureParticlePacket implements IMessage
     private int x,y,z;
     private int structureHash;
     private int orientationAndMirror;
-    private StructureParticleChoice sc;
+    private StructurePacketOption sc;
 
     @Override
     public void fromBytes(ByteBuf buf)
@@ -69,7 +69,7 @@ public class StructureParticlePacket implements IMessage
 
         structureHash = ByteBufUtils.readVarInt(buf, 5);
         orientationAndMirror = ByteBufUtils.readVarShort(buf);
-        sc = StructureParticleChoice.values()[ByteBufUtils.readVarShort(buf)];
+        sc = StructurePacketOption.values()[ByteBufUtils.readVarShort(buf)];
     }
 
     @Override
@@ -85,11 +85,12 @@ public class StructureParticlePacket implements IMessage
         ByteBufUtils.writeVarShort(buf, sc.ordinal());
     }
 
-    public static class Handler implements IMessageHandler<StructureParticlePacket, IMessage>
+    public static class Handler implements IMessageHandler<StructurePacket, IMessage>
     {
         @Override
-        public IMessage onMessage(StructureParticlePacket msg, MessageContext ctx)
+        public IMessage onMessage(StructurePacket msg, MessageContext ctx)
         {
+            print("On Message");
             final World world = Minecraft.getMinecraft().theWorld;
             final SteamNSteelStructureBlock block = StructureRegistry.getBlock(msg.structureHash);//todo deal with incorrect hash
 
@@ -99,8 +100,11 @@ public class StructureParticlePacket implements IMessage
 
             final TileEntity te = world.getTileEntity(msg.x, msg.y, msg.z);
 
-            if (!(te instanceof SteamNSteelStructureTE))
-                return null;
+            print("te: ", te);
+
+
+            //if (!(te instanceof SteamNSteelStructureTE))
+             //   return null;
 
             final StructureBlockIterator itr = new StructureBlockIterator(
                     block.getPattern(),
@@ -109,6 +113,7 @@ public class StructureParticlePacket implements IMessage
                     isMirrored(msg.orientationAndMirror)
             );
 
+            print("b4 loop");
             while (itr.hasNext())
             {
                 final StructureBlockCoord coord = itr.next();
@@ -130,12 +135,25 @@ public class StructureParticlePacket implements IMessage
 
                 switch (msg.sc)
                 {
-                    case BOOM:
+                    case BOOM_PARTICLE:
                         if (particleCount++ % 9 != 0)
                             world.spawnParticle("hugeexplosion", coord.getX(), coord.getY(),coord.getZ(), xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
                         break;
-                    case BUILD:
+
+                    case BUILD_PARTICLE:
                         block.spawnBreakParticle(world, (SteamNSteelStructureTE) te, coord, xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
+                        break;
+
+                    case BLOCK_BUILD:
+                        if (!coord.isMasterBlock())
+                            coord.setBlock(world, ModBlock.structureShape);
+                        break;
+
+                    case BLOCK_PARTICLE_BUILD:
+                        block.spawnBreakParticle(world, (SteamNSteelStructureTE) te, coord, xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
+                        if (!coord.isMasterBlock())
+                            coord.setBlock(world, ModBlock.structureShape);
+
                 }
             }
 

@@ -19,7 +19,6 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
-import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.BallMillTE;
 import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import net.minecraft.block.Block;
@@ -51,20 +50,16 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
         final int y = coord.getY();
         final int z = coord.getZ();
 
-        final StructureDefinition pattern = te.getPattern();
 
-        if (pattern != null)
+        final Block block = coord.getStructureDefinition().getBlock(coord.getLX(), coord.getLY(), coord.getLZ());
+
+        if (block != null)
         {
-            final Block block = pattern.getBlock(coord.getLX(), coord.getLY(), coord.getLZ());
-
-            if (block != null)
+            for (int i = 0; i < 1; ++i)
             {
-                for (int i = 0; i < 1; ++i)
-                {
-                    world.spawnParticle("explode", x + rndRC(), y + 1, z + rndRC(), sx, sy, sz);
-                    world.spawnParticle("explode", x, y + 0.5, z, sx, sy, sz);
-                    world.spawnParticle("explode", x + rndRC(), y, z + rndRC(), sx, sy, sz);
-                }
+                world.spawnParticle("explode", x + rndRC(), y + 1, z + rndRC(), sx, sy, sz);
+                world.spawnParticle("explode", x, y + 0.5, z, sx, sy, sz);
+                world.spawnParticle("explode", x + rndRC(), y, z + rndRC(), sx, sy, sz);
             }
         }
     }
