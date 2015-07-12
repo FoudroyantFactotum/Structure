@@ -16,8 +16,9 @@
 package mod.steamnsteel.structure;
 
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.structure.coordinates.StructureBlockIterator;
+import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.utility.Orientation;
+import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.entity.player.EntityPlayer;
@@ -27,6 +28,7 @@ import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class StructureBlockItem extends ItemBlock
@@ -45,22 +47,26 @@ public class StructureBlockItem extends ItemBlock
         final Orientation o = Orientation.getdecodedOrientation(BlockDirectional.getDirection(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5)));
         final boolean isMirrored = false; //player.isSneaking(); Disabled until fix :p todo fix structure mirroring
 
-            //find master block location
+        //find master block location
         final ImmutableTriple<Integer, Integer, Integer> hSize = block.getPattern().getHalfBlockBounds();
         final ImmutableTriple<Integer, Integer, Integer> ml = block.getPattern().getMasterLocation();
 
         ImmutableTriple<Integer, Integer, Integer> mLoc
                 = localToGlobal(
-                hSize.getLeft() - ml.getLeft(), -ml.getMiddle(), hSize.getRight() - ml.getRight(),
+                -hSize.getLeft() - ml.getLeft(), ml.getMiddle(), -hSize.getRight() - ml.getRight(),
                 x, y, z,
-                o, isMirrored, block.getPattern());
+                o, isMirrored, block.getPattern().getBlockBounds());
 
         //check block locations
-        final StructureBlockIterator itr = new StructureBlockIterator(block.getPattern(), mLoc, o, isMirrored);
+        final TripleIterator itr = block.getPattern().getFormItr();
 
         while (itr.hasNext())
-            if (!itr.next().isReplaceable(world))
+        {
+            final WorldBlockCoord coord = bindLocalToGlobal(mLoc, itr.next(), o, isMirrored, block.getPattern().getBlockBounds());
+
+            if (!coord.isReplaceable(world))
                 return false;
+        }
 
         world.setBlock(mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), block, metadata, 0x3);
         block.onBlockPlacedBy(world, mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), player, stack);

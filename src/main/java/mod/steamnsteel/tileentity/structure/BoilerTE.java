@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.tileentity;
+package mod.steamnsteel.tileentity.structure;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -94,20 +94,21 @@ public class BoilerTE extends SteamNSteelStructureTE
     }
 
     @Override
-    public boolean canStructreInsertItem(int slot, ItemStack item, int side, ImmutableTriple<Byte, Byte, Byte> blockID)
+    public boolean canStructureInsertItem(int slot, ItemStack item, int side, ImmutableTriple<Integer, Integer, Integer> blockID)
     {
         return false;
     }
 
     @Override
-    public boolean canStructreExtractItem(int slot, ItemStack item, int side, ImmutableTriple<Byte, Byte, Byte> blockID)
+    public boolean canStructureExtractItem(int slot, ItemStack item, int side, ImmutableTriple<Integer, Integer, Integer> blockID)
     {
         return false;
     }
 
     @Override
-    public String toString()
+    public int[] getAccessibleSlotsFromStructureSide(int side, ImmutableTriple<Integer, Integer, Integer> blockID)
     {
-        return getPattern().toString();
+        return new int[0];
     }
+
 }

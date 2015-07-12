@@ -34,7 +34,12 @@ import mod.steamnsteel.block.structure.BoilerBlock;
 import mod.steamnsteel.block.structure.StructureShapeBlock;
 import mod.steamnsteel.structure.StructureBlockItem;
 import mod.steamnsteel.structure.registry.StructureRegistry;
-import mod.steamnsteel.tileentity.*;
+import mod.steamnsteel.tileentity.CupolaTE;
+import mod.steamnsteel.tileentity.PlotoniumChestTE;
+import mod.steamnsteel.tileentity.structure.BallMillTE;
+import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
+import mod.steamnsteel.tileentity.structure.BoilerTE;
+import mod.steamnsteel.tileentity.structure.StructureShapeTE;
 import net.minecraft.block.Block;
 import net.minecraftforge.oredict.OreDictionary;
 

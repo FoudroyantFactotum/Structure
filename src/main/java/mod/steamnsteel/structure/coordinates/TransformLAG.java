@@ -19,13 +19,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import cpw.mods.fml.common.registry.GameRegistry;
 import mod.steamnsteel.structure.registry.IStructurePatternMetaCorrecter;
-import mod.steamnsteel.structure.registry.MetaCorrecter.SMCStoneStairs;
+import mod.steamnsteel.structure.registry.MetaCorrecter.SMCStairs;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.utility.Orientation;
-import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.oredict.OreDictionary;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.List;
@@ -34,25 +35,27 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
 
+/**
+ * This class is used as a utility class holding onto the function implementations that involve a basic transform.
+ * Most of the code speaks for it's self.
+ */
 public final class TransformLAG
 {
     private static final ImmutableMap<Block,IStructurePatternMetaCorrecter> META_CORRECTOR;
 
     static {
         final Builder<Block, IStructurePatternMetaCorrecter> builder = ImmutableMap.builder();
-        final IStructurePatternMetaCorrecter stairs = new SMCStoneStairs();
+        final IStructurePatternMetaCorrecter stairs = new SMCStairs();
+
+        for (ItemStack itemSk: OreDictionary.getOres("stairWood"))//all oreDic stairWood
+            builder.put(Block.getBlockFromItem(itemSk.getItem()), stairs);
 
         registerMetaCorrector(builder, "minecraft:stone_stairs"          , stairs);
-        registerMetaCorrector(builder, "minecraft:oak_stairs"            , stairs);
         registerMetaCorrector(builder, "minecraft:brick_stairs"          , stairs);
         registerMetaCorrector(builder, "minecraft:stone_brick_stairs"    , stairs);
         registerMetaCorrector(builder, "minecraft:nether_brick_stairs"   , stairs);
         registerMetaCorrector(builder, "minecraft:sandstone_stairs"      , stairs);
-        registerMetaCorrector(builder, "minecraft:birch_stairs"          , stairs);
-        registerMetaCorrector(builder, "minecraft:jungle_stairs"         , stairs);
         registerMetaCorrector(builder, "minecraft:quartz_stairs"         , stairs);
-        registerMetaCorrector(builder, "minecraft:acacia_stairs"         , stairs);
-        registerMetaCorrector(builder, "minecraft:dark_oak_stairs"       , stairs);
 
         META_CORRECTOR = builder.build();
     }
@@ -85,45 +88,27 @@ public final class TransformLAG
             {{0, -1}, {1, 0}}, //east
     };
 
-    //from master with local to external
-    public static WorldBlockCoord fromMasterlocalToGlobal(int lx, int ly, int lz,
-                                                          ImmutableTriple<Integer, Integer, Integer> worldLoc,
-                                                          Orientation o, boolean ismirrored, StructureDefinition sd)
-    {
-        final ImmutableTriple<Integer, Integer, Integer> loc
-                = localToGlobal(-lx, -ly, -lz,
-                worldLoc.getLeft(), worldLoc.getMiddle(), worldLoc.getRight(),
-                o, ismirrored,
-                sd
-        );
-
-        return WorldBlockCoord.of(
-                loc.getLeft(),
-                loc.getMiddle(),
-                loc.getRight()
-        );
-    }
-
     //from external with local to master
     public static ImmutableTriple<Integer, Integer, Integer> localToGlobal(int lx, int ly, int lz,
                                                                            int gx, int gy, int gz,
-                                                                           Orientation o, boolean ismirrored, StructureDefinition sd)
+                                                                           Orientation o, boolean ismirrored,
+                                                                           ImmutableTriple<Integer,Integer,Integer> strucSize)
     {
         final int rotIndex = o.encode();
 
         if (ismirrored)
         {
             lz *= -1;
-            if (sd.getBlockBounds().getRight() % 2 == 0) ++lz;
+            if (strucSize.getRight() % 2 == 0) ++lz;
         }
 
         final int rx = rotationMatrix[rotIndex][0][0] * lx + rotationMatrix[rotIndex][0][1] * lz;
         final int rz = rotationMatrix[rotIndex][1][0] * lx + rotationMatrix[rotIndex][1][1] * lz;
 
         return ImmutableTriple.of(
-                gx - rx,
-                gy - ly,
-                gz - rz
+                gx + rx,
+                gy + ly,
+                gz + rz
         );
     }
 
@@ -131,7 +116,6 @@ public final class TransformLAG
     public static ForgeDirection localToGlobal(ForgeDirection d, Orientation o, boolean ismirrored)
     {
         //switch from local direction to global
-
         if (ismirrored && (d == ForgeDirection.NORTH || d == ForgeDirection.SOUTH))
             d = d.getOpposite();
 
@@ -196,7 +180,7 @@ public final class TransformLAG
     }
 
     //Bounding box
-    public static AxisAlignedBB localToGlobalBoundingBox(int gx, int gy, int gz, ImmutableTriple<Byte, Byte, Byte> local, StructureDefinition sd, Orientation o, boolean ismirrored)
+    public static AxisAlignedBB localToGlobalBoundingBox(int gx, int gy, int gz, ImmutableTriple<Integer, Integer, Integer> local, StructureDefinition sd, Orientation o, boolean ismirrored)
     {
         final int l_lbx = local.getLeft()   + sd.getMasterLocation().getLeft();
         final int l_lby = local.getMiddle() + sd.getMasterLocation().getMiddle();
@@ -207,10 +191,10 @@ public final class TransformLAG
         final int l_ubz = local.getRight()  - sd.getBlockBounds().getRight();
 
         final ImmutableTriple<Integer, Integer, Integer> lb
-                = localToGlobal(l_lbx, l_lby, l_lbz, gx, gy, gz, o, ismirrored, sd);
+                = localToGlobal(l_lbx, l_lby, l_lbz, gx, gy, gz, o, ismirrored, sd.getBlockBounds());
 
         final ImmutableTriple<Integer, Integer, Integer> ub
-                = localToGlobal(l_ubx, l_uby, l_ubz, gx, gy, gz, o, ismirrored, sd);
+                = localToGlobal(l_ubx, l_uby, l_ubz, gx, gy, gz, o, ismirrored, sd.getBlockBounds());
 
         final int[][] matrix = rotationMatrix[o.encode()];
 

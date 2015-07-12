@@ -18,8 +18,8 @@ package mod.steamnsteel.utility.position;
 
 import com.google.common.base.Objects;
 import net.minecraft.block.Block;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -32,9 +32,13 @@ public class WorldBlockCoord implements Comparable<WorldBlockCoord>
 {
     private final ImmutableTriple<Integer, Integer, Integer> data;
 
-    private WorldBlockCoord(int x, int y, int z) { data = ImmutableTriple.of(x, y, z); }
+    private WorldBlockCoord(ImmutableTriple<Integer,Integer,Integer> data){ this.data = data; }
+
+    private WorldBlockCoord(int x, int y, int z) { this(ImmutableTriple.of(x, y, z)); }
 
     public static WorldBlockCoord of(int x, int y, int z) { return new WorldBlockCoord(x, y, z); }
+
+    public static WorldBlockCoord of(ImmutableTriple<Integer,Integer,Integer> data) { return new WorldBlockCoord(data); }
 
     public int getX() { return data.left; }
 
@@ -53,6 +57,8 @@ public class WorldBlockCoord implements Comparable<WorldBlockCoord>
     }
 
     public BiomeGenBase getBiome(World world) { return world.getBiomeGenForCoords(data.left, data.right); }
+
+    public boolean isReplaceable(World world) { return getBlock(world).isReplaceable(world,data.left, data.middle, data.right);}
 
     public int getHeightofTopBlock(World world) { return world.getHeightValue(data.left, data.right); }
 

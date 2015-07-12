@@ -15,29 +15,11 @@
  */
 package mod.steamnsteel.structure;
 
-import cpw.mods.fml.common.network.NetworkRegistry;
-import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.item.tool.SSToolShovel;
 import mod.steamnsteel.library.Material;
-import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
-import mod.steamnsteel.structure.coordinates.StructureBlockIterator;
-import mod.steamnsteel.structure.net.StructurePacket;
-import mod.steamnsteel.structure.net.StructurePacketOption;
-import mod.steamnsteel.structure.registry.StructureDefinition;
-import mod.steamnsteel.structure.registry.StructureRegistry;
-import mod.steamnsteel.utility.ModNetwork;
-import mod.steamnsteel.utility.Orientation;
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.apache.commons.lang3.tuple.Pair;
-
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
-import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public class BuildFormTool extends SSToolShovel
 {
@@ -49,7 +31,8 @@ public class BuildFormTool extends SSToolShovel
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        if (!world.isRemote)
+        //todo fix
+        /*if (!world.isRemote)
         {
             final Pair<StructureBlockIterator, SteamNSteelStructureBlock> res = uberStructureSearch(world, x, y, z);
 
@@ -71,12 +54,12 @@ public class BuildFormTool extends SSToolShovel
                 );
             } //else
                 //print("No Structure Found");
-        }
+        }*/
 
         return false;
     }
 
-    private Pair<StructureBlockIterator, SteamNSteelStructureBlock> uberStructureSearch(World world, int x, int y, int z)
+    /*private Pair<StructureBlockIterator, SteamNSteelStructureBlock> uberStructureSearch(World world, int x, int y, int z)
     {
         //do uber search and build structure todo Threaded? Reduce search space? Reduce memory usage?
         final Vec3 loc = Vec3.createVectorHelper(x,y,z);
@@ -85,7 +68,7 @@ public class BuildFormTool extends SSToolShovel
         {
             final StructureDefinition sd = ssBlock.getPattern();
 
-            final ImmutableTriple<Integer, Integer, Integer> tl = sd.getToolBuildLocation();
+            final ImmutableTriple<Integer, Integer, Integer> tl = sd.getToolFormLocation();
             final ImmutableTriple<Integer, Integer, Integer> t2 = sd.getMasterLocation();
 
             //every Direction nsew
@@ -123,5 +106,5 @@ public class BuildFormTool extends SSToolShovel
 
         //nothing matches
         return null;
-    }
+    }*/
 }

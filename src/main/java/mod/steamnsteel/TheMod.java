@@ -22,6 +22,7 @@ import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import mod.steamnsteel.api.crafting.CraftingManager;
 import mod.steamnsteel.api.crafting.IAlloyManager;
@@ -100,5 +101,11 @@ public class TheMod
     public void onFMLPostInitialization(FMLPostInitializationEvent event)
     {
         // TODO: Handle interaction with other mods, complete your setup based on this.
+    }
+
+    @Mod.EventHandler
+    public void onServerStartingLoad(FMLServerStartingEvent event)
+    {
+        event.registerServerCommand(new StructureRegistry.CommandReloadStructures());
     }
 }

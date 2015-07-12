@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.tileentity;
+package mod.steamnsteel.tileentity.structure;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
@@ -21,13 +21,11 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureSidedInventory;
-import mod.steamnsteel.structure.IStructureTE;
-import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
+import mod.steamnsteel.structure.IStructure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.TransformLAG;
-import mod.steamnsteel.structure.registry.StructureBlockSideAccess;
-import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureNeighbours;
 import mod.steamnsteel.structure.registry.StructureRegistry;
+import mod.steamnsteel.tileentity.SteamNSteelTE;
 import mod.steamnsteel.utility.Orientation;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
@@ -37,9 +35,9 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.ORIGIN;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.structure.registry.StructureDefinition.dehashLoc;
@@ -48,15 +46,13 @@ import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, IStructureSidedInventory
 {
-    public static final ImmutableTriple<Byte,Byte,Byte> ORIGIN_ZERO = ImmutableTriple.of((byte)0,(byte)0,(byte)0);
-    static final int maskBlockID = 0xFFFFFF;
-    static final byte shiftNeighbourBlocks = Byte.SIZE * 3;
+    static final int maskBlockID = 0x00FFFFFF;
 
     static final String BLOCK_INFO = "blockINFO";
     static final String BLOCK_PATTERN_NAME = "blockPatternHash";
 
-    private ImmutableTriple<Byte, Byte, Byte> blockID = ORIGIN_ZERO;
-    private int patternHash = -1;
+    private ImmutableTriple<Integer, Integer, Integer> local = ORIGIN;
+    private int definitionHash = -1;
 
     private Optional<AxisAlignedBB> renderBounds = Optional.absent();
     private StructureNeighbours neighbours = StructureNeighbours.MISSING_NEIGHBOURS;
@@ -69,7 +65,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     @Override
     public SteamNSteelStructureBlock getMasterBlockInstance()
     {
-        return StructureRegistry.getBlock(patternHash);
+        return StructureRegistry.getStructureBlock(definitionHash);
     }
 
     @Override
@@ -81,69 +77,69 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     @Override
     public int getRegHash()
     {
-        return patternHash;
+        return definitionHash;
     }
 
     @Override
-    public StructureDefinition getPattern()
+    public void configureBlock(ImmutableTriple<Integer, Integer, Integer> local, int definitionHash)
     {
-        final SteamNSteelStructureBlock block = StructureRegistry.getBlock(patternHash);
-
-        return block == null? StructureDefinition.MISSING_STRUCTURE : block.getPattern();
-    }
-
-    @Override
-    public StructureNeighbours getNeighbours()
-    {
-        return neighbours;
-    }
-
-    @Override
-    public void configureBlock(StructureBlockCoord sBlock, int patternHash)
-    {
-        neighbours = new StructureNeighbours(sBlock);
-        this.patternHash = patternHash;
+        this.definitionHash = definitionHash;
+        this.local = local;
     }
 
     @Override
     public Block getTransmutedBlock()
     {
-        final Block block = getPattern().getBlock(blockID.getLeft(), blockID.getMiddle(), blockID.getRight());
-        return block == null ?
-                Blocks.air :
-                block;
+        SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
+
+        if (sb != null)
+        {
+            Block block = sb.getPattern().getBlock(local.getLeft(), local.getMiddle(), local.getRight());
+            return block == null ?
+                    Blocks.air :
+                    block;
+        }
+
+        return Blocks.air;
     }
 
     @Override
     public int getTransmutedMeta()
     {
-        final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
+        final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
 
-        return localToGlobal(
-                getPattern().getBlockMetadata(
-                        blockID.getLeft(),
-                        blockID.getMiddle(),
-                        blockID.getRight()
-                ),
-                getTransmutedBlock(),
-                getdecodedOrientation(meta),
-                isMirrored(meta)
-        );
+        if (sb != null)
+        {
+            final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
+
+            return localToGlobal(
+                    sb.getPattern().getBlockMetadata(
+                            local.getLeft(),
+                            local.getMiddle(),
+                            local.getRight()
+                    ),
+                    getTransmutedBlock(),
+                    getdecodedOrientation(meta),
+                    isMirrored(meta)
+            );
+        }
+
+        return 0;
     }
 
     @Override
-    public ImmutableTriple<Byte, Byte, Byte> getBlockID()
+    public ImmutableTriple<Integer, Integer, Integer> getLocal()
     {
-        return blockID;
+        return local;
     }
 
 
-    public int getHashedBlockID()
+    public int getHashedLocal()
     {
         return hashLoc(
-                blockID.getLeft(),
-                blockID.getMiddle(),
-                blockID.getRight()
+                local.getLeft(),
+                local.getMiddle(),
+                local.getRight()
         );
     }
 
@@ -151,44 +147,22 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     //                     I T E M   I N P U T
     //================================================================
 
-    private StructureBlockSideAccess getSideAccess(int side)
-    {//todo cache?
-        final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
-
-        return getPattern().getSideAccess(
-                blockID.getLeft(),
-                blockID.getMiddle(),
-                blockID.getRight(),
-                localToGlobal(
-                        ForgeDirection.values()[side],
-                        getdecodedOrientation(meta),
-                        isMirrored(meta)
-                )
-        );
-    }
-
     @Override
     public int[] getAccessibleSlotsFromSide(int side)
     {
-        return getSideAccess(side).getAccessibleSlotsFromSide();
+        return new int[0];
     }
 
     @Override
     public boolean canInsertItem(int slotIndex, ItemStack itemStack, int side)
     {
-        return canStructreInsertItem(slotIndex, itemStack, side, ORIGIN_ZERO);
+        return canStructureInsertItem(slotIndex, itemStack, side, ORIGIN);
     }
 
     @Override
     public boolean canExtractItem(int slotIndex, ItemStack itemStack, int side)
     {
-        return canStructreExtractItem(slotIndex, itemStack, side, ORIGIN_ZERO);
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
-    {
-        return slotIndex >= 0 && slotIndex < 4;
+        return canStructureExtractItem(slotIndex, itemStack, side, ORIGIN);
     }
 
     //================================================================
@@ -216,10 +190,9 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         super.readFromNBT(nbt);
 
         final int blockInfo = nbt.getInteger(BLOCK_INFO);
-        patternHash = nbt.getInteger(BLOCK_PATTERN_NAME);
+        definitionHash = nbt.getInteger(BLOCK_PATTERN_NAME);
 
-        blockID = dehashLoc(blockInfo & maskBlockID);
-        neighbours =  new StructureNeighbours((byte)(blockInfo >>> shiftNeighbourBlocks));
+        local = dehashLoc(blockInfo & maskBlockID);
     }
 
     @Override
@@ -227,8 +200,8 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         super.writeToNBT(nbt);
 
-        nbt.setInteger(BLOCK_INFO, getHashedBlockID() | neighbours.hashCode() << shiftNeighbourBlocks);
-        nbt.setInteger(BLOCK_PATTERN_NAME, patternHash);
+        nbt.setInteger(BLOCK_INFO, getHashedLocal());
+        nbt.setInteger(BLOCK_PATTERN_NAME, definitionHash);
     }
 
     //================================================================
@@ -241,15 +214,14 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         if (!renderBounds.isPresent())
         {
-            final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) getBlockType();
-            final StructureDefinition pattern = block.getPattern();
+            SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
 
-            if (pattern == StructureDefinition.MISSING_STRUCTURE)
+            if (sb == null)
                 return INFINITE_EXTENT_AABB;
 
             final Orientation o = getdecodedOrientation(getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord));
 
-            renderBounds = Optional.of(TransformLAG.localToGlobalBoundingBox(xCoord, yCoord, zCoord, blockID, getPattern(), o, false));
+            renderBounds = Optional.of(TransformLAG.localToGlobalBoundingBox(xCoord, yCoord, zCoord, local, sb.getPattern(), o, false));
         }
 
         return renderBounds.get();
@@ -260,9 +232,9 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         return Objects.toStringHelper(this)
                 .add("neighbourBlocks", neighbours)
-                .add("blockID", blockID)
+                .add("local", local)
                 .add("renderBounds", renderBounds)
-                .add("blockPatternHash", patternHash)
+                .add("blockPatternHash", definitionHash)
                 .toString();
     }
 }

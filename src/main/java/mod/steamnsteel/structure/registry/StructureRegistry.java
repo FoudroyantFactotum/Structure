@@ -15,25 +15,18 @@
  */
 package mod.steamnsteel.structure.registry;
 
-import mod.steamnsteel.TheMod;
+import com.google.common.collect.Lists;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.structure.json.JSONStructureDefinition;
 import mod.steamnsteel.utility.log.Logger;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.IResource;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.command.ICommand;
+import net.minecraft.command.ICommandSender;
+import net.minecraft.util.ChatComponentText;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.util.*;
 
 public final class StructureRegistry
 {
-    private static final String STRUCTURE_LOCATION = "structure/";
-    private static final String STRUCTURE_FILE_EXTENSION = ".structure.json";
-
     private static Map<Integer, SteamNSteelStructureBlock> structures = new HashMap<Integer, SteamNSteelStructureBlock>();
 
     private static List<SteamNSteelStructureBlock> registeredStructures = new LinkedList<SteamNSteelStructureBlock>();
@@ -55,11 +48,13 @@ public final class StructureRegistry
 
             for (SteamNSteelStructureBlock block: registeredStructures)
             {
-                structurePattern.set(block, registerPattern(block));
+                structurePattern.set(block, block.getStructureBuild().build());
                 regHash.set(block, block.getUnlocalizedName().hashCode());
+
+                structures.put(block.getUnlocalizedName().hashCode(), block);
             }
 
-            Logger.info("Loaded all " + registeredStructures.size() + " Registered Patterns");
+            Logger.info("Analytical Engine constructed " + structures.size() + " noteworthy contraptions");
 
         } catch (NoSuchFieldException e)
         {
@@ -75,56 +70,65 @@ public final class StructureRegistry
         //no op
     }
 
-    private static StructureDefinition registerPattern(SteamNSteelStructureBlock block)
-    {
-        final String unlocName = block.getUnlocalizedName();
-        final String blockName = getBlockName(unlocName);
-        final ResourceLocation jsonStructure = getResourceLocation(getStructurePath(blockName));
-        StructureDefinition blockPattern = null;
-
-        try
-        {
-            final IResource res = Minecraft.getMinecraft().getResourceManager().getResource(jsonStructure);
-            final InputStreamReader inpStream = new InputStreamReader(res.getInputStream());
-            final BufferedReader buffRead = new BufferedReader(inpStream);
-
-            blockPattern = JSONStructureDefinition.gson.fromJson(buffRead, StructureDefinition.class);
-
-            buffRead.close();
-            inpStream.close();
-        } catch (IOException e)
-        {
-            Logger.info("file does not exist : " + blockName + " : " + e.getMessage());
-        }
-
-        structures.put(unlocName.hashCode(), block);
-
-        return blockPattern;
-    }
-
     public static Collection<SteamNSteelStructureBlock> getStructureList()
     {
         return structures.values();
     }
 
-    public static SteamNSteelStructureBlock getBlock(int hash)
+    public static SteamNSteelStructureBlock getStructureBlock(int hash)
     {
         return structures.get(hash);
     }
 
-    private static String getBlockName(String unlocName)
+    public static class CommandReloadStructures implements ICommand
     {
-        return unlocName.substring(unlocName.indexOf(':')+1);
-    }
+        @Override
+        public String getCommandName()
+        {
+            return "RELOAD_STRUCTURES";
+        }
 
-    private static ResourceLocation getResourceLocation(String path)
-    {
-        return new ResourceLocation(TheMod.MOD_ID.toLowerCase(), path);
-    }
+        @Override
+        public String getCommandUsage(ICommandSender player)
+        {
+            return "RELOAD_STRUCTURES (That's all there is, there isn't any more.)";
+        }
 
-    private static String getStructurePath(String name)
-    {
-        return STRUCTURE_LOCATION + name + STRUCTURE_FILE_EXTENSION;
-    }
+        @Override
+        public List getCommandAliases()
+        {
+            return Lists.newArrayList("RELOAD_STRUCTURES");
+        }
 
+        @Override
+        public void processCommand(ICommandSender player, String[] args)
+        {
+            loadRegisteredPatterns();
+            player.addChatMessage(new ChatComponentText("Analytical Engine reconstructed " + structures.size() + " noteworthy contraptions"));
+        }
+
+        @Override
+        public boolean canCommandSenderUseCommand(ICommandSender player)
+        {
+            return true;
+        }
+
+        @Override
+        public List addTabCompletionOptions(ICommandSender player, String[] args)
+        {
+            return null;
+        }
+
+        @Override
+        public boolean isUsernameIndex(String[] args, int index)
+        {
+            return false;
+        }
+
+        @Override
+        public int compareTo(Object o)
+        {
+            return 0;
+        }
+    }
 }

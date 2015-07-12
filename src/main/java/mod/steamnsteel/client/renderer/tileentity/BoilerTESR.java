@@ -19,7 +19,7 @@ import com.google.common.base.Objects;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.block.structure.BoilerBlock;
 import mod.steamnsteel.client.renderer.model.BoilerModel;
-import mod.steamnsteel.tileentity.BoilerTE;
+import mod.steamnsteel.tileentity.structure.BoilerTE;
 import mod.steamnsteel.utility.Orientation;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;

@@ -13,38 +13,21 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.structure.json;
+package mod.steamnsteel.structure.IStructure;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import net.minecraft.block.Block;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-public class JsonReadState<E>
+public interface IStructureTE
 {
-    private final int inner;
-    private final int outer;
+    Block getTransmutedBlock();
+    int getTransmutedMeta();
 
-    private E value;
+    int getRegHash();
+    SteamNSteelStructureBlock getMasterBlockInstance();
+    ImmutableTriple<Integer,Integer,Integer> getMasterLocation(int meta);
 
-    public JsonReadState(int outer,int inner, E value)
-    {
-        this.inner = inner;
-        this.outer = outer;
-
-        checkNotNull(value);
-        this.value = value;
-    }
-
-    public int getInner()
-    {
-        return inner;
-    }
-
-    public int getOuter()
-    {
-        return outer;
-    }
-
-    public E getValue()
-    {
-        return value;
-    }
+    void configureBlock(ImmutableTriple<Integer, Integer, Integer> local, int patternHash);
+    ImmutableTriple<Integer, Integer, Integer> getLocal();
 }

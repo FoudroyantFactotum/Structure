@@ -15,15 +15,17 @@
  */
 package mod.steamnsteel.block.structure;
 
+import com.google.common.collect.ImmutableMap;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
-import mod.steamnsteel.tileentity.BlastFurnaceTE;
-import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
+import mod.steamnsteel.structure.StructureDefinitionBuilder;
+import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
+import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
@@ -42,20 +44,106 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, StructureBlockCoord coord, float sx, float sy, float sz)
+    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, ImmutableTriple<Integer, Integer, Integer> coord, float sx, float sy, float sz)
     {
-        final int x = coord.getX();
+        /*final int x = coord.getX();
         final int y = coord.getY();
         final int z = coord.getZ();
 
         for (int i = 0; i < 5; ++i) {
             world.spawnParticle("explode", x + rndRC(), y + 0.5,  z + rndRC(), sx, sy, sz);
-        }
+        }*/
     }
 
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
         return new BlastFurnaceTE();
+    }
+
+    @Override
+    public StructureDefinitionBuilder getStructureBuild()
+    {
+        final StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
+
+        builder.assignBlockDefinitions(ImmutableMap.of(
+                'b', "steamnsteel:blockBrass",
+                'T', "minecraft:stone_stairs",
+                'l', "minecraft:lava",
+                'p', "minecraft:glass_pane"
+        ));
+
+        builder.assignConstructionBlocks(
+                new String[]{
+                        "bbb",
+                        "TbT",
+                        "TTT"
+                },
+                new String[]{
+                        "bbb",
+                        "plp",
+                        "ppp"
+                },
+                new String[]{
+                        "bbb",
+                        "TbT",
+                        "TTT"
+                }
+        );
+
+        //#magic
+        builder.assignMetadata(
+                new String[]{
+                        "666",
+                        "405",
+                        "777"
+                },
+                new String[]{
+                        "000",
+                        "000",
+                        "000"
+                },
+                new String[]{
+                        "222",
+                        "001",
+                        "333"
+                }
+        );
+
+        builder.assignToolFormPosition(ImmutableTriple.of(1,1,2));
+
+        builder.setConfiguration(ImmutableTriple.of(0, 0, 0),
+                new String[]{
+                        "M--",
+                        "---",
+                        "---"
+                },
+                new String[]{
+                        "---",
+                        "---",
+                        "---",
+                },
+                new String[]{
+                        "---",
+                        "---",
+                        "---"
+                }
+        );
+
+        builder.setCollisionBoxes(
+                new float[]{0.0f,0.0f,1.3f ,1.0f,0.7f,1.7f},
+                new float[]{1.1f,1.1f,0.0f ,1.9f,1.9f,1.0f},
+                new float[]{1.1f,1.1f,0.0f ,1.9f,1.9f,1.0f},
+
+                new float[]{0.7f,0.0f,0.7f ,2.3f,0.5f,2.3f},
+                new float[]{0.4f,0.5f,0.4f, 2.6f,1.0f,2.6f},
+
+                new float[]{0.4f,0.5f,0.4f, 2.6f,1.0f,2.6f},
+                new float[]{0.6f,1.5f,0.6f ,2.4f,2.0f,2.4f},
+                new float[]{0.7f,2.0f,0.7f ,2.3f,2.5f,2.3f},
+                new float[]{1.0f,2.3f,1.0f ,2.0f,3.0f,2.0f}
+        );
+
+        return builder;
     }
 }

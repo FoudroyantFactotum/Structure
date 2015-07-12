@@ -6,7 +6,8 @@ import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public interface IStructureSidedInventory extends ISidedInventory
 {
-    // values passed in are global space.
-    boolean canStructreInsertItem(int slot, ItemStack item, int side, ImmutableTriple<Byte, Byte, Byte> blockID);
-    boolean canStructreExtractItem(int slot, ItemStack item, int side, ImmutableTriple<Byte, Byte, Byte> blockID);
+    boolean canStructureInsertItem(int slot, ItemStack item, int side, ImmutableTriple<Integer, Integer, Integer> blockID);
+    boolean canStructureExtractItem(int slot, ItemStack item, int side, ImmutableTriple<Integer, Integer, Integer> blockID);
+
+    int[] getAccessibleSlotsFromStructureSide(int side, ImmutableTriple<Integer, Integer, Integer> blockID);
 }

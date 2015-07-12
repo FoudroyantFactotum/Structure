@@ -21,7 +21,11 @@ import cpw.mods.fml.client.registry.RenderingRegistry;
 import mod.steamnsteel.client.renderer.item.*;
 import mod.steamnsteel.client.renderer.tileentity.*;
 import mod.steamnsteel.library.ModBlock;
-import mod.steamnsteel.tileentity.*;
+import mod.steamnsteel.tileentity.CupolaTE;
+import mod.steamnsteel.tileentity.PlotoniumChestTE;
+import mod.steamnsteel.tileentity.structure.BallMillTE;
+import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
+import mod.steamnsteel.tileentity.structure.BoilerTE;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.MinecraftForgeClient;
 

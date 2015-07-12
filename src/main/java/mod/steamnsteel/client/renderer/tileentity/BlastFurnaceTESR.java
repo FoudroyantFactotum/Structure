@@ -19,7 +19,7 @@ import com.google.common.base.Objects;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.block.structure.BlastFurnaceBlock;
 import mod.steamnsteel.client.renderer.model.BlastFurnaceModel;
-import mod.steamnsteel.tileentity.BlastFurnaceTE;
+import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
 import mod.steamnsteel.utility.Orientation;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;

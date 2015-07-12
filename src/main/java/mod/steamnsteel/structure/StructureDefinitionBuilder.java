@@ -15,158 +15,220 @@
  */
 package mod.steamnsteel.structure;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import mod.steamnsteel.structure.registry.StructureBlockSideAccess;
+import cpw.mods.fml.common.registry.GameRegistry;
+import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.registry.StructureDefinition;
+import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.BitSet;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 public final class StructureDefinitionBuilder
 {
-    public BitSet sbLayout;
-    public ImmutableTriple<Integer, Integer, Integer> sbLayoutSize;
-    public boolean cleanUpOnBuild = true;
+    private BitSet sbLayout;
+    private ImmutableTriple<Integer, Integer, Integer> sbLayoutSize;
 
-    public ImmutableTriple<Integer,Integer,Integer> adjustmentCtS = ImmutableTriple.of(0,0,0);
-    public ImmutableTriple<Integer,Integer,Integer> mps;
-    public ImmutableTriple<Integer,Integer,Integer> tfps;//todo at constrains test
+    private ImmutableTriple<Integer,Integer,Integer> masterPosition;
+    private ImmutableTriple<Integer,Integer,Integer> toolFormPosition;
 
-    public Block[][][] blocks;
-    public byte[][][] metadata;
-    public ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> sideAccess;
-    public float[][] collisionBoxes;
-
-    private int xzSize;
+    private Block[][][] blocks;
+    private byte[][][] metadata;
+    private float[][] collisionBoxes;
 
     public StructureDefinition build()
     {
-        if (blocks == null)
-            metadata = null;
+        if(blocks == null)
+            throw new Error("Missing Blocks");
 
-        if (sbLayout == null)
+        if (metadata == null)
+                metadata = new byte[blocks.length][blocks[0].length][blocks[0][0].length];
+
+        //blocks jagged map test
+        for (Block[][] b: blocks)
         {
-            if (blocks != null)
-                sbLayout = generate_sbLayout(blocks.length, blocks[0].length, blocks[0][0].length);
-            else
-                sbLayout = generate_sbLayout(1,1,1);
+            if (b.length != blocks[0].length)
+                throw new Error("Construction map jagged");
 
-            mps = null;
+            for (Block[] bb: b)
+                if (bb.length != b[0].length)
+                    throw new Error("Construction map jagged");
         }
 
-        xzSize = sbLayoutSize.getLeft()*sbLayoutSize.getRight();
+        //metadata jagged map test
+        for (byte[][] b: metadata)
+        {
+            if (b.length != metadata[0].length)
+                throw new Error("Metadata map jagged");
 
-        if (sideAccess != null)
-            sideAccess = cleanIODefinition(sbLayout, sideAccess);
+            for (byte[] bb: b)
+                if (bb.length != b[0].length)
+                    throw new  Error("Metadata map jagged");
+        }
 
-        if (collisionBoxes == null)
-            collisionBoxes = generator_collisionBoxes(1,1,1);
+        if (blocks.length != metadata.length ||
+                blocks[0].length != metadata[0].length ||
+                blocks[0][0].length != metadata[0][0].length)
+            throw new Error("Block map size != metadata size (" +
+                    blocks.length + "," +blocks[0].length+ "," + blocks[0][0].length + ") - " +
+                    "(" + metadata.length + "," +metadata[0].length+ "," + metadata[0][0].length + ")");
 
-        if (mps == null)
-            mps = ImmutableTriple.of(0, 0, 0);
-
-        if (tfps == null)
-            tfps = mps;
-
-        translateCollisions(collisionBoxes, mps,
-                ImmutableTriple.of(
-                        sbLayoutSize.getLeft()/2.0f,
-                        sbLayoutSize.getMiddle()/2.0f,
-                        sbLayoutSize.getRight()/2.0f)
-        );
-
+        if (toolFormPosition == null)
+            throw new Error("tool form location missing");
 
         return new StructureDefinition(
                 sbLayout,
                 sbLayoutSize,
-                cleanUpOnBuild,
-                adjustmentCtS,
-                mps,
-                tfps,
+                masterPosition,
+                toolFormPosition,
                 blocks,
                 metadata,
-                sideAccess,
-                collisionBoxes
-        );
+                collisionBoxes);
     }
 
-    private BitSet generate_sbLayout(int x, int y, int z)
+    private ImmutableMap<Character, Block> representation = ImmutableMap.of();
+
+    /**
+     * Define what each character represents within the map
+     * @param representation char to unlocalized block name map
+     * @exception NullPointerException thrown if block doesn't exist.
+     */
+    public void assignBlockDefinitions(ImmutableMap<Character, String> representation)
     {
-        final BitSet line = new BitSet(x*y*z);
+        ImmutableMap.Builder<Character, Block> builder = ImmutableMap.builder();
 
-        for(int i=0; i < line.length(); ++i)   line.set(i);
-
-        sbLayoutSize = ImmutableTriple.of(x,y,z);
-
-        return line;
-    }
-
-    private static float[][] generator_collisionBoxes(int x, int y, int z)
-    {
-        return new float[][]{{
-            0,0,0,
-            x,y,z
-        }};
-    }
-
-    private ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> cleanIODefinition(
-            BitSet sbLayout,
-            ImmutableMap<Integer, ImmutableList<StructureBlockSideAccess>> sideAccess
-    )
-    {
-        //TODO optimize StructureBlockSideAccessList
-        /*final Set<Integer> remove = new LinkedHashSet<Integer>(1);
-
-        for (Integer i: sideAccess.keySet())
-            //check hash to see if exists in size for optimization
-            if (!checkForValidBlockLocation(sbLayout, dehashLoc(i)))
-                remove.add(i);
-
-
-        if (!remove.isEmpty())
+        for (Character c: representation.keySet())
         {
-            //build new ImmutableMap
-            Builder<Integer, ImmutableList<StructureBlockSideAccess>> sideAccessReplacement
-                    = new Builder<Integer, ImmutableList<StructureBlockSideAccess>>();
+            final String blockName = representation.get(c);
+            final int splitPos = blockName.indexOf(':');
 
-            //todo correct logger
-            for (Integer i : sideAccess.keySet())
-                if (remove.contains(i))
-                    Logger.info("Leftover side access @" + dehashLoc(i)
-                        + " for " + sideAccess.get(i));
-                else
-                    sideAccessReplacement.put(i, sideAccess.get(i));
+            final Block block = GameRegistry.findBlock(blockName.substring(0, splitPos), blockName.substring(splitPos+1));
 
-            return sideAccessReplacement.build();
-        }*/
+            checkNotNull(block, "assignBlockDefinitions.Block does not exist " + blockName);
 
-        return sideAccess;
+            builder.put(c, block);
+        }
+
+        this.representation = builder.build();
     }
 
-    private static void translateCollisions(float[][] collisionBoxes,
-                                           ImmutableTriple<Integer,Integer,Integer> mps,
-                                           ImmutableTriple<Float, Float, Float> hlfSz)
+    /**
+     * builds the block array using the representation map and the layout(String[]...)
+     * String = x-line
+     * String[] = z-line
+     * String[]... = y-line
+     * @param layer the layout of the blocks.
+     * @exception NullPointerException the layout is missing a map
+     */
+    public void assignConstructionBlocks(String[]... layer)
     {
-        /*final float xShift = mps.getLeft() + hlfSz.getLeft();
-        final int   yShift = mps.getMiddle();
-        final float zShift = mps.getLeft() + hlfSz.getLeft();
+        final int xsz = layer[0][0].length();
+        final int ysz = layer.length;
+        final int zsz = layer[0].length;
 
-        for (float[] box: collisionBoxes)
+        blocks = new Block [xsz][ysz][zsz];
+
+        final TripleIterator itr = new TripleIterator(xsz, ysz, zsz);
+
+        while (itr.hasNext())
         {
-            box[0] -= xShift; box[1] -= yShift; box[2] -= zShift;
-            box[3] -= xShift; box[4] -= yShift; box[5] -= zShift;
-        }*/
+            final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
+            final char c = layer[local.getMiddle()][local.getRight()].charAt(local.getLeft());
+
+            if (!representation.containsKey(c))
+                throw new NullPointerException("assignConstructionBlocks.Map missing " + c);
+
+            blocks[local.getLeft()][local.getMiddle()][local.getRight()] = representation.get(c);
+        }
     }
 
-    private boolean checkForValidBlockLocation(BitSet sbLayout, ImmutableTriple<Byte,Byte,Byte> loc)
+    /**
+     * Configures the location of the blocks.
+     * M => Master block location. Specify only once
+     * - => Block position
+     *   => No block
+     *
+     * @param shift translation of S(C).origin to S(F).origin
+     * @param layer
+     */
+    public void setConfiguration(ImmutableTriple<Integer, Integer, Integer> shift, String[]... layer)
     {
-        if (sbLayoutSize.getMiddle() > loc.getMiddle())
-            if (sbLayoutSize.getRight() > loc.getRight())
-                if (sbLayoutSize.getLeft() > loc.getLeft())
-                    return sbLayout.get(loc.getLeft() + sbLayoutSize.getLeft()*loc.getRight() + xzSize*loc.getMiddle());
+        final int xsz = layer[0][0].length();
+        final int ysz = layer.length;
+        final int zsz = layer[0].length;
 
-        return false;
+        sbLayoutSize = ImmutableTriple.of(xsz, ysz, zsz);
+        sbLayout = new BitSet(xsz * ysz *zsz);
+
+        final TripleIterator itr = new TripleIterator(xsz, ysz, zsz);
+
+        while (itr.hasNext())
+        {
+            final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
+            final char c = Character.toUpperCase(layer[local.getMiddle()][local.getRight()].charAt(local.getLeft()));
+
+            switch (c)
+            {
+                case 'M': // Master block location
+                    if (masterPosition == null)
+                        masterPosition = ImmutableTriple.of(
+                                local.getLeft() + shift.getLeft(),
+                                local.getMiddle() + shift.getMiddle(),
+                                local.getRight() + shift.getRight()
+                        );
+                    else
+                        throw new Error("setConfiguration.Master position defined more then once.");
+
+                case ' ':
+                case '-':
+                    sbLayout.set(
+                            local.getLeft() + local.getRight() * xsz + local.getMiddle() *zsz*xsz,
+                            c != ' ');
+                    break;
+                default:
+                {
+                    Logger.info("Char: " +((int) ' ') + " : " + ((int) c));
+                    throw new Error("setConfiguration.Unknown char '" + c + '\'');
+                }
+            }
+        }
+    }
+
+    /**
+     * String of hex vals where each char represents a single block
+     * @param layer layout of hex values representing the metadata
+     */
+    public void assignMetadata(String[]... layer)
+    {
+        final int xsz = layer[0][0].length();
+        final int ysz = layer.length;
+        final int zsz = layer[0].length;
+
+        metadata = new byte[xsz][ysz][zsz];
+
+        final TripleIterator itr = new TripleIterator(xsz, ysz, zsz);
+
+        while (itr.hasNext())
+        {
+            final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
+
+            metadata[local.getLeft()][local.getMiddle()][local.getRight()]
+                    = Byte.parseByte(
+                        String.valueOf(layer[local.getMiddle()][local.getRight()].charAt(local.getLeft())),
+                        16);
+        }
+
+    }
+
+    public void assignToolFormPosition(ImmutableTriple<Integer, Integer, Integer> toolFormPosition)
+    {
+        this.toolFormPosition = toolFormPosition;
+    }
+    public void setCollisionBoxes(float[]... collisionBoxes)
+    {
+        this.collisionBoxes = collisionBoxes;
     }
 }

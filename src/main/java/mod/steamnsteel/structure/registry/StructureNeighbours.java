@@ -1,7 +1,6 @@
 package mod.steamnsteel.structure.registry;
 
 import com.google.common.base.Objects;
-import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public final class StructureNeighbours
@@ -17,13 +16,6 @@ public final class StructureNeighbours
     public StructureNeighbours(byte neighbours)
     {
         this.neighbours = neighbours;
-    }
-
-    public StructureNeighbours(StructureBlockCoord sBlock)
-    {
-        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
-            if (sBlock.hasGlobalNeighbour(d))
-                neighbours |= d.flag;
     }
 
     public boolean hasNeighbour(ForgeDirection d)

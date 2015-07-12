@@ -21,20 +21,13 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.library.ModBlock;
-import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
-import mod.steamnsteel.structure.coordinates.StructureBlockIterator;
 import mod.steamnsteel.structure.registry.StructureRegistry;
-import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.Orientation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.ForgeDirection;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
-import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.flagMirrored;
 
 public class StructurePacket implements IMessage
 {
@@ -90,22 +83,16 @@ public class StructurePacket implements IMessage
         @Override
         public IMessage onMessage(StructurePacket msg, MessageContext ctx)
         {
-            print("On Message");
             final World world = Minecraft.getMinecraft().theWorld;
-            final SteamNSteelStructureBlock block = StructureRegistry.getBlock(msg.structureHash);//todo deal with incorrect hash
+            final SteamNSteelStructureBlock block = StructureRegistry.getStructureBlock(msg.structureHash);//todo deal with incorrect hash
 
             int particleCount = 0;
 
             final float sAjt = 0.05f;
 
             final TileEntity te = world.getTileEntity(msg.x, msg.y, msg.z);
-
-            print("te: ", te);
-
-
-            //if (!(te instanceof SteamNSteelStructureTE))
-             //   return null;
-
+            //todo fix
+            /*
             final StructureBlockIterator itr = new StructureBlockIterator(
                     block.getPattern(),
                     ImmutableTriple.of(msg.x, msg.y, msg.z),
@@ -113,7 +100,6 @@ public class StructurePacket implements IMessage
                     isMirrored(msg.orientationAndMirror)
             );
 
-            print("b4 loop");
             while (itr.hasNext())
             {
                 final StructureBlockCoord coord = itr.next();
@@ -155,7 +141,7 @@ public class StructurePacket implements IMessage
                             coord.setBlock(world, ModBlock.structureShape);
 
                 }
-            }
+            }*/
 
             return null;
         }

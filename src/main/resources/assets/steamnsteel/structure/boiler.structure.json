@@ -14,8 +14,12 @@
         "block": "minecraft:glass_pane"
       },
       {
-        "char": "l",
-        "block": "minecraft:lava"
+        "char": "f",
+        "block": "minecraft:fire"
+      },
+      {
+        "char": "w",
+        "block": "minecraft:planks"
       }
     ],
     "pattern": [
@@ -26,12 +30,12 @@
       ],
       [
         "ppp",
-        "sls",
+        "sws",
         "pgp"
       ],
       [
         "ppp",
-        "sls",
+        "sfs",
         "pgp"
       ],
       [

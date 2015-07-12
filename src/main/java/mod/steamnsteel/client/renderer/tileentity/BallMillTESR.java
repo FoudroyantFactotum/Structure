@@ -19,7 +19,7 @@ import com.google.common.base.Objects;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.client.renderer.model.BallMillModel;
-import mod.steamnsteel.tileentity.BallMillTE;
+import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.utility.Orientation;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ResourceLocation;

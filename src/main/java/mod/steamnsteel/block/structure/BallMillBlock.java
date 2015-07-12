@@ -15,13 +15,13 @@
  */
 package mod.steamnsteel.block.structure;
 
+import com.google.common.collect.ImmutableMap;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.structure.coordinates.StructureBlockCoord;
-import mod.steamnsteel.tileentity.BallMillTE;
-import mod.steamnsteel.tileentity.SteamNSteelStructureTE;
-import net.minecraft.block.Block;
+import mod.steamnsteel.structure.StructureDefinitionBuilder;
+import mod.steamnsteel.tileentity.structure.BallMillTE;
+import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -44,9 +44,9 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, StructureBlockCoord coord, float sx, float sy, float sz)
+    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, ImmutableTriple<Integer, Integer, Integer> coord, float sx, float sy, float sz)
     {
-        final int x = coord.getX();
+        /*final int x = coord.getX();
         final int y = coord.getY();
         final int z = coord.getZ();
 
@@ -61,7 +61,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
                 world.spawnParticle("explode", x, y + 0.5, z, sx, sy, sz);
                 world.spawnParticle("explode", x + rndRC(), y, z + rndRC(), sx, sy, sz);
             }
-        }
+        }*/
     }
 
     @Override
@@ -71,9 +71,53 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
     }
 
     @Override
-    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, ImmutableTriple<Byte, Byte, Byte> sbID, int sbx, int sby, int sbz)
+    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, ImmutableTriple<Integer, Integer, Integer> sbID, int sbx, int sby, int sbz)
     {
         print("Items: ", world.getTileEntity(x,y,z));
         return false;
+    }
+
+    @Override
+    public StructureDefinitionBuilder getStructureBuild()
+    {
+        final StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
+
+        builder.assignBlockDefinitions(ImmutableMap.of(
+                's', "steamnsteel:blockBrass",
+                'S', "steamnsteel:blockSteel"
+        ));
+
+        builder.assignConstructionBlocks(
+                new String[]{
+                        "SsssS",
+                        "SsssS"
+                },
+                new String[]{
+                        "SsssS",
+                        "SsssS"
+                }
+        );
+
+        builder.assignToolFormPosition(ImmutableTriple.of(2,1,1));
+
+        builder.setConfiguration(ImmutableTriple.of(0,0,0),
+                new String[]{
+                        "M----",
+                        "-   -"
+                },
+                new String[]{
+                        "-----",
+                        "-----"
+                }
+        );
+
+        builder.setCollisionBoxes(
+                new float[]{0.0f,0.0f,0.0f, 1.0f,1.49f,2.0f},
+                new float[]{1.0f,0.0f,0.2f, 3.5f,1.77f,1.8f},
+                new float[]{3.5f,0.0f,0.0f, 4.0f,1.49f,2.0f},
+                new float[]{4.0f,0.0f,0.5f, 5.0f,1.49f,1.5f}
+        );
+
+        return builder;
     }
 }
