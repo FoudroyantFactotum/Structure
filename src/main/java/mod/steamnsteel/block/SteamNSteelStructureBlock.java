@@ -107,6 +107,11 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
             final WorldBlockCoord blockCoord = bindLocalToGlobal(origin, local, orientation, isMirrored, getPattern().getBlockBounds());
 
+            world.spawnParticle("explode",
+                    blockCoord.getX() + 0.5f,
+                    blockCoord.getY() + 0.5f,
+                    blockCoord.getZ() + 0.5f, 0+Math.random()*0.2f,0.05f,0+Math.random()*0.2f);
+
             if (!local.equals(ORIGIN))
                 blockCoord.setBlock(world, ModBlock.structureShape, meta, flag);
 
@@ -140,7 +145,6 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
     {
-        super.onNeighborBlockChange(world, x, y, z, block);
         onSharedNeighbourBlockChange(world, x, y, z, regHash, block);
     }
 
@@ -286,17 +290,14 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             if (neighborCheck(meta, nMeta, nBlock))
             {
                 //Break all things!
-                world.setBlock(x, y, z, te.getTransmutedBlock(), te.getTransmutedMeta(), 0x2);
+                world.setBlock(x, y, z, te.getTransmutedBlock(), te.getTransmutedMeta(), 0x3);
 
-                if (!world.isRemote)
+                if (te.getLocal().equals(ORIGIN))
                 {
-                    if (te.getLocal().equals(ORIGIN))
-                    {
-                        ModNetwork.network.sendToAllAround(
-                                new StructurePacket(x, y, z, hash, getdecodedOrientation(meta), isMirrored(meta), StructurePacketOption.BOOM_PARTICLE),
-                                new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
-                        );
-                    }
+                    ModNetwork.network.sendToAllAround(
+                            new StructurePacket(x, y, z, hash, getdecodedOrientation(meta), isMirrored(meta), StructurePacketOption.BOOM_PARTICLE),
+                            new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
+                    );
                 }
 
                 return;
@@ -353,15 +354,5 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                         origin.getLeft(),origin.getMiddle(),origin.getRight(),
                         o, isMirrored, structureSize)
         );
-    }
-
-    //todo remove function below
-    @SafeVarargs
-    public static <E> void print(E... a)
-    {
-        final StringBuilder s = new StringBuilder(a.length);
-        for (final E b:a) s.append(b);
-
-        Logger.info(s.toString());
     }
 }

@@ -21,13 +21,19 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.utility.Orientation;
+import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.ForgeDirection;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
 
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.flagMirrored;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
+import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public class StructurePacket implements IMessage
 {
@@ -84,64 +90,49 @@ public class StructurePacket implements IMessage
         public IMessage onMessage(StructurePacket msg, MessageContext ctx)
         {
             final World world = Minecraft.getMinecraft().theWorld;
-            final SteamNSteelStructureBlock block = StructureRegistry.getStructureBlock(msg.structureHash);//todo deal with incorrect hash
+            final SteamNSteelStructureBlock block = StructureRegistry.getStructureBlock(msg.structureHash);
+
+            if (block == null) return null;
 
             int particleCount = 0;
-
             final float sAjt = 0.05f;
-
             final TileEntity te = world.getTileEntity(msg.x, msg.y, msg.z);
-            //todo fix
-            /*
-            final StructureBlockIterator itr = new StructureBlockIterator(
-                    block.getPattern(),
-                    ImmutableTriple.of(msg.x, msg.y, msg.z),
-                    getdecodedOrientation(msg.orientationAndMirror),
-                    isMirrored(msg.orientationAndMirror)
-            );
+            final Orientation orientation = getdecodedOrientation(msg.orientationAndMirror);
+            final boolean isMirrored = isMirrored(msg.orientationAndMirror);
+
+            TripleIterator itr = block.getPattern().getFormItr();
 
             while (itr.hasNext())
             {
-                final StructureBlockCoord coord = itr.next();
+                final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
+                final WorldBlockCoord coord = bindLocalToGlobal(
+                        ImmutableTriple.of(msg.x, msg.y, msg.z), local,
+                        orientation, isMirrored,
+                        block.getPattern().getBlockBounds()
+                );
 
+                //outward Vector
                 float xSpeed = 0.0f;
                 float ySpeed = 0.0f;
                 float zSpeed = 0.0f;
 
-
                 for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
-                {
-                    if (!coord.hasGlobalNeighbour(d))
+                    if (!block.getPattern().hasBlockAt(local, d))
                     {
+                        d = localToGlobal(d, orientation, isMirrored);
+
                         xSpeed += d.offsetX;
                         ySpeed += d.offsetY;
                         zSpeed += d.offsetZ;
                     }
-                }
 
                 switch (msg.sc)
                 {
                     case BOOM_PARTICLE:
                         if (particleCount++ % 9 != 0)
                             world.spawnParticle("hugeexplosion", coord.getX(), coord.getY(),coord.getZ(), xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
-                        break;
-
-                    case BUILD_PARTICLE:
-                        block.spawnBreakParticle(world, (SteamNSteelStructureTE) te, coord, xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
-                        break;
-
-                    case BLOCK_BUILD:
-                        if (!coord.isMasterBlock())
-                            coord.setBlock(world, ModBlock.structureShape);
-                        break;
-
-                    case BLOCK_PARTICLE_BUILD:
-                        block.spawnBreakParticle(world, (SteamNSteelStructureTE) te, coord, xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
-                        if (!coord.isMasterBlock())
-                            coord.setBlock(world, ModBlock.structureShape);
-
                 }
-            }*/
+            }
 
             return null;
         }

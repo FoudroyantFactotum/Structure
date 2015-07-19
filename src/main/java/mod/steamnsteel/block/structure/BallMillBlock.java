@@ -22,6 +22,7 @@ import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
+import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -67,7 +68,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
     @Override
     public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, ImmutableTriple<Integer, Integer, Integer> sbID, int sbx, int sby, int sbz)
     {
-        print("Items: ", world.getTileEntity(x,y,z));
+        Logger.info("Items: " + world.getTileEntity(x, y, z));
         return false;
     }
 
@@ -88,7 +89,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
                 },
                 new String[]{
                         "     ",
-                        "     "
+                        "  s  "
                 }
         );
 
