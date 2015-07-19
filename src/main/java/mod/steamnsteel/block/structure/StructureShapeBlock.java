@@ -20,10 +20,8 @@ import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelMachineBlock;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
-import mod.steamnsteel.structure.coordinates.TransformLAG;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.structure.StructureShapeTE;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.client.particle.EffectRenderer;
@@ -40,6 +38,7 @@ import java.util.List;
 import java.util.Random;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalCollisionBoxes;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public final class StructureShapeBlock extends SteamNSteelMachineBlock implements ITileEntityProvider
@@ -79,7 +78,7 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
 
             if (sb == null) return;
 
-            TransformLAG.localToGlobalCollisionBoxes(mloc.getLeft(), mloc.getMiddle(), mloc.getRight(),
+            localToGlobalCollisionBoxes(mloc.getLeft(), mloc.getMiddle(), mloc.getRight(),
                     aabb, boundingBoxList, sb.getPattern().getCollisionBoxes(), getdecodedOrientation(meta), isMirrored(meta), sb.getPattern().getBlockBounds());
         }
     }
@@ -119,9 +118,8 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
 
         final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
 
-        if (te != null && sb != null)
+        if (sb != null)
         {
-            Logger.info("origin: " + te.getMasterLocation(meta));
             breakStructure(world,
                     te.getMasterLocation(meta),
                     sb.getPattern(),
@@ -129,6 +127,13 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
                     isMirrored(meta),
                     isPlayerCreative
             );
+            updateExternalNeighbours(world,
+                    te.getMasterLocation(meta),
+                    sb.getPattern(),
+                    getdecodedOrientation(meta),
+                    isMirrored(meta)
+            );
+
         } else
             world.setBlockToAir(x, y, z);
 
@@ -142,7 +147,6 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
 
         if (te != null)
         {
-            Logger.info("Local:" + te.getLocal());
             final SteamNSteelStructureBlock block = te.getMasterBlockInstance();
 
             if (block != null)
@@ -162,7 +166,6 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
     @Override
     public void onNeighborBlockChange(World world, int x, int y, int z, Block block)
     {
-        super.onNeighborBlockChange(world, x, y, z, block);
         onSharedNeighbourBlockChange(world, x, y, z, ((StructureShapeTE) world.getTileEntity(x, y, z)).getRegHash(), block);
     }
 
