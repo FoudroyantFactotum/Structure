@@ -101,6 +101,10 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         while (itr.hasNext())
         {
             final ImmutableTriple<Integer,Integer,Integer> local = itr.next();
+
+            if (!getPattern().hasBlockAt(local))
+                continue;
+
             final WorldBlockCoord blockCoord = bindLocalToGlobal(origin, local, orientation, isMirrored, getPattern().getBlockBounds());
 
             if (!local.equals(ORIGIN))
@@ -111,7 +115,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             if (ssBlock != null)
                 ssBlock.configureBlock(local, regHash);
             else
-                Logger.info("formStructure: Error te: " + local + " : " + blockCoord);
+                Logger.info("formStructure: Error te: " + local + " : " + blockCoord); //todo sub with proper error fix
         }
     }
 
@@ -184,39 +188,44 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     @Override
     @SideOnly(Side.CLIENT)
     public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer)
-    {//todo fix
-        /*final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
+    {
+        final float scaleVec = 0.05f;
+        final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
 
         if (te != null)
         {
             final Orientation o = getdecodedOrientation(meta);
             final boolean isMirrored = isMirrored(meta);
 
-            final float sAjt = 0.05f;
-
             final TripleIterator itr = getPattern().getFormItr();
 
             while (itr.hasNext())
             {
-                final ImmutableTriple<Integer, Integer, Integer> coord = itr.next();
+                final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
 
+                //outward Vector
                 float xSpeed = 0.0f;
                 float ySpeed = 0.0f;
                 float zSpeed = 0.0f;
 
                 for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
-                {
-                    if (!coord.hasGlobalNeighbour(d))
+                    if (!getPattern().hasBlockAt(local, d))
                     {
+                        d = localToGlobal(d, o, isMirrored);
+
                         xSpeed += d.offsetX;
                         ySpeed += d.offsetY;
                         zSpeed += d.offsetZ;
                     }
-                }
 
-                spawnBreakParticle(world, te, coord, xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
+                final ImmutableTriple<Integer, Integer, Integer> global = localToGlobal(
+                        local.getLeft(), local.getMiddle(), local.getRight(),
+                        x,               y,                  z,
+                        o, isMirrored, getPattern().getBlockBounds());
+
+                spawnBreakParticle(world, te, global, xSpeed * scaleVec, ySpeed * scaleVec, zSpeed * scaleVec);
             }
-        }*/
+        }
 
         return true; //No Destroy Effects
     }
@@ -260,28 +269,24 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             return;
         }
 
-        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS)
+        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS) //local
         {
-            //todo fix for directions.
-            if (!sb.getPattern().hasBlockAt(
-                    te.getLocal().getLeft() + d.offsetX,
-                    te.getLocal().getMiddle() + d.offsetY,
-                    te.getLocal().getRight() + d.offsetZ))
+            if (!sb.getPattern().hasBlockAt(te.getLocal(), d))
                 continue;
 
-            Logger.info("Gone: " + d);
+            d = localToGlobal(d, getdecodedOrientation(meta), isMirrored(meta));
 
-            final int nx = x + d.offsetX;
-            final int ny = y + d.offsetY;
-            final int nz = z + d.offsetZ;
+            final int ngx = x + d.offsetX;
+            final int ngy = y + d.offsetY;
+            final int ngz = z + d.offsetZ;
 
-            final Block nBlock = world.getBlock(nx, ny, nz);
-            final int nMeta = world.getBlockMetadata(nx, ny, nz) & maskMeta;
+            final Block nBlock = world.getBlock(ngx, ngy, ngz);
+            final int nMeta = world.getBlockMetadata(ngx, ngy, ngz) & maskMeta;
 
             if (neighborCheck(meta, nMeta, nBlock))
             {
                 //Break all things!
-                world.setBlock(x, y, z, te.getTransmutedBlock(), te.getTransmutedMeta(), 0x3);
+                world.setBlock(x, y, z, te.getTransmutedBlock(), te.getTransmutedMeta(), 0x2);
 
                 if (!world.isRemote)
                 {
@@ -321,7 +326,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
             if (worldBlock instanceof StructureShapeBlock || worldBlock instanceof SteamNSteelStructureBlock)
             {
-                final Block block = sd.getBlock(local.getLeft(), local.getMiddle(), local.getRight());
+                final Block block = sd.getBlock(local);
                 final int meta = sd.getBlockMetadata(local.getLeft(), local.getMiddle(), local.getRight());
 
                 blockCoord.setBlock(world,

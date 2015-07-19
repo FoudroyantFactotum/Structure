@@ -125,10 +125,10 @@ public final class TransformLAG
                 d = d.getRotation(ForgeDirection.DOWN).getRotation(ForgeDirection.DOWN);
                 break;
             case WEST:
-                d = d.getRotation(ForgeDirection.UP);
+                d = d.getRotation(ForgeDirection.DOWN);
                 break;
             case EAST:
-                d = d.getRotation(ForgeDirection.DOWN);
+                d = d.getRotation(ForgeDirection.UP);
                 break;
             default://North
         }
@@ -150,7 +150,6 @@ public final class TransformLAG
     {
         final int[][] matrix = rotationMatrix[o.encode()];
 
-        //todo fix fish-e if statement
         final int ntx = o == Orientation.SOUTH || o == Orientation.WEST? -1:0;
         final int ntz = o == Orientation.SOUTH || o == Orientation.EAST? -1:0;
         final int tx = matrix[0][0] * ntx + matrix[0][1] * ntz;
@@ -182,13 +181,13 @@ public final class TransformLAG
     //Bounding box
     public static AxisAlignedBB localToGlobalBoundingBox(int gx, int gy, int gz, ImmutableTriple<Integer, Integer, Integer> local, StructureDefinition sd, Orientation o, boolean ismirrored)
     {
-        final int l_lbx = local.getLeft()   + sd.getMasterLocation().getLeft();
-        final int l_lby = local.getMiddle() + sd.getMasterLocation().getMiddle();
-        final int l_lbz = local.getRight()  + sd.getMasterLocation().getRight();
+        final int l_lbx = local.getLeft()   - sd.getMasterLocation().getLeft();
+        final int l_lby = local.getMiddle() - sd.getMasterLocation().getMiddle();
+        final int l_lbz = local.getRight()  - sd.getMasterLocation().getRight();
 
-        final int l_ubx = local.getLeft()   - sd.getBlockBounds().getLeft();
-        final int l_uby = local.getMiddle() - sd.getBlockBounds().getMiddle();
-        final int l_ubz = local.getRight()  - sd.getBlockBounds().getRight();
+        final int l_ubx = local.getLeft()   + sd.getBlockBounds().getLeft();
+        final int l_uby = local.getMiddle() + sd.getBlockBounds().getMiddle();
+        final int l_ubz = local.getRight()  + sd.getBlockBounds().getRight();
 
         final ImmutableTriple<Integer, Integer, Integer> lb
                 = localToGlobal(l_lbx, l_lby, l_lbz, gx, gy, gz, o, ismirrored, sd.getBlockBounds());

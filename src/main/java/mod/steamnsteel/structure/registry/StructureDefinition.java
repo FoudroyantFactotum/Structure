@@ -18,6 +18,7 @@ package mod.steamnsteel.structure.registry;
 import com.google.common.base.Objects;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import net.minecraft.block.Block;
+import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.Arrays;
@@ -91,6 +92,8 @@ public class StructureDefinition
                 sbLayoutSize.getRight()/2);
     }
 
+    public boolean hasBlockAt(ImmutableTriple<Integer, Integer, Integer> loc, ForgeDirection d) { return hasBlockAt(loc.getLeft() + d.offsetX, loc.getMiddle() + d.offsetY, loc.getRight() + d.offsetZ);}
+    public boolean hasBlockAt(ImmutableTriple<Integer, Integer, Integer> loc) { return hasBlockAt(loc.getLeft(), loc.getMiddle(), loc.getRight());}
     public boolean hasBlockAt(int x, int y, int z)
     {
         x = x + masterPosition.getLeft();
@@ -104,6 +107,7 @@ public class StructureDefinition
 
     }
 
+    public Block getBlock(ImmutableTriple<Integer, Integer, Integer> loc) { return getBlock(loc.getLeft(), loc.getMiddle(), loc.getRight());}
     public Block getBlock(int x, int y, int z)
     {
         x = x + masterPosition.getLeft();
@@ -118,6 +122,7 @@ public class StructureDefinition
         return null;
     }
 
+    public int getBlockMetadata(ImmutableTriple<Integer, Integer, Integer> loc) { return getBlockMetadata(loc.getLeft(),loc.getMiddle(), loc.getRight());}
     public int getBlockMetadata(int x, int y, int z)
     {
         x = x + masterPosition.getLeft();
@@ -169,7 +174,7 @@ public class StructureDefinition
         return collisionBoxes;
     }
 
-    public static int hashLoc(ImmutableTriple<Byte,Byte,Byte> loc)
+    public static int hashLoc(ImmutableTriple<Integer, Integer, Integer> loc)
     {
         return hashLoc(loc.getLeft(), loc.getMiddle(), loc.getRight());
     }

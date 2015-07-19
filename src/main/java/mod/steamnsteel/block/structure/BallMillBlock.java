@@ -46,22 +46,16 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
     @SideOnly(Side.CLIENT)
     public void spawnBreakParticle(World world, SteamNSteelStructureTE te, ImmutableTriple<Integer, Integer, Integer> coord, float sx, float sy, float sz)
     {
-        /*final int x = coord.getX();
-        final int y = coord.getY();
-        final int z = coord.getZ();
+        final float x = coord.getLeft() + 0.5f;
+        final float y = coord.getMiddle() + 0.5f;
+        final float z = coord.getRight() + 0.5f;
 
-
-        final Block block = coord.getStructureDefinition().getBlock(coord.getLX(), coord.getLY(), coord.getLZ());
-
-        if (block != null)
+        for (int i = 0; i < 1; ++i)
         {
-            for (int i = 0; i < 1; ++i)
-            {
-                world.spawnParticle("explode", x + rndRC(), y + 1, z + rndRC(), sx, sy, sz);
-                world.spawnParticle("explode", x, y + 0.5, z, sx, sy, sz);
-                world.spawnParticle("explode", x + rndRC(), y, z + rndRC(), sx, sy, sz);
-            }
-        }*/
+            world.spawnParticle("explode", x + rndRC(), y + 1, z + rndRC(), sx, sy, sz);
+            world.spawnParticle("largesmoke", x, y, z, sx, sy, sz);
+            world.spawnParticle("explode", x + rndRC(), y, z + rndRC(), sx, sy, sz);
+        }
     }
 
     @Override
@@ -89,12 +83,12 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
 
         builder.assignConstructionBlocks(
                 new String[]{
-                        "SsssS",
-                        "SsssS"
+                        "     ",
+                        "     "
                 },
                 new String[]{
-                        "SsssS",
-                        "SsssS"
+                        "     ",
+                        "     "
                 }
         );
 
@@ -103,7 +97,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
         builder.setConfiguration(ImmutableTriple.of(0,0,0),
                 new String[]{
                         "M----",
-                        "-   -"
+                        "-----"
                 },
                 new String[]{
                         "-----",

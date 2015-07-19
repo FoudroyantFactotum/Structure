@@ -21,6 +21,7 @@ import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
+import net.minecraft.init.Blocks;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.BitSet;
@@ -111,6 +112,9 @@ public final class StructureDefinitionBuilder
 
             builder.put(c, block);
         }
+
+        //default
+        builder.put(' ', Blocks.air);
 
         this.representation = builder.build();
     }

@@ -73,7 +73,6 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
     @Override
     public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, ImmutableTriple<Integer, Integer, Integer> sbID, int sbx, int sby, int sbz)
     {
-        print("Master TE: ", world.getTileEntity(x,y,z));
         return super.onStructureBlockActivated(world, x, y, z, player, side, sx, sy, sz, sbID, sbx, sby, sbz);
     }
 
