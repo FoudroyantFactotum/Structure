@@ -43,7 +43,7 @@ public final class StructureDefinitionBuilder
     public StructureDefinition build()
     {
         if(blocks == null)
-            throw new Error("Missing Blocks");
+            throw new StructureDefinitionError("Missing Blocks");
 
         if (metadata == null)
                 metadata = new byte[blocks.length][blocks[0].length][blocks[0][0].length];
@@ -52,33 +52,33 @@ public final class StructureDefinitionBuilder
         for (Block[][] b: blocks)
         {
             if (b.length != blocks[0].length)
-                throw new Error("Construction map jagged");
+                throw new StructureDefinitionError("Construction map jagged");
 
             for (Block[] bb: b)
                 if (bb.length != b[0].length)
-                    throw new Error("Construction map jagged");
+                    throw new StructureDefinitionError("Construction map jagged");
         }
 
         //metadata jagged map test
         for (byte[][] b: metadata)
         {
             if (b.length != metadata[0].length)
-                throw new Error("Metadata map jagged");
+                throw new StructureDefinitionError("Metadata map jagged");
 
             for (byte[] bb: b)
                 if (bb.length != b[0].length)
-                    throw new  Error("Metadata map jagged");
+                    throw new StructureDefinitionError("Metadata map jagged");
         }
 
         if (blocks.length != metadata.length ||
                 blocks[0].length != metadata[0].length ||
                 blocks[0][0].length != metadata[0][0].length)
-            throw new Error("Block map size != metadata size (" +
+            throw new StructureDefinitionError("Block map size != metadata size (" +
                     blocks.length + "," +blocks[0].length+ "," + blocks[0][0].length + ") - " +
                     "(" + metadata.length + "," +metadata[0].length+ "," + metadata[0][0].length + ")");
 
         if (toolFormPosition == null)
-            throw new Error("tool form location missing");
+            throw new StructureDefinitionError("tool form location missing");
 
         return new StructureDefinition(
                 sbLayout,
@@ -184,7 +184,7 @@ public final class StructureDefinitionBuilder
                                 local.getRight() + shift.getRight()
                         );
                     else
-                        throw new Error("setConfiguration.Master position defined more then once.");
+                        throw new StructureDefinitionError("setConfiguration.Master position defined more then once.");
 
                 case ' ':
                 case '-':
@@ -195,7 +195,7 @@ public final class StructureDefinitionBuilder
                 default:
                 {
                     Logger.info("Char: " +((int) ' ') + " : " + ((int) c));
-                    throw new Error("setConfiguration.Unknown char '" + c + '\'');
+                    throw new StructureDefinitionError("setConfiguration.Unknown char '" + c + '\'');
                 }
             }
         }
@@ -234,5 +234,13 @@ public final class StructureDefinitionBuilder
     public void setCollisionBoxes(float[]... collisionBoxes)
     {
         this.collisionBoxes = collisionBoxes;
+    }
+
+    public static class StructureDefinitionError extends Error
+    {
+        public StructureDefinitionError(String msg)
+        {
+            super(msg);
+        }
     }
 }
