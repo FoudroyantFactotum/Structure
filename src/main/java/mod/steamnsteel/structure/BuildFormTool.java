@@ -15,11 +15,26 @@
  */
 package mod.steamnsteel.structure;
 
+import cpw.mods.fml.common.network.NetworkRegistry;
+import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.item.tool.SSToolShovel;
 import mod.steamnsteel.library.Material;
+import mod.steamnsteel.structure.coordinates.TripleIterator;
+import mod.steamnsteel.structure.net.StructurePacket;
+import mod.steamnsteel.structure.net.StructurePacketOption;
+import mod.steamnsteel.structure.registry.StructureDefinition;
+import mod.steamnsteel.structure.registry.StructureRegistry;
+import mod.steamnsteel.utility.ModNetwork;
+import mod.steamnsteel.utility.Orientation;
+import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
+import org.apache.commons.lang3.tuple.ImmutableTriple;
+
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.updateExternalNeighbours;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class BuildFormTool extends SSToolShovel
 {
@@ -31,38 +46,34 @@ public class BuildFormTool extends SSToolShovel
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
     {
-        //todo fix
-        /*if (!world.isRemote)
+        if (!world.isRemote)
         {
-            final Pair<StructureBlockIterator, SteamNSteelStructureBlock> res = uberStructureSearch(world, x, y, z);
+            final StructureSearchResult result = uberStructureSearch(world, x, y, z);
 
-            if (res != null)
+            if (result != null)
             {
-                final ImmutableTriple<Integer, Integer, Integer> blkLoc = res.getLeft().getWorldLocation();
-                //print("Uber-Structure-Search found matching Structure : ", res.getRight(), " : ", blkLoc, " : ", res.getLeft().getOrientation());
+                final int meta = result.orientation.encode() | (result.isMirrored ? SteamNSteelStructureBlock.flagMirrored : 0x0);
 
-                final int meta = res.getLeft().getOrientation().encode();
-                final SteamNSteelStructureBlock block = res.getRight();
+                world.setBlock(result.origin.getLeft(), result.origin.getMiddle(), result.origin.getRight(), result.block, meta, 0x2);
+                result.block.formStructure(world, result.origin, meta, 0x2);
 
-                world.setBlock(blkLoc.getLeft(), blkLoc.getMiddle(), blkLoc.getRight(), block, meta, 0x2);
-                block.formStructure(world, res.getLeft(), meta, 0x2);
-                block.onPostBlockPlaced(world, blkLoc.getLeft(), blkLoc.getMiddle(), blkLoc.getRight(), meta);
+                updateExternalNeighbours(world, result.origin, result.block.getPattern(), result.orientation, result.isMirrored, true);
 
-               ModNetwork.network.sendToAllAround(
-                        new StructurePacket(blkLoc.getLeft(), blkLoc.getMiddle(), blkLoc.getRight(), block.getRegHash(), getdecodedOrientation(meta), isMirrored(meta), StructurePacketOption.BLOCK_PARTICLE_BUILD),
+                ModNetwork.network.sendToAllAround(
+                        new StructurePacket(result.origin.getLeft(), result.origin.getMiddle(), result.origin.getRight(),
+                                result.block.getRegHash(), result.orientation, result.isMirrored,
+                                StructurePacketOption.BUILD),
                         new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
                 );
-            } //else
-                //print("No Structure Found");
-        }*/
+            }
+        }
 
         return false;
     }
 
-    /*private Pair<StructureBlockIterator, SteamNSteelStructureBlock> uberStructureSearch(World world, int x, int y, int z)
+    private StructureSearchResult uberStructureSearch(World world, int x, int y, int z)
     {
         //do uber search and build structure todo Threaded? Reduce search space? Reduce memory usage?
-        final Vec3 loc = Vec3.createVectorHelper(x,y,z);
 
         for (SteamNSteelStructureBlock ssBlock : StructureRegistry.getStructureList())
         {
@@ -71,40 +82,52 @@ public class BuildFormTool extends SSToolShovel
             final ImmutableTriple<Integer, Integer, Integer> tl = sd.getToolFormLocation();
             final ImmutableTriple<Integer, Integer, Integer> t2 = sd.getMasterLocation();
 
+            //todo also search mirrored (currently disabled)
             //every Direction nsew
             nextOrientation:
             for (Orientation o : Orientation.values())
             {
-                final ImmutableTriple<Integer,Integer,Integer> pml =
+                final ImmutableTriple<Integer,Integer,Integer> origin =
                         localToGlobal(
-                                tl.getLeft() - t2.getLeft(), tl.getMiddle() - t2.getMiddle(), tl.getRight() - t2 .getRight(),
-                                (int)loc.xCoord, (int)loc.yCoord, (int)loc.zCoord,
-                                o, false, sd
+                                -tl.getLeft() - t2.getLeft(), -tl.getMiddle() - t2.getMiddle(), -tl.getRight() - t2 .getRight(),
+                                x, y, z,
+                                o, false, sd.getBlockBounds()
                         );
 
-                final StructureBlockIterator itr = new StructureBlockIterator(
-                        sd,
-                        pml,
-                        o,
-                        false//mirroring :p
-                );
+                final TripleIterator itr = sd.getConstructionItr();
 
                 while (itr.hasNext())
                 {
-                    final StructureBlockCoord coord = itr.next();
-                    final Block ptnBlk = sd.getBlock(coord.getLX(),coord.getLY(),coord.getLZ());
+                    final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
+                    final WorldBlockCoord coord = bindLocalToGlobal(origin, local, o, false, sd.getBlockBounds());
 
-                    if (ptnBlk == null || ptnBlk != coord.getBlock(world))
+                    if (sd.getBlock(local) == null || sd.getBlock(local) != coord.getBlock(world))
+                    {
                         continue nextOrientation;
+                    }
                 }
 
                 //found match eeek!
-                itr.cleanIterator();
-                return Pair.of(itr, ssBlock);
+                final StructureSearchResult result = new StructureSearchResult();
+
+                result.block = ssBlock;
+                result.origin = origin;
+                result.orientation = o;
+                result.isMirrored = false; //todo fix mirror state.
+
+                return result;
             }
         }
 
-        //nothing matches
+        //no matches
         return null;
-    }*/
+    }
+
+    private static final class StructureSearchResult
+    {
+        public SteamNSteelStructureBlock block;
+        public Orientation orientation;
+        public boolean isMirrored;
+        public ImmutableTriple<Integer, Integer, Integer> origin;
+    }
 }

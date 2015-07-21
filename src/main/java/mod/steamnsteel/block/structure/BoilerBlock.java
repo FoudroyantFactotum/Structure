@@ -102,7 +102,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
                 },
                 new String[]{
                         "ppp",
-                        "sfs",
+                        "sws",
                         "pgp"
                 },
                 new String[]{

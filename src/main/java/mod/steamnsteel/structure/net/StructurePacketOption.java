@@ -2,5 +2,6 @@ package mod.steamnsteel.structure.net;
 
 public enum StructurePacketOption
 {
-    BOOM_PARTICLE
+    BOOM_PARTICLE,
+    BUILD
 }

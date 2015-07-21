@@ -131,7 +131,8 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
                     te.getMasterLocation(meta),
                     sb.getPattern(),
                     getdecodedOrientation(meta),
-                    isMirrored(meta)
+                    isMirrored(meta),
+                    false
             );
 
         } else

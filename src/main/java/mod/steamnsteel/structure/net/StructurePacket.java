@@ -100,6 +100,18 @@ public class StructurePacket implements IMessage
             final Orientation orientation = getdecodedOrientation(msg.orientationAndMirror);
             final boolean isMirrored = isMirrored(msg.orientationAndMirror);
 
+            if (msg.sc == StructurePacketOption.BUILD)
+            {
+                final int meta = orientation.encode() | (isMirrored ? SteamNSteelStructureBlock.flagMirrored : 0x0);
+                final ImmutableTriple<Integer, Integer, Integer> origin = ImmutableTriple.of(msg.x, msg.y, msg.z);
+
+                world.setBlock(msg.x, msg.y, msg.z, block, meta, 0x2);
+                block.formStructure(world, origin, meta, 0x2);
+
+                updateExternalNeighbours(world, origin, block.getPattern(), orientation, isMirrored, true);
+
+            }
+
             TripleIterator itr = block.getPattern().getFormItr();
 
             while (itr.hasNext())

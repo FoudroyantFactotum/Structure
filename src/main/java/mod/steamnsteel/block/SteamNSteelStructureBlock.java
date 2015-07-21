@@ -98,7 +98,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         final Orientation orientation = getdecodedOrientation(meta);
         final boolean isMirrored = isMirrored(meta);
 
-        updateExternalNeighbours(world,ImmutableTriple.of(x,y,z), getPattern(), orientation, isMirrored);
+        updateExternalNeighbours(world,ImmutableTriple.of(x,y,z), getPattern(), orientation, isMirrored, false);
     }
 
     @Override
@@ -119,7 +119,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             final ImmutableTriple<Integer, Integer, Integer> origin = ImmutableTriple.of(x,y,z);
 
             breakStructure(world, origin, getPattern(), getdecodedOrientation(meta), isMirrored(meta), isPlayerCreative);
-            updateExternalNeighbours(world, origin, getPattern(), getdecodedOrientation(meta), isMirrored(meta));
+            updateExternalNeighbours(world, origin, getPattern(), getdecodedOrientation(meta), isMirrored(meta), false);
         } else
             world.setBlockToAir(x,y,z);
 
@@ -337,7 +337,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
     }
 
-    public static void updateExternalNeighbours(World world, ImmutableTriple<Integer, Integer, Integer> origin, StructureDefinition sd, Orientation orientation, boolean isMirrored)
+    public static void updateExternalNeighbours(World world, ImmutableTriple<Integer, Integer, Integer> origin, StructureDefinition sd, Orientation orientation, boolean isMirrored, boolean notifyBlocks)
     {
         //neighbour update
         TripleIterator itr = sd.getFormItr();
@@ -363,6 +363,11 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                             blockCoord.getZ(),
                             sd.getBlock(local)
                     );
+
+                    if (notifyBlocks)
+                    {
+                        world.markBlockForUpdate(blockCoord.getX(), blockCoord.getY(), blockCoord.getZ());
+                    }
                 }
         }
     }

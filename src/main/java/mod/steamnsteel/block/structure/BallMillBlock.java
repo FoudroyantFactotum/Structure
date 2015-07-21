@@ -78,18 +78,18 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
         final StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
 
         builder.assignBlockDefinitions(ImmutableMap.of(
-                's', "steamnsteel:blockBrass",
+                'b', "steamnsteel:blockBrass",
                 'S', "steamnsteel:blockSteel"
         ));
 
         builder.assignConstructionBlocks(
                 new String[]{
-                        "     ",
+                        "S S S",
                         "     "
                 },
                 new String[]{
                         "     ",
-                        "  s  "
+                        "  b  "
                 }
         );
 
