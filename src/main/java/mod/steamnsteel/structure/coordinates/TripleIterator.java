@@ -61,7 +61,9 @@ public class TripleIterator implements Iterator<ImmutableTriple<Integer, Integer
             while (depthNo < depthNoU)
             {
                 if (++rowNo < rowNoU)
+                {
                     return;
+                }
 
                 rowNo = rowNoL;
                 depthNo++;
@@ -84,7 +86,9 @@ public class TripleIterator implements Iterator<ImmutableTriple<Integer, Integer
     public ImmutableTriple<Integer, Integer, Integer> next()
     {
         if (!hasNext())
+        {
             throw new NoSuchElementException();
+        }
 
         final ImmutableTriple<Integer, Integer, Integer> res =
                 ImmutableTriple.of(rowNo, layerNo, depthNo);

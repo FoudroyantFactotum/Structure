@@ -92,7 +92,10 @@ public class StructurePacket implements IMessage
             final World world = Minecraft.getMinecraft().theWorld;
             final SteamNSteelStructureBlock block = StructureRegistry.getStructureBlock(msg.structureHash);
 
-            if (block == null) return null;
+            if (block == null)
+            {
+                return null;
+            }
 
             int particleCount = 0;
             final float sAjt = 0.05f;
@@ -129,6 +132,7 @@ public class StructurePacket implements IMessage
                 float zSpeed = 0.0f;
 
                 for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+                {
                     if (!block.getPattern().hasBlockAt(local, d))
                     {
                         d = localToGlobal(d, orientation, isMirrored);
@@ -137,12 +141,15 @@ public class StructurePacket implements IMessage
                         ySpeed += d.offsetY;
                         zSpeed += d.offsetZ;
                     }
+                }
 
                 switch (msg.sc)
                 {
                     case BOOM_PARTICLE:
                         if (particleCount++ % 9 != 0)
-                            world.spawnParticle("hugeexplosion", coord.getX(), coord.getY(),coord.getZ(), xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
+                        {
+                            world.spawnParticle("hugeexplosion", coord.getX(), coord.getY(), coord.getZ(), xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
+                        }
                 }
             }
 

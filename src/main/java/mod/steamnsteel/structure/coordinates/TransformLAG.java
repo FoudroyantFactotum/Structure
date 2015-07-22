@@ -117,7 +117,9 @@ public final class TransformLAG
     {
         //switch from local direction to global
         if (ismirrored && (d == ForgeDirection.NORTH || d == ForgeDirection.SOUTH))
+        {
             d = d.getOpposite();
+        }
 
         switch (o)
         {
@@ -140,7 +142,9 @@ public final class TransformLAG
     public static int localToGlobal(int meta, Block block, Orientation o, boolean ismirrored)
     {
         if (META_CORRECTOR.containsKey(block))
+        {
             return META_CORRECTOR.get(block).correctMeta((byte) meta, o, ismirrored);
+        }
 
         return meta;
     }
@@ -174,7 +178,9 @@ public final class TransformLAG
             bb.maxZ = z + max(c1z, c2z) + tz;
 
             if (aabb.intersectsWith(bb))
+            {
                 boundingBoxList.add(bb.copy());
+            }
         }
     }
 

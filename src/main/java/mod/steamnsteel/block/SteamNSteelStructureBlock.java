@@ -121,7 +121,9 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             breakStructure(world, origin, getPattern(), getdecodedOrientation(meta), isMirrored(meta), isPlayerCreative);
             updateExternalNeighbours(world, origin, getPattern(), getdecodedOrientation(meta), isMirrored(meta), false);
         } else
-            world.setBlockToAir(x,y,z);
+        {
+            world.setBlockToAir(x, y, z);
+        }
 
         return true;
     }
@@ -176,6 +178,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 float zSpeed = 0.0f;
 
                 for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+                {
                     if (!getPattern().hasBlockAt(local, d))
                     {
                         d = localToGlobal(d, o, isMirrored);
@@ -184,6 +187,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                         ySpeed += d.offsetY;
                         zSpeed += d.offsetZ;
                     }
+                }
 
                 final ImmutableTriple<Integer, Integer, Integer> global = localToGlobal(
                         local.getLeft(), local.getMiddle(), local.getRight(),
@@ -239,7 +243,9 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS) //local
         {
             if (!sb.getPattern().hasBlockAt(te.getLocal(), d))
+            {
                 continue;
+            }
 
             d = localToGlobal(d, getdecodedOrientation(meta), isMirrored(meta));
 
@@ -270,11 +276,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
     private static boolean neighbourCheck(int meta, int nMeta, Block block)
     {
-        if (meta == nMeta)
-            if (block instanceof StructureShapeBlock || block instanceof SteamNSteelStructureBlock)
-                return false;
-
-        return true;
+        return !(meta == nMeta && (block instanceof StructureShapeBlock || block instanceof SteamNSteelStructureBlock));
     }
 
     public void formStructure(World world, ImmutableTriple<Integer,Integer,Integer> origin, int meta, int flag)
@@ -288,7 +290,9 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             final ImmutableTriple<Integer,Integer,Integer> local = itr.next();
 
             if (!getPattern().hasBlockAt(local))
+            {
                 continue;
+            }
 
             final WorldBlockCoord blockCoord = bindLocalToGlobal(origin, local, orientation, isMirrored, getPattern().getBlockBounds());
 
@@ -298,14 +302,19 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                     blockCoord.getZ() + 0.5f, (-0.5+Math.random())*0.25f,0.05f,(-0.5+Math.random())*0.2f);
 
             if (!local.equals(ORIGIN))
+            {
                 blockCoord.setBlock(world, ModBlock.structureShape, meta, flag);
+            }
 
             final IStructureTE ssBlock = (IStructureTE) blockCoord.getTileEntity(world);
 
             if (ssBlock != null)
+            {
                 ssBlock.configureBlock(local, regHash);
-            else
+            } else
+            {
                 Logger.info("formStructure: Error te: " + local + " : " + blockCoord); //todo sub with proper error fix
+            }
         }
     }
 
@@ -347,6 +356,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
 
             for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+            {
                 if (!sd.hasBlockAt(local, d))
                 {
                     final WorldBlockCoord blockCoord = bindLocalToGlobal(
@@ -369,6 +379,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                         world.markBlockForUpdate(blockCoord.getX(), blockCoord.getY(), blockCoord.getZ());
                     }
                 }
+            }
         }
     }
 

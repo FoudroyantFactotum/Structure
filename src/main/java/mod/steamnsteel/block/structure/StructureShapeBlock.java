@@ -76,7 +76,10 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
             final ImmutableTriple<Integer, Integer, Integer> mloc = te.getMasterLocation(meta);
             final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
 
-            if (sb == null) return;
+            if (sb == null)
+            {
+                return;
+            }
 
             localToGlobalCollisionBoxes(mloc.getLeft(), mloc.getMiddle(), mloc.getRight(),
                     aabb, boundingBoxList, sb.getPattern().getCollisionBoxes(), getdecodedOrientation(meta), isMirrored(meta), sb.getPattern().getBlockBounds());
@@ -136,7 +139,9 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
             );
 
         } else
+        {
             world.setBlockToAir(x, y, z);
+        }
 
         return true;
     }

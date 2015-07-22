@@ -56,8 +56,12 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     private boolean hasOriginTE()
     {
         if (originTE.isPresent())
+        {
             if (!originTE.get().isInvalid())
+            {
                 return true;
+            }
+        }
 
         //get te and test
         final ImmutableTriple<Integer,Integer,Integer> mloc = getMasterBlockLocation();
@@ -65,11 +69,13 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
                 .getTileEntity(mloc.getLeft(), mloc.getMiddle(), mloc.getRight());
 
         if (hasNotAttemptedAcquisitionOfOriginTE && te instanceof SteamNSteelStructureTE)
+        {
             if (!te.isInvalid())
             {
                 originTE = Optional.of((SteamNSteelStructureTE) te);
                 return true;
             }
+        }
 
         hasNotAttemptedAcquisitionOfOriginTE = false;
         return false;
@@ -117,7 +123,9 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
             final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
 
             if (sb == null)
+            {
                 return ImmutableTriple.of(xCoord, yCoord, zCoord);
+            }
 
             masterLocation = Optional.of(localToGlobal(
                     local.getLeft(), local.getMiddle(), local.getRight(),
@@ -136,7 +144,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
 
         if (sb != null)
         {
-            Block block = sb.getPattern().getBlock(local.getLeft(), local.getMiddle(), local.getRight());
+            Block block = sb.getPattern().getBlock(local);
             return block == null ?
                     Blocks.air :
                     block;
@@ -155,11 +163,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
             final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
 
             return localToGlobal(
-                    sb.getPattern().getBlockMetadata(
-                            local.getLeft(),
-                            local.getMiddle(),
-                            local.getRight()
-                    ),
+                    sb.getPattern().getBlockMetadata(local),
                     getTransmutedBlock(),
                     getdecodedOrientation(meta),
                     isMirrored(meta)
@@ -213,7 +217,9 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     public int getSizeInventory()
     {
         if (hasOriginTE())
+        {
             return getOriginTE().getSizeInventory();
+        }
 
         return 0;
     }
@@ -222,7 +228,9 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     public ItemStack getStackInSlot(int slotIndex)
     {
         if (hasOriginTE())
+        {
             return getOriginTE().getStackInSlot(slotIndex);
+        }
 
         return null;
     }
@@ -231,7 +239,9 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     public ItemStack decrStackSize(int slotIndex, int decrAmount)
     {
         if (hasOriginTE())
+        {
             return getOriginTE().decrStackSize(slotIndex, decrAmount);
+        }
 
         return null;
     }
@@ -240,7 +250,9 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     public ItemStack getStackInSlotOnClosing(int slotIndex)
     {
         if (hasOriginTE())
+        {
             return getOriginTE().getStackInSlotOnClosing(slotIndex);
+        }
 
         return null;
     }
@@ -249,14 +261,18 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     public void setInventorySlotContents(int slotIndex, ItemStack itemStack)
     {
         if (hasOriginTE())
+        {
             getOriginTE().setInventorySlotContents(slotIndex, itemStack);
+        }
     }
 
     @Override
     public String getInventoryName()
     {
         if (hasOriginTE())
+        {
             return getOriginTE().getInventoryName();
+        }
 
         return "";
     }
@@ -271,7 +287,9 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     public int getInventoryStackLimit()
     {
         if (hasOriginTE())
+        {
             return getOriginTE().getInventoryStackLimit();
+        }
 
         return 0;
     }
@@ -286,14 +304,18 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     public void openInventory()
     {
         if (hasOriginTE())
+        {
             getOriginTE().openInventory();
+        }
     }
 
     @Override
     public void closeInventory()
     {
         if (hasOriginTE())
+        {
             getOriginTE().closeInventory();
+        }
     }
 
     @Override

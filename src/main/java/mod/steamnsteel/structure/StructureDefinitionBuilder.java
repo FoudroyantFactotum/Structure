@@ -19,7 +19,6 @@ import com.google.common.collect.ImmutableMap;
 import cpw.mods.fml.common.registry.GameRegistry;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.registry.StructureDefinition;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 import org.apache.commons.lang3.tuple.ImmutableTriple;
@@ -43,31 +42,45 @@ public final class StructureDefinitionBuilder
     public StructureDefinition build()
     {
         if(blocks == null)
+        {
             throw new StructureDefinitionError("Missing Blocks");
+        }
 
         if (metadata == null)
-                metadata = new byte[blocks.length][blocks[0].length][blocks[0][0].length];
+        {
+            metadata = new byte[blocks.length][blocks[0].length][blocks[0][0].length];
+        }
 
         //blocks jagged map test
         for (Block[][] b: blocks)
         {
             if (b.length != blocks[0].length)
+            {
                 throw new StructureDefinitionError("Construction map jagged");
+            }
 
             for (Block[] bb: b)
                 if (bb.length != b[0].length)
+                {
                     throw new StructureDefinitionError("Construction map jagged");
+                }
         }
 
         //metadata jagged map test
         for (byte[][] b: metadata)
         {
             if (b.length != metadata[0].length)
+            {
                 throw new StructureDefinitionError("Metadata map jagged");
+            }
 
             for (byte[] bb: b)
+            {
                 if (bb.length != b[0].length)
+                {
                     throw new StructureDefinitionError("Metadata map jagged");
+                }
+            }
         }
 
         if (blocks.length != metadata.length ||
@@ -78,7 +91,9 @@ public final class StructureDefinitionBuilder
                     "(" + metadata.length + "," +metadata[0].length+ "," + metadata[0][0].length + ")");
 
         if (toolFormPosition == null)
+        {
             throw new StructureDefinitionError("tool form location missing");
+        }
 
         return new StructureDefinition(
                 sbLayout,
@@ -143,7 +158,9 @@ public final class StructureDefinitionBuilder
             final char c = layer[local.getMiddle()][local.getRight()].charAt(local.getLeft());
 
             if (!representation.containsKey(c))
+            {
                 throw new NullPointerException("assignConstructionBlocks.Map missing " + c);
+            }
 
             blocks[local.getLeft()][local.getMiddle()][local.getRight()] = representation.get(c);
         }
@@ -178,13 +195,16 @@ public final class StructureDefinitionBuilder
             {
                 case 'M': // Master block location
                     if (masterPosition == null)
+                    {
                         masterPosition = ImmutableTriple.of(
                                 local.getLeft() + shift.getLeft(),
                                 local.getMiddle() + shift.getMiddle(),
                                 local.getRight() + shift.getRight()
                         );
-                    else
+                    } else
+                    {
                         throw new StructureDefinitionError("setConfiguration.Master position defined more then once.");
+                    }
 
                 case ' ':
                 case '-':
@@ -194,7 +214,6 @@ public final class StructureDefinitionBuilder
                     break;
                 default:
                 {
-                    Logger.info("Char: " +((int) ' ') + " : " + ((int) c));
                     throw new StructureDefinitionError("setConfiguration.Unknown char '" + c + '\'');
                 }
             }

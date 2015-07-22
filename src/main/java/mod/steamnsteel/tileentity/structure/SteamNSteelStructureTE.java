@@ -22,7 +22,6 @@ import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureSidedInventory;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
-import mod.steamnsteel.structure.registry.StructureNeighbours;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import mod.steamnsteel.utility.Orientation;
@@ -55,8 +54,6 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     private int definitionHash = -1;
 
     private Optional<AxisAlignedBB> renderBounds = Optional.absent();
-    private StructureNeighbours neighbours = StructureNeighbours.MISSING_NEIGHBOURS;
-
 
     //================================================================
     //                 S T R U C T U R E   C O N F I G
@@ -94,7 +91,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
 
         if (sb != null)
         {
-            Block block = sb.getPattern().getBlock(local.getLeft(), local.getMiddle(), local.getRight());
+            Block block = sb.getPattern().getBlock(local);
             return block == null ?
                     Blocks.air :
                     block;
@@ -113,11 +110,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
             final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
 
             return localToGlobal(
-                    sb.getPattern().getBlockMetadata(
-                            local.getLeft(),
-                            local.getMiddle(),
-                            local.getRight()
-                    ),
+                    sb.getPattern().getBlockMetadata(local),
                     getTransmutedBlock(),
                     getdecodedOrientation(meta),
                     isMirrored(meta)
@@ -217,7 +210,9 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
             SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
 
             if (sb == null)
+            {
                 return INFINITE_EXTENT_AABB;
+            }
 
             final Orientation o = getdecodedOrientation(getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord));
 
@@ -231,7 +226,6 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     public String toString()
     {
         return Objects.toStringHelper(this)
-                .add("neighbourBlocks", neighbours)
                 .add("local", local)
                 .add("renderBounds", renderBounds)
                 .add("blockPatternHash", definitionHash)

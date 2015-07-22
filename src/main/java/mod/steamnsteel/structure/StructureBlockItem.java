@@ -43,7 +43,10 @@ public class StructureBlockItem extends ItemBlock
     {
         final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) field_150939_a;
 
-        if (player == null) return false;
+        if (player == null)
+        {
+            return false;
+        }
         final Orientation o = Orientation.getdecodedOrientation(BlockDirectional.getDirection(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5)));
         final boolean isMirrored = false; //player.isSneaking(); Disabled until fix :p todo fix structure mirroring
 
@@ -65,7 +68,9 @@ public class StructureBlockItem extends ItemBlock
             final WorldBlockCoord coord = bindLocalToGlobal(mLoc, itr.next(), o, isMirrored, block.getPattern().getBlockBounds());
 
             if (!coord.isReplaceable(world))
+            {
                 return false;
+            }
         }
 
         world.setBlock(mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), block, metadata, 0x3);
