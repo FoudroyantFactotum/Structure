@@ -109,7 +109,7 @@ public class StructurePacket implements IMessage
                 block.formStructure(world, origin, meta, 0x2);
 
                 updateExternalNeighbours(world, origin, block.getPattern(), orientation, isMirrored, true);
-
+                return null;
             }
 
             TripleIterator itr = block.getPattern().getFormItr();
