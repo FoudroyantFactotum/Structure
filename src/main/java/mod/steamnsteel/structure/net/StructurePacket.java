@@ -21,6 +21,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.utility.Orientation;
@@ -29,7 +30,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
@@ -106,7 +106,7 @@ public class StructurePacket implements IMessage
             if (msg.sc == StructurePacketOption.BUILD)
             {
                 final int meta = orientation.encode() | (isMirrored ? SteamNSteelStructureBlock.flagMirrored : 0x0);
-                final ImmutableTriple<Integer, Integer, Integer> origin = ImmutableTriple.of(msg.x, msg.y, msg.z);
+                final TripleCoord origin = TripleCoord.of(msg.x, msg.y, msg.z);
 
                 world.setBlock(msg.x, msg.y, msg.z, block, meta, 0x2);
                 block.formStructure(world, origin, meta, 0x2);
@@ -119,9 +119,9 @@ public class StructurePacket implements IMessage
 
             while (itr.hasNext())
             {
-                final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
+                final TripleCoord local = itr.next();
                 final WorldBlockCoord coord = bindLocalToGlobal(
-                        ImmutableTriple.of(msg.x, msg.y, msg.z), local,
+                        TripleCoord.of(msg.x, msg.y, msg.z), local,
                         orientation, isMirrored,
                         block.getPattern().getBlockBounds()
                 );

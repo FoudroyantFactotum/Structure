@@ -16,6 +16,7 @@
 package mod.steamnsteel.structure;
 
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
@@ -26,7 +27,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
@@ -51,13 +51,13 @@ public class StructureBlockItem extends ItemBlock
         final boolean isMirrored = false; //player.isSneaking(); Disabled until fix :p todo fix structure mirroring
 
         //find master block location
-        final ImmutableTriple<Integer, Integer, Integer> hSize = block.getPattern().getHalfBlockBounds();
-        final ImmutableTriple<Integer, Integer, Integer> ml = block.getPattern().getMasterLocation();
+        final TripleCoord hSize = block.getPattern().getHalfBlockBounds();
+        final TripleCoord ml = block.getPattern().getMasterLocation();
 
-        ImmutableTriple<Integer, Integer, Integer> mLoc
+        TripleCoord mLoc
                 = localToGlobal(
-                -hSize.getLeft() - ml.getLeft(), ml.getMiddle(), -hSize.getRight() - ml.getRight(),
-                x, y, z,
+                -hSize.x - ml.x, ml.y, -hSize.z - ml.z,
+                x,               y,    z,
                 o, isMirrored, block.getPattern().getBlockBounds());
 
         //check block locations
@@ -73,9 +73,9 @@ public class StructureBlockItem extends ItemBlock
             }
         }
 
-        world.setBlock(mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), block, metadata, 0x3);
-        block.onBlockPlacedBy(world, mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), player, stack);
-        block.onPostBlockPlaced(world, mLoc.getLeft(), mLoc.getMiddle(), mLoc.getRight(), world.getBlockMetadata(x,y,z));
+        world.setBlock(mLoc.x, mLoc.y, mLoc.z, block, metadata, 0x3);
+        block.onBlockPlacedBy(world, mLoc.x, mLoc.y, mLoc.z, player, stack);
+        block.onPostBlockPlaced(world, mLoc.x, mLoc.y, mLoc.z, world.getBlockMetadata(x,y,z));
 
         return true;
     }

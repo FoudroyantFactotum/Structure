@@ -18,11 +18,11 @@ package mod.steamnsteel.tileentity.structure;
 
 import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.inventory.Inventory;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public class BallMillTE extends SteamNSteelStructureTE
 {//TODO complete class
@@ -127,19 +127,19 @@ public class BallMillTE extends SteamNSteelStructureTE
     }
 
     @Override
-    public boolean canStructureInsertItem(int slot, ItemStack item, int side, ImmutableTriple<Integer, Integer, Integer> blockID)
+    public boolean canStructureInsertItem(int slot, ItemStack item, int side, TripleCoord blockID)
     {
         return true;
     }
 
     @Override
-    public boolean canStructureExtractItem(int slot, ItemStack item, int side, ImmutableTriple<Integer, Integer, Integer> blockID)
+    public boolean canStructureExtractItem(int slot, ItemStack item, int side, TripleCoord blockID)
     {
         return true;
     }
 
     @Override
-    public int[] getAccessibleSlotsFromStructureSide(int side, ImmutableTriple<Integer, Integer, Integer> blockID)
+    public int[] getAccessibleSlotsFromStructureSide(int side, TripleCoord blockID)
     {
         return new int[0];
     }

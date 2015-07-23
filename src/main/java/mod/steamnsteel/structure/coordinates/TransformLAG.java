@@ -27,7 +27,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.oredict.OreDictionary;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.List;
 
@@ -89,23 +88,23 @@ public final class TransformLAG
     };
 
     //from external with local to master
-    public static ImmutableTriple<Integer, Integer, Integer> localToGlobal(int lx, int ly, int lz,
+    public static TripleCoord localToGlobal(int lx, int ly, int lz,
                                                                            int gx, int gy, int gz,
                                                                            Orientation o, boolean ismirrored,
-                                                                           ImmutableTriple<Integer,Integer,Integer> strucSize)
+                                                                           TripleCoord strucSize)
     {
         final int rotIndex = o.encode();
 
         if (ismirrored)
         {
             lz *= -1;
-            if (strucSize.getRight() % 2 == 0) ++lz;
+            if (strucSize.z % 2 == 0) ++lz;
         }
 
         final int rx = rotationMatrix[rotIndex][0][0] * lx + rotationMatrix[rotIndex][0][1] * lz;
         final int rz = rotationMatrix[rotIndex][1][0] * lx + rotationMatrix[rotIndex][1][1] * lz;
 
-        return ImmutableTriple.of(
+        return TripleCoord.of(
                 gx + rx,
                 gy + ly,
                 gz + rz
@@ -150,7 +149,7 @@ public final class TransformLAG
     }
 
     //collision boxes
-    public static void localToGlobalCollisionBoxes(int x, int y, int z, AxisAlignedBB aabb, List<AxisAlignedBB> boundingBoxList, float[][] collB, Orientation o, boolean isMirrored, ImmutableTriple<Integer, Integer, Integer> size)
+    public static void localToGlobalCollisionBoxes(int x, int y, int z, AxisAlignedBB aabb, List<AxisAlignedBB> boundingBoxList, float[][] collB, Orientation o, boolean isMirrored, TripleCoord size)
     {
         final int[][] matrix = rotationMatrix[o.encode()];
 
@@ -185,20 +184,20 @@ public final class TransformLAG
     }
 
     //Bounding box
-    public static AxisAlignedBB localToGlobalBoundingBox(int gx, int gy, int gz, ImmutableTriple<Integer, Integer, Integer> local, StructureDefinition sd, Orientation o, boolean ismirrored)
+    public static AxisAlignedBB localToGlobalBoundingBox(int gx, int gy, int gz, TripleCoord local, StructureDefinition sd, Orientation o, boolean ismirrored)
     {
-        final int l_lbx = local.getLeft()   - sd.getMasterLocation().getLeft();
-        final int l_lby = local.getMiddle() - sd.getMasterLocation().getMiddle();
-        final int l_lbz = local.getRight()  - sd.getMasterLocation().getRight();
+        final int l_lbx = local.x - sd.getMasterLocation().x;
+        final int l_lby = local.y - sd.getMasterLocation().y;
+        final int l_lbz = local.z - sd.getMasterLocation().z;
 
-        final int l_ubx = local.getLeft()   + sd.getBlockBounds().getLeft();
-        final int l_uby = local.getMiddle() + sd.getBlockBounds().getMiddle();
-        final int l_ubz = local.getRight()  + sd.getBlockBounds().getRight();
+        final int l_ubx = local.x + sd.getBlockBounds().x;
+        final int l_uby = local.y + sd.getBlockBounds().y;
+        final int l_ubz = local.z + sd.getBlockBounds().z;
 
-        final ImmutableTriple<Integer, Integer, Integer> lb
+        final TripleCoord lb
                 = localToGlobal(l_lbx, l_lby, l_lbz, gx, gy, gz, o, ismirrored, sd.getBlockBounds());
 
-        final ImmutableTriple<Integer, Integer, Integer> ub
+        final TripleCoord ub
                 = localToGlobal(l_ubx, l_uby, l_ubz, gx, gy, gz, o, ismirrored, sd.getBlockBounds());
 
         final int[][] matrix = rotationMatrix[o.encode()];
@@ -210,8 +209,8 @@ public final class TransformLAG
         final int tz = matrix[1][0] * ntx + matrix[1][1] * ntz;
 
         return AxisAlignedBB.getBoundingBox(
-                lb.getLeft() + tx, lb.getMiddle(), lb.getRight() + tz,
-                ub.getLeft() + tx, ub.getMiddle(), ub.getRight() + tz
+                lb.x + tx, lb.y, lb.z + tz,
+                ub.x + tx, ub.y, ub.z + tz
         );
     }
 }

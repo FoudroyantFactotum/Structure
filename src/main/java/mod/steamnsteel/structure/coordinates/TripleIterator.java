@@ -1,7 +1,5 @@
 package mod.steamnsteel.structure.coordinates;
 
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -9,7 +7,7 @@ import java.util.NoSuchElementException;
  * This class is used as the basis of all iteration through out the structure. It allows the iteration over all the
  * values (designed in this case for (x,y,z))
  */
-public class TripleIterator implements Iterator<ImmutableTriple<Integer, Integer, Integer>>
+public class TripleIterator implements Iterator<TripleCoord>
 {
     private int layerNo, depthNo, rowNo;
     private int layerNoU, depthNoU, rowNoU;
@@ -83,15 +81,14 @@ public class TripleIterator implements Iterator<ImmutableTriple<Integer, Integer
     }
 
     @Override
-    public ImmutableTriple<Integer, Integer, Integer> next()
+    public TripleCoord next()
     {
         if (!hasNext())
         {
             throw new NoSuchElementException();
         }
 
-        final ImmutableTriple<Integer, Integer, Integer> res =
-                ImmutableTriple.of(rowNo, layerNo, depthNo);
+        final TripleCoord res = TripleCoord.of(rowNo,layerNo,depthNo);
 
         shiftReadHead();
 

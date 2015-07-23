@@ -20,12 +20,12 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
@@ -44,7 +44,7 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, ImmutableTriple<Integer, Integer, Integer> coord, float sx, float sy, float sz)
+    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, TripleCoord coord, float sx, float sy, float sz)
     {
         /*final int x = coord.getX();
         final int y = coord.getY();
@@ -110,9 +110,9 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
                 }
         );
 
-        builder.assignToolFormPosition(ImmutableTriple.of(1,1,2));
+        builder.assignToolFormPosition(TripleCoord.of(1,1,2));
 
-        builder.setConfiguration(ImmutableTriple.of(0, 0, 0),
+        builder.setConfiguration(TripleCoord.of(0, 0, 0),
                 new String[]{
                         "M--",
                         "---",

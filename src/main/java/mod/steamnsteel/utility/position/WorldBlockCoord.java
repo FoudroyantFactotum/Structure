@@ -17,6 +17,7 @@
 package mod.steamnsteel.utility.position;
 
 import com.google.common.base.Objects;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import net.minecraft.block.Block;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.IBlockAccess;
@@ -39,6 +40,8 @@ public class WorldBlockCoord implements Comparable<WorldBlockCoord>
     public static WorldBlockCoord of(int x, int y, int z) { return new WorldBlockCoord(x, y, z); }
 
     public static WorldBlockCoord of(ImmutableTriple<Integer,Integer,Integer> data) { return new WorldBlockCoord(data); }
+
+    public static WorldBlockCoord of(TripleCoord data) {return new WorldBlockCoord(ImmutableTriple.of(data.x, data.y, data.z));}
 
     public int getX() { return data.left; }
 

@@ -20,6 +20,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelMachineBlock;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.structure.StructureShapeTE;
 import net.minecraft.block.Block;
@@ -32,7 +33,6 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.IIcon;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.List;
 import java.util.Random;
@@ -73,7 +73,7 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
         if (te != null)
         {
             final int meta = world.getBlockMetadata(x, y, z);
-            final ImmutableTriple<Integer, Integer, Integer> mloc = te.getMasterLocation(meta);
+            final TripleCoord mloc = te.getMasterLocation(meta);
             final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
 
             if (sb == null)
@@ -81,7 +81,7 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
                 return;
             }
 
-            localToGlobalCollisionBoxes(mloc.getLeft(), mloc.getMiddle(), mloc.getRight(),
+            localToGlobalCollisionBoxes(mloc.x, mloc.y, mloc.z,
                     aabb, boundingBoxList, sb.getPattern().getCollisionBoxes(), getdecodedOrientation(meta), isMirrored(meta), sb.getPattern().getBlockBounds());
         }
     }
@@ -104,8 +104,8 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
 
             if (block != null)
             {
-                final ImmutableTriple<Integer, Integer, Integer> mloc = te.getMasterLocation(meta);
-                return block.addDestroyEffects(world, mloc.getLeft(), mloc.getMiddle(), mloc.getRight(), meta, effectRenderer);
+                final TripleCoord mloc = te.getMasterLocation(meta);
+                return block.addDestroyEffects(world, mloc.x, mloc.y, mloc.z, meta, effectRenderer);
             }
         }
 
@@ -158,9 +158,9 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
             if (block != null)
             {
                 final int meta = world.getBlockMetadata(x, y, z);
-                final ImmutableTriple<Integer, Integer, Integer> mloc = te.getMasterLocation(meta);
+                final TripleCoord mloc = te.getMasterLocation(meta);
 
-                return block.onStructureBlockActivated(world, mloc.getLeft(), mloc.getMiddle(), mloc.getRight(), player, meta, sx, sy, sz, te.getLocal(), x, y, z);
+                return block.onStructureBlockActivated(world, mloc.x, mloc.y, mloc.z, player, meta, sx, sy, sz, te.getLocal(), x, y, z);
             }
         }
 

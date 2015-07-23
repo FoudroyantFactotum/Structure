@@ -22,6 +22,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureSidedInventory;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import mod.steamnsteel.utility.Orientation;
@@ -33,14 +34,11 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.ORIGIN;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
-import static mod.steamnsteel.structure.registry.StructureDefinition.dehashLoc;
-import static mod.steamnsteel.structure.registry.StructureDefinition.hashLoc;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, IStructureSidedInventory
@@ -50,7 +48,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     static final String BLOCK_INFO = "blockINFO";
     static final String BLOCK_PATTERN_NAME = "blockPatternHash";
 
-    private ImmutableTriple<Integer, Integer, Integer> local = ORIGIN;
+    private TripleCoord local = ORIGIN;
     private int definitionHash = -1;
 
     private Optional<AxisAlignedBB> renderBounds = Optional.absent();
@@ -66,9 +64,9 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     }
 
     @Override
-    public ImmutableTriple<Integer,Integer,Integer> getMasterLocation(int meta)
+    public TripleCoord getMasterLocation(int meta)
     {
-        return ImmutableTriple.of(xCoord, yCoord, zCoord);
+        return TripleCoord.of(xCoord, yCoord, zCoord);
     }
 
     @Override
@@ -78,7 +76,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     }
 
     @Override
-    public void configureBlock(ImmutableTriple<Integer, Integer, Integer> local, int definitionHash)
+    public void configureBlock(TripleCoord local, int definitionHash)
     {
         this.definitionHash = definitionHash;
         this.local = local;
@@ -121,19 +119,9 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     }
 
     @Override
-    public ImmutableTriple<Integer, Integer, Integer> getLocal()
+    public TripleCoord getLocal()
     {
         return local;
-    }
-
-
-    public int getHashedLocal()
-    {
-        return hashLoc(
-                local.getLeft(),
-                local.getMiddle(),
-                local.getRight()
-        );
     }
 
     //================================================================
@@ -185,7 +173,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         final int blockInfo = nbt.getInteger(BLOCK_INFO);
         definitionHash = nbt.getInteger(BLOCK_PATTERN_NAME);
 
-        local = dehashLoc(blockInfo & maskBlockID);
+        local = TripleCoord.dehashLoc(blockInfo & maskBlockID);
     }
 
     @Override
@@ -193,7 +181,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         super.writeToNBT(nbt);
 
-        nbt.setInteger(BLOCK_INFO, getHashedLocal());
+        nbt.setInteger(BLOCK_INFO, local.hashCode());
         nbt.setInteger(BLOCK_PATTERN_NAME, definitionHash);
     }
 

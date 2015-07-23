@@ -23,6 +23,7 @@ import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.structure.IStructure.IPatternHolder;
 import mod.steamnsteel.structure.IStructure.IStructureAspects;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.net.StructurePacket;
 import mod.steamnsteel.structure.net.StructurePacketOption;
@@ -45,7 +46,6 @@ import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.List;
 import java.util.Random;
@@ -57,7 +57,7 @@ import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock implements IPatternHolder, IStructureAspects, ITileEntityProvider
 {
-    public static final ImmutableTriple<Integer,Integer,Integer> ORIGIN = ImmutableTriple.of(0,0,0);
+    public static final TripleCoord ORIGIN = TripleCoord.of(0,0,0);
     public static final int flagMirrored = 1 << 2;
     public static final int maskMeta = 0x7;
 
@@ -89,7 +89,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             world.setBlockMetadataWithNotify(x, y, z, meta, 0x2);
         }
 
-        formStructure(world, ImmutableTriple.of(x,y,z),meta, 0x2);
+        formStructure(world, TripleCoord.of(x,y,z),meta, 0x2);
     }
 
     @Override
@@ -98,7 +98,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         final Orientation orientation = getdecodedOrientation(meta);
         final boolean isMirrored = isMirrored(meta);
 
-        updateExternalNeighbours(world,ImmutableTriple.of(x,y,z), getPattern(), orientation, isMirrored, false);
+        updateExternalNeighbours(world,TripleCoord.of(x,y,z), getPattern(), orientation, isMirrored, false);
     }
 
     @Override
@@ -116,7 +116,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
         if (te != null)
         {
-            final ImmutableTriple<Integer, Integer, Integer> origin = ImmutableTriple.of(x,y,z);
+            final TripleCoord origin = TripleCoord.of(x,y,z);
 
             breakStructure(world, origin, getPattern(), getdecodedOrientation(meta), isMirrored(meta), isPlayerCreative);
             updateExternalNeighbours(world, origin, getPattern(), getdecodedOrientation(meta), isMirrored(meta), false);
@@ -149,7 +149,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     }
 
     @Override
-    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, ImmutableTriple<Integer, Integer, Integer> sbID, int sbx, int sby, int sbz)
+    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, TripleCoord sbID, int sbx, int sby, int sbz)
     {
         return false;
     }
@@ -170,7 +170,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
             while (itr.hasNext())
             {
-                final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
+                final TripleCoord local = itr.next();
 
                 //outward Vector
                 float xSpeed = 0.0f;
@@ -189,9 +189,9 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                     }
                 }
 
-                final ImmutableTriple<Integer, Integer, Integer> global = localToGlobal(
-                        local.getLeft(), local.getMiddle(), local.getRight(),
-                        x,               y,                  z,
+                final TripleCoord global = localToGlobal(
+                        local.x, local.y, local.z,
+                        x,       y,       z,
                         o, isMirrored, getPattern().getBlockBounds());
 
                 spawnBreakParticle(world, te, global, xSpeed * scaleVec, ySpeed * scaleVec, zSpeed * scaleVec);
@@ -202,7 +202,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     }
 
     @SideOnly(Side.CLIENT)
-    public abstract void spawnBreakParticle(World world, SteamNSteelStructureTE te, ImmutableTriple<Integer, Integer, Integer> coord, float sx, float sy, float sz);
+    public abstract void spawnBreakParticle(World world, SteamNSteelStructureTE te, TripleCoord coord, float sx, float sy, float sz);
 
     @Override
     @SideOnly(Side.CLIENT)
@@ -279,7 +279,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         return !(meta == nMeta && (block instanceof StructureShapeBlock || block instanceof SteamNSteelStructureBlock));
     }
 
-    public void formStructure(World world, ImmutableTriple<Integer,Integer,Integer> origin, int meta, int flag)
+    public void formStructure(World world, TripleCoord origin, int meta, int flag)
     {
         final TripleIterator itr = getPattern().getFormItr();
         final Orientation orientation = getdecodedOrientation(meta);
@@ -287,7 +287,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
         while (itr.hasNext())
         {
-            final ImmutableTriple<Integer,Integer,Integer> local = itr.next();
+            final TripleCoord local = itr.next();
 
             if (!getPattern().hasBlockAt(local))
             {
@@ -318,13 +318,13 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         }
     }
 
-    public static void breakStructure(World world, ImmutableTriple<Integer, Integer, Integer> origin, StructureDefinition sd, Orientation orientation, boolean isMirrored, boolean isCreative)
+    public static void breakStructure(World world, TripleCoord origin, StructureDefinition sd, Orientation orientation, boolean isMirrored, boolean isCreative)
     {
         TripleIterator itr = sd.getFormItr();
 
         while (itr.hasNext())
         {
-            final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
+            final TripleCoord local = itr.next();
             final WorldBlockCoord blockCoord = bindLocalToGlobal(origin, local, orientation, isMirrored, sd.getBlockBounds());
 
             final Block worldBlock = blockCoord.getBlock(world);
@@ -332,7 +332,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             if (worldBlock instanceof StructureShapeBlock || worldBlock instanceof SteamNSteelStructureBlock)
             {
                 final Block block = sd.getBlock(local);
-                final int meta = sd.getBlockMetadata(local.getLeft(), local.getMiddle(), local.getRight());
+                final int meta = sd.getBlockMetadata(local.x, local.y, local.z);
 
                 blockCoord.setBlock(world,
                         block == null? Blocks.air : block,
@@ -342,28 +342,26 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 world.removeTileEntity(blockCoord.getX(), blockCoord.getY(), blockCoord.getZ());
             }
         }
-
-
     }
 
-    public static void updateExternalNeighbours(World world, ImmutableTriple<Integer, Integer, Integer> origin, StructureDefinition sd, Orientation orientation, boolean isMirrored, boolean notifyBlocks)
+    public static void updateExternalNeighbours(World world, TripleCoord origin, StructureDefinition sd, Orientation orientation, boolean isMirrored, boolean notifyBlocks)
     {
         //neighbour update
         TripleIterator itr = sd.getFormItr();
 
         while (itr.hasNext())
         {
-            final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
+            final TripleCoord local = itr.next();
 
             for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
             {
                 if (!sd.hasBlockAt(local, d))
                 {
                     final WorldBlockCoord blockCoord = bindLocalToGlobal(
-                            origin, ImmutableTriple.of(
-                                    local.getLeft() + d.offsetX,
-                                    local.getMiddle() + d.offsetY,
-                                    local.getRight() + d.offsetZ),
+                            origin, TripleCoord.of(
+                                    local.x + d.offsetX,
+                                    local.y + d.offsetY,
+                                    local.z + d.offsetZ),
                             orientation, isMirrored, sd.getBlockBounds()
                     );
 
@@ -384,15 +382,15 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     }
 
     public static WorldBlockCoord bindLocalToGlobal(
-            ImmutableTriple<Integer,Integer,Integer> origin,
-            ImmutableTriple<Integer,Integer,Integer> local,
+            TripleCoord origin,
+            TripleCoord local,
             Orientation o, boolean isMirrored,
-            ImmutableTriple<Integer,Integer,Integer> structureSize)
+            TripleCoord structureSize)
     {
         return WorldBlockCoord.of(
                 localToGlobal(
-                        local .getLeft(),local.getMiddle(),local .getRight(),
-                        origin.getLeft(),origin.getMiddle(),origin.getRight(),
+                        local .x,local .y,local .z,
+                        origin.x,origin.y,origin.z,
                         o, isMirrored, structureSize)
         );
     }

@@ -16,8 +16,8 @@
 package mod.steamnsteel.structure.IStructure;
 
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import net.minecraft.block.Block;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public interface IStructureTE
 {
@@ -26,8 +26,8 @@ public interface IStructureTE
 
     int getRegHash();
     SteamNSteelStructureBlock getMasterBlockInstance();
-    ImmutableTriple<Integer,Integer,Integer> getMasterLocation(int meta);
+    TripleCoord getMasterLocation(int meta);
 
-    void configureBlock(ImmutableTriple<Integer, Integer, Integer> local, int patternHash);
-    ImmutableTriple<Integer, Integer, Integer> getLocal();
+    void configureBlock(TripleCoord local, int patternHash);
+    TripleCoord getLocal();
 }

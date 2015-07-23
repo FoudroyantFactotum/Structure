@@ -16,12 +16,12 @@
 package mod.steamnsteel.structure.IStructure;
 
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public interface IStructureAspects
 {
     StructureDefinitionBuilder getStructureBuild();
-    boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float sx, float sy, float sz, ImmutableTriple<Integer, Integer, Integer> sbID, int sbx, int sby, int sbz);
+    boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int meta, float sx, float sy, float sz, TripleCoord sbID, int sbx, int sby, int sbz);
 }

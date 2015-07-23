@@ -19,6 +19,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.item.tool.SSToolShovel;
 import mod.steamnsteel.library.Material;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.net.StructurePacket;
 import mod.steamnsteel.structure.net.StructurePacketOption;
@@ -30,7 +31,6 @@ import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.updateExternalNeighbours;
@@ -54,13 +54,13 @@ public class BuildFormTool extends SSToolShovel
             {
                 final int meta = result.orientation.encode() | (result.isMirrored ? SteamNSteelStructureBlock.flagMirrored : 0x0);
 
-                world.setBlock(result.origin.getLeft(), result.origin.getMiddle(), result.origin.getRight(), result.block, meta, 0x2);
+                world.setBlock(result.origin.x, result.origin.y, result.origin.z, result.block, meta, 0x2);
                 result.block.formStructure(world, result.origin, meta, 0x2);
 
                 updateExternalNeighbours(world, result.origin, result.block.getPattern(), result.orientation, result.isMirrored, true);
 
                 ModNetwork.network.sendToAllAround(
-                        new StructurePacket(result.origin.getLeft(), result.origin.getMiddle(), result.origin.getRight(),
+                        new StructurePacket(result.origin.x, result.origin.y, result.origin.z,
                                 result.block.getRegHash(), result.orientation, result.isMirrored,
                                 StructurePacketOption.BUILD),
                         new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
@@ -79,18 +79,18 @@ public class BuildFormTool extends SSToolShovel
         {
             final StructureDefinition sd = ssBlock.getPattern();
 
-            final ImmutableTriple<Integer, Integer, Integer> tl = sd.getToolFormLocation();
-            final ImmutableTriple<Integer, Integer, Integer> t2 = sd.getMasterLocation();
+            final TripleCoord tl = sd.getToolFormLocation();
+            final TripleCoord t2 = sd.getMasterLocation();
 
             //todo also search mirrored (currently disabled)
             //every Direction nsew
             nextOrientation:
             for (Orientation o : Orientation.values())
             {
-                final ImmutableTriple<Integer,Integer,Integer> origin =
+                final TripleCoord origin =
                         localToGlobal(
-                                -tl.getLeft() - t2.getLeft(), -tl.getMiddle() - t2.getMiddle(), -tl.getRight() - t2 .getRight(),
-                                x, y, z,
+                                -tl.x - t2.x, -tl.y - t2.y, -tl.z - t2.z,
+                                x,            y,            z,
                                 o, false, sd.getBlockBounds()
                         );
 
@@ -98,7 +98,7 @@ public class BuildFormTool extends SSToolShovel
 
                 while (itr.hasNext())
                 {
-                    final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
+                    final TripleCoord local = itr.next();
                     final WorldBlockCoord coord = bindLocalToGlobal(origin, local, o, false, sd.getBlockBounds());
 
                     if (sd.getBlock(local) == null || sd.getBlock(local) != coord.getBlock(world))
@@ -128,6 +128,6 @@ public class BuildFormTool extends SSToolShovel
         public SteamNSteelStructureBlock block;
         public Orientation orientation;
         public boolean isMirrored;
-        public ImmutableTriple<Integer, Integer, Integer> origin;
+        public TripleCoord origin;
     }
 }

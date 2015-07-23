@@ -18,13 +18,13 @@ package mod.steamnsteel.tileentity.structure;
 import com.google.common.base.Objects;
 import mod.steamnsteel.block.structure.BlastFurnaceBlock;
 import mod.steamnsteel.inventory.Inventory;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.Vec3;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public class BlastFurnaceTE extends SteamNSteelStructureTE
 {//TODO complete class
@@ -135,19 +135,19 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     }
 
     @Override
-    public boolean canStructureInsertItem(int slot, ItemStack item, int side, ImmutableTriple<Integer, Integer, Integer> blockID)
+    public boolean canStructureInsertItem(int slot, ItemStack item, int side, TripleCoord blockID)
     {
         return false;
     }
 
     @Override
-    public boolean canStructureExtractItem(int slot, ItemStack item, int side, ImmutableTriple<Integer, Integer, Integer> blockID)
+    public boolean canStructureExtractItem(int slot, ItemStack item, int side, TripleCoord blockID)
     {
         return false;
     }
 
     @Override
-    public int[] getAccessibleSlotsFromStructureSide(int side, ImmutableTriple<Integer, Integer, Integer> blockID)
+    public int[] getAccessibleSlotsFromStructureSide(int side, TripleCoord blockID)
     {
         return new int[0];
     }

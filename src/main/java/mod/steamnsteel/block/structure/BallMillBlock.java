@@ -20,6 +20,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.log.Logger;
@@ -27,7 +28,6 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
@@ -45,11 +45,11 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, ImmutableTriple<Integer, Integer, Integer> coord, float sx, float sy, float sz)
+    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, TripleCoord coord, float sx, float sy, float sz)
     {
-        final float x = coord.getLeft() + 0.5f;
-        final float y = coord.getMiddle() + 0.5f;
-        final float z = coord.getRight() + 0.5f;
+        final float x = coord.x + 0.5f;
+        final float y = coord.y + 0.5f;
+        final float z = coord.z + 0.5f;
 
         for (int i = 0; i < 1; ++i)
         {
@@ -66,7 +66,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
     }
 
     @Override
-    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, ImmutableTriple<Integer, Integer, Integer> sbID, int sbx, int sby, int sbz)
+    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, TripleCoord sbID, int sbx, int sby, int sbz)
     {
         Logger.info("Items: " + world.getTileEntity(x, y, z));
         return false;
@@ -93,9 +93,9 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
                 }
         );
 
-        builder.assignToolFormPosition(ImmutableTriple.of(2,1,1));
+        builder.assignToolFormPosition(TripleCoord.of(2,1,1));
 
-        builder.setConfiguration(ImmutableTriple.of(0,0,0),
+        builder.setConfiguration(TripleCoord.of(0,0,0),
                 new String[]{
                         "M----",
                         "-----"

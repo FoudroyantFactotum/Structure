@@ -17,11 +17,11 @@ package mod.steamnsteel.structure;
 
 import com.google.common.collect.ImmutableMap;
 import cpw.mods.fml.common.registry.GameRegistry;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.BitSet;
 
@@ -30,10 +30,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class StructureDefinitionBuilder
 {
     private BitSet sbLayout;
-    private ImmutableTriple<Integer, Integer, Integer> sbLayoutSize;
+    private TripleCoord sbLayoutSize;
 
-    private ImmutableTriple<Integer,Integer,Integer> masterPosition;
-    private ImmutableTriple<Integer,Integer,Integer> toolFormPosition;
+    private TripleCoord masterPosition;
+    private TripleCoord toolFormPosition;
 
     private Block[][][] blocks;
     private byte[][][] metadata;
@@ -154,15 +154,15 @@ public final class StructureDefinitionBuilder
 
         while (itr.hasNext())
         {
-            final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
-            final char c = layer[local.getMiddle()][local.getRight()].charAt(local.getLeft());
+            final TripleCoord local = itr.next();
+            final char c = layer[local.y][local.z].charAt(local.x);
 
             if (!representation.containsKey(c))
             {
                 throw new NullPointerException("assignConstructionBlocks.Map missing " + c);
             }
 
-            blocks[local.getLeft()][local.getMiddle()][local.getRight()] = representation.get(c);
+            blocks[local.x][local.y][local.z] = representation.get(c);
         }
     }
 
@@ -175,31 +175,31 @@ public final class StructureDefinitionBuilder
      * @param shift translation of S(C).origin to S(F).origin
      * @param layer
      */
-    public void setConfiguration(ImmutableTriple<Integer, Integer, Integer> shift, String[]... layer)
+    public void setConfiguration(TripleCoord shift, String[]... layer)
     {
         final int xsz = layer[0][0].length();
         final int ysz = layer.length;
         final int zsz = layer[0].length;
 
-        sbLayoutSize = ImmutableTriple.of(xsz, ysz, zsz);
+        sbLayoutSize = TripleCoord.of(xsz, ysz, zsz);
         sbLayout = new BitSet(xsz * ysz *zsz);
 
         final TripleIterator itr = new TripleIterator(xsz, ysz, zsz);
 
         while (itr.hasNext())
         {
-            final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
-            final char c = Character.toUpperCase(layer[local.getMiddle()][local.getRight()].charAt(local.getLeft()));
+            final TripleCoord local = itr.next();
+            final char c = Character.toUpperCase(layer[local.y][local.z].charAt(local.x));
 
             switch (c)
             {
                 case 'M': // Master block location
                     if (masterPosition == null)
                     {
-                        masterPosition = ImmutableTriple.of(
-                                local.getLeft() + shift.getLeft(),
-                                local.getMiddle() + shift.getMiddle(),
-                                local.getRight() + shift.getRight()
+                        masterPosition = TripleCoord.of(
+                                local.x + shift.x,
+                                local.y + shift.y,
+                                local.z + shift.z
                         );
                     } else
                     {
@@ -209,7 +209,7 @@ public final class StructureDefinitionBuilder
                 case ' ':
                 case '-':
                     sbLayout.set(
-                            local.getLeft() + local.getRight() * xsz + local.getMiddle() *zsz*xsz,
+                            local.x + local.z * xsz + local.y *zsz*xsz,
                             c != ' ');
                     break;
                 default:
@@ -236,17 +236,17 @@ public final class StructureDefinitionBuilder
 
         while (itr.hasNext())
         {
-            final ImmutableTriple<Integer, Integer, Integer> local = itr.next();
+            final TripleCoord local = itr.next();
 
-            metadata[local.getLeft()][local.getMiddle()][local.getRight()]
+            metadata[local.x][local.y][local.z]
                     = Byte.parseByte(
-                        String.valueOf(layer[local.getMiddle()][local.getRight()].charAt(local.getLeft())),
+                        String.valueOf(layer[local.y][local.z].charAt(local.x)),
                         16);
         }
 
     }
 
-    public void assignToolFormPosition(ImmutableTriple<Integer, Integer, Integer> toolFormPosition)
+    public void assignToolFormPosition(TripleCoord toolFormPosition)
     {
         this.toolFormPosition = toolFormPosition;
     }

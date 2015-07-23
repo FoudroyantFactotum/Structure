@@ -16,10 +16,10 @@
 package mod.steamnsteel.structure.registry;
 
 import com.google.common.base.Objects;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import net.minecraft.block.Block;
 import net.minecraftforge.common.util.ForgeDirection;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -52,11 +52,11 @@ import java.util.BitSet;
 public class StructureDefinition
 {
     private BitSet sbLayout;
-    private ImmutableTriple<Integer, Integer, Integer> sbLayoutSize;
-    private ImmutableTriple<Integer, Integer, Integer> sbLayoutSizeHlf;
+    private TripleCoord sbLayoutSize;
+    private TripleCoord sbLayoutSizeHlf;
 
-    private ImmutableTriple<Integer,Integer,Integer> masterPosition;
-    private ImmutableTriple<Integer,Integer,Integer> toolFormPosition;
+    private TripleCoord masterPosition;
+    private TripleCoord toolFormPosition;
 
     private Block[][][] blocks;
     private byte[][][] metadata;
@@ -68,9 +68,9 @@ public class StructureDefinition
     }
 
     public StructureDefinition(BitSet sbLayout,
-                               ImmutableTriple<Integer, Integer, Integer> sbLayoutSize,
-                               ImmutableTriple<Integer,Integer,Integer> masterPosition,
-                               ImmutableTriple<Integer,Integer,Integer> toolFormPosition,
+                               TripleCoord sbLayoutSize,
+                               TripleCoord masterPosition,
+                               TripleCoord toolFormPosition,
 
                                Block[][][] blocks,
                                byte[][][] metadata,
@@ -86,33 +86,33 @@ public class StructureDefinition
         this.metadata = metadata;
         this.collisionBoxes = collisionBoxes;
 
-        sbLayoutSizeHlf = ImmutableTriple.of(
-                sbLayoutSize.getLeft()/2,
-                sbLayoutSize.getMiddle()/2,
-                sbLayoutSize.getRight()/2);
+        sbLayoutSizeHlf = TripleCoord.of(
+                sbLayoutSize.x/2,
+                sbLayoutSize.y/2,
+                sbLayoutSize.z/2);
     }
 
-    public boolean hasBlockAt(ImmutableTriple<Integer, Integer, Integer> loc, ForgeDirection d) { return hasBlockAt(loc.getLeft() + d.offsetX, loc.getMiddle() + d.offsetY, loc.getRight() + d.offsetZ);}
-    public boolean hasBlockAt(ImmutableTriple<Integer, Integer, Integer> loc) { return hasBlockAt(loc.getLeft(), loc.getMiddle(), loc.getRight());}
+    public boolean hasBlockAt(TripleCoord loc, ForgeDirection d) { return hasBlockAt(loc.x + d.offsetX, loc.y + d.offsetY, loc.z + d.offsetZ);}
+    public boolean hasBlockAt(TripleCoord loc) { return hasBlockAt(loc.x, loc.y, loc.z);}
     public boolean hasBlockAt(int x, int y, int z)
     {
-        x = x + masterPosition.getLeft();
-        y = y + masterPosition.getMiddle();
-        z = z + masterPosition.getRight();
+        x = x + masterPosition.x;
+        y = y + masterPosition.y;
+        z = z + masterPosition.z;
 
-        return  x < sbLayoutSize.getLeft() && x > -1 &&
-                y < sbLayoutSize.getMiddle() && y > -1 &&
-                z < sbLayoutSize.getRight() && z > -1 &&
-                sbLayout.get(y * sbLayoutSize.getRight() * sbLayoutSize.getLeft() + z * sbLayoutSize.getLeft() + x);
+        return  x < sbLayoutSize.x && x > -1 &&
+                y < sbLayoutSize.y && y > -1 &&
+                z < sbLayoutSize.z && z > -1 &&
+                sbLayout.get(y * sbLayoutSize.z * sbLayoutSize.x + z * sbLayoutSize.x + x);
 
     }
 
-    public Block getBlock(ImmutableTriple<Integer, Integer, Integer> loc) { return getBlock(loc.getLeft(), loc.getMiddle(), loc.getRight());}
+    public Block getBlock(TripleCoord loc) { return getBlock(loc.x, loc.y, loc.z);}
     public Block getBlock(int x, int y, int z)
     {
-        x = x + masterPosition.getLeft();
-        y = y + masterPosition.getMiddle();
-        z = z + masterPosition.getRight();
+        x = x + masterPosition.x;
+        y = y + masterPosition.y;
+        z = z + masterPosition.z;
 
         if (blocks.length > x        &&
                 blocks[x].length > y &&
@@ -122,12 +122,12 @@ public class StructureDefinition
         return null;
     }
 
-    public int getBlockMetadata(ImmutableTriple<Integer, Integer, Integer> loc) { return getBlockMetadata(loc.getLeft(),loc.getMiddle(), loc.getRight());}
+    public int getBlockMetadata(TripleCoord loc) { return getBlockMetadata(loc.x,loc.y, loc.z);}
     public int getBlockMetadata(int x, int y, int z)
     {
-        x = x + masterPosition.getLeft();
-        y = y + masterPosition.getMiddle();
-        z = z + masterPosition.getRight();
+        x = x + masterPosition.x;
+        y = y + masterPosition.y;
+        z = z + masterPosition.z;
 
         if (metadata.length > x &&
                 metadata[x].length > y &&
@@ -137,22 +137,22 @@ public class StructureDefinition
         return 0;
     }
 
-    public ImmutableTriple<Integer,Integer,Integer> getBlockBounds()
+    public TripleCoord getBlockBounds()
     {
         return sbLayoutSize;
     }
 
-    public ImmutableTriple<Integer,Integer,Integer> getHalfBlockBounds()
+    public TripleCoord getHalfBlockBounds()
     {
         return sbLayoutSizeHlf;
     }
 
-    public ImmutableTriple<Integer,Integer,Integer> getMasterLocation()
+    public TripleCoord getMasterLocation()
     {
         return masterPosition;
     }
 
-    public ImmutableTriple<Integer,Integer,Integer> getToolFormLocation()
+    public TripleCoord getToolFormLocation()
     {
         return toolFormPosition;
     }
@@ -165,8 +165,8 @@ public class StructureDefinition
     public TripleIterator getFormItr()
     {
         return new TripleIterator(
-                -masterPosition.getLeft(),                -masterPosition.getMiddle(),                   -masterPosition.getRight(),
-                blocks.length - masterPosition.getLeft(), blocks[0].length - masterPosition.getMiddle(), blocks[0][0].length - masterPosition.getRight());
+                -masterPosition.x,                -masterPosition.y,                   -masterPosition.z,
+                blocks.length - masterPosition.x, blocks[0].length - masterPosition.y, blocks[0][0].length - masterPosition.z);
     }
 
     public float[][] getCollisionBoxes()
@@ -174,27 +174,9 @@ public class StructureDefinition
         return collisionBoxes;
     }
 
-    public static int hashLoc(ImmutableTriple<Integer, Integer, Integer> loc)
-    {
-        return hashLoc(loc.getLeft(), loc.getMiddle(), loc.getRight());
-    }
 
-    public static int hashLoc(int x, int y, int z)
-    {
-        return  (((byte) x) << 16) +
-                (((byte) y) << 8)  +
-                 ((byte) z);
-    }
 
-    public static ImmutableTriple<Integer,Integer,Integer> dehashLoc(int val)
-    {
-        //byte used as a mask on vals.
-        return ImmutableTriple.of(
-                (int) (byte) (val >> 16),
-                (int) (byte) (val >> 8),
-                (int) (byte)  val
-        );
-    }
+
 
     public String toString(){
         return Objects.toStringHelper(this)
