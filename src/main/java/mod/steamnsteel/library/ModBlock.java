@@ -131,6 +131,6 @@ public final class ModBlock
     private static void registerStructures(SteamNSteelStructureBlock structure, String name)
     {
         GameRegistry.registerBlock(structure, StructureBlockItem.class, name);
-        StructureRegistry.registerBlockForDataLoad(structure);
+        StructureRegistry.registerStructureForLoad(structure);
     }
 }

@@ -31,11 +31,19 @@ public final class StructureRegistry
 
     private static List<SteamNSteelStructureBlock> registeredStructures = new LinkedList<SteamNSteelStructureBlock>();
 
-    public static void registerBlockForDataLoad(SteamNSteelStructureBlock block)
+    /***
+     * Register structures here for loading into system.
+     * @param structure structure to be registered.
+     */
+    public static void registerStructureForLoad(SteamNSteelStructureBlock structure)
     {
-        registeredStructures.add(block);
+        registeredStructures.add(structure);
     }
 
+    /***
+     * loadRegisteredPatterns() is called on onFMLInitialization after all blocks have been loaded required so that
+     * blocks of other mod can be used within the structure.
+     */
     public static void loadRegisteredPatterns()
     {
         try
@@ -80,6 +88,9 @@ public final class StructureRegistry
         return structures.get(hash);
     }
 
+    /***
+     * Command (class) for reloading the structures in-game after jvm hot swap
+     */
     public static class CommandReloadStructures implements ICommand
     {
         @Override

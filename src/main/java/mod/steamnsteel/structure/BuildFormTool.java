@@ -71,6 +71,14 @@ public class BuildFormTool extends SSToolShovel
         return false;
     }
 
+    /**
+     * Performs complete search on world with at the location
+     * @param world target world
+     * @param x x location
+     * @param y y location
+     * @param z z location
+     * @return returns {@link mod.steamnsteel.structure.BuildFormTool.StructureSearchResult StructureSearchResult} or null for no result.
+     */
     private StructureSearchResult uberStructureSearch(World world, int x, int y, int z)
     {
         //do uber search and build structure todo Threaded? Reduce search space? Reduce memory usage?
@@ -107,7 +115,7 @@ public class BuildFormTool extends SSToolShovel
                     }
                 }
 
-                //found match eeek!
+                //found match, eeek!
                 final StructureSearchResult result = new StructureSearchResult();
 
                 result.block = ssBlock;
@@ -123,6 +131,9 @@ public class BuildFormTool extends SSToolShovel
         return null;
     }
 
+    /***
+     * final result struct, used to return result from the search.
+     */
     private static final class StructureSearchResult
     {
         public SteamNSteelStructureBlock block;
