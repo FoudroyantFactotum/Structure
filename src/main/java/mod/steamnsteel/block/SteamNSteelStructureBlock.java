@@ -223,11 +223,25 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     //       S t r u c t u r e   B l o c k   C o d e
     //=======================================================
 
+    /**
+     * checks if meta is mirrored
+     * @param meta block metadata
+     * @return true if mirrored else false
+     */
     public static boolean isMirrored(int meta)
     {
         return (meta & flagMirrored) != 0;
     }
 
+    /**
+     * Checks to see if the Structure block (that's called) is still valid in case of a bad break.
+     * @param world world obj
+     * @param x x coord
+     * @param y y coord
+     * @param z z coord
+     * @param hash structure hash
+     * @param block changed block
+     */
     public static void onSharedNeighbourBlockChange(World world, int x, int y, int z, int hash, Block block)
     {
         final IStructureTE te = (IStructureTE) world.getTileEntity(x,y,z);

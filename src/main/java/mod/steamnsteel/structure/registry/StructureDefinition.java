@@ -174,10 +174,6 @@ public class StructureDefinition
         return collisionBoxes;
     }
 
-
-
-
-
     public String toString(){
         return Objects.toStringHelper(this)
                 .add("blocks", Arrays.toString(blocks))

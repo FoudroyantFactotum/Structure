@@ -59,6 +59,12 @@ public final class TransformLAG
         META_CORRECTOR = builder.build();
     }
 
+    /**
+     * Used to validate meta correctors.
+     * @param builder   ImmutableMap builder
+     * @param blockName block to register
+     * @param metaCorrecter correcter class
+     */
     private static void registerMetaCorrector(Builder<Block, IStructurePatternMetaCorrecter> builder, String blockName, IStructurePatternMetaCorrecter metaCorrecter)
     {
         final int blockDividePoint = blockName.indexOf(':');
@@ -89,9 +95,9 @@ public final class TransformLAG
 
     //from external with local to master
     public static TripleCoord localToGlobal(int lx, int ly, int lz,
-                                                                           int gx, int gy, int gz,
-                                                                           Orientation o, boolean ismirrored,
-                                                                           TripleCoord strucSize)
+                                            int gx, int gy, int gz,
+                                            Orientation o, boolean ismirrored,
+                                            TripleCoord strucSize)
     {
         final int rotIndex = o.encode();
 
@@ -149,7 +155,10 @@ public final class TransformLAG
     }
 
     //collision boxes
-    public static void localToGlobalCollisionBoxes(int x, int y, int z, AxisAlignedBB aabb, List<AxisAlignedBB> boundingBoxList, float[][] collB, Orientation o, boolean isMirrored, TripleCoord size)
+    public static void localToGlobalCollisionBoxes(
+            int x, int y, int z,
+            AxisAlignedBB aabb, List<AxisAlignedBB> boundingBoxList, float[][] collB,
+            Orientation o, boolean isMirrored, TripleCoord size)
     {
         final int[][] matrix = rotationMatrix[o.encode()];
 
@@ -184,7 +193,10 @@ public final class TransformLAG
     }
 
     //Bounding box
-    public static AxisAlignedBB localToGlobalBoundingBox(int gx, int gy, int gz, TripleCoord local, StructureDefinition sd, Orientation o, boolean ismirrored)
+    public static AxisAlignedBB localToGlobalBoundingBox(
+            int gx, int gy, int gz,
+            TripleCoord local,
+            StructureDefinition sd, Orientation o, boolean ismirrored)
     {
         final int l_lbx = local.x - sd.getMasterLocation().x;
         final int l_lby = local.y - sd.getMasterLocation().y;

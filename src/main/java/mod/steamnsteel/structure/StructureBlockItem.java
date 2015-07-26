@@ -47,6 +47,7 @@ public class StructureBlockItem extends ItemBlock
         {
             return false;
         }
+
         final Orientation o = Orientation.getdecodedOrientation(BlockDirectional.getDirection(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5)));
         final boolean isMirrored = false; //player.isSneaking(); Disabled until fix :p todo fix structure mirroring
 
@@ -73,7 +74,7 @@ public class StructureBlockItem extends ItemBlock
             }
         }
 
-        world.setBlock(mLoc.x, mLoc.y, mLoc.z, block, metadata, 0x3);
+        world.setBlock(mLoc.x, mLoc.y, mLoc.z, block, metadata, 0x2);
         block.onBlockPlacedBy(world, mLoc.x, mLoc.y, mLoc.z, player, stack);
         block.onPostBlockPlaced(world, mLoc.x, mLoc.y, mLoc.z, world.getBlockMetadata(x,y,z));
 

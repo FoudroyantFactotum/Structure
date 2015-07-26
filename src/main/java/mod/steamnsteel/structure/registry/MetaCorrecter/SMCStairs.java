@@ -23,10 +23,10 @@ public class SMCStairs implements IStructurePatternMetaCorrecter
 {
     private static final byte NORTH = 0x3;
     private static final byte SOUTH = 0x2;
-    private static final byte EAST = 0x0;
-    private static final byte WEST = 0x1;
+    private static final byte EAST  = 0x0;
+    private static final byte WEST  = 0x1;
 
-    private static final byte FLIP = 0x4;
+    private static final byte FLIP  = 0x4;
 
     @Override
     public int correctMeta(byte meta, Orientation o, boolean isMirrored)

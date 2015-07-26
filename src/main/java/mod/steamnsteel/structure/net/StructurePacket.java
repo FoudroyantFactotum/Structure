@@ -45,9 +45,7 @@ public class StructurePacket implements IMessage
 
     public StructurePacket(int x, int y, int z, int structureHash, Orientation o, boolean mirror, StructurePacketOption sc)
     {
-        this.x = x;
-        this.y = y;
-        this.z = z;
+        this.x = x; this.y = y; this.z = z;
 
         this.structureHash = structureHash;
         orientationAndMirror = o.encode() | (mirror? flagMirrored : 0);
