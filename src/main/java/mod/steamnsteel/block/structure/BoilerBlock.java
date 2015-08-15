@@ -91,7 +91,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
 
         builder.assignConstructionBlocks(
                 new String[]{
-                        "wpp",
+                        "ppp",
                         "sss",
                         "ppp"
                 },
@@ -102,7 +102,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
                 },
                 new String[]{
                         "ppp",
-                        "sws",
+                        "sfs",
                         "pgp"
                 },
                 new String[]{
