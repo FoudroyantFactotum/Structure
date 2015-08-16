@@ -131,14 +131,14 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
         );
 
         builder.setCollisionBoxes(
-                new float[]{0.0f,0.0f,1.3f ,1.0f,0.7f,1.7f},
-                new float[]{1.1f,1.1f,0.0f ,1.9f,1.9f,1.0f},
-                new float[]{1.1f,1.1f,0.0f ,1.9f,1.9f,1.0f},
+                new float[]{0.0f,0.0f,1.3f ,1.0f,0.7f,1.7f},        //left leg
+                new float[]{2.0f,0.0f,1.3f ,3.0f,0.7f,1.7f},        //right leg
+                new float[]{1.1f,1.1f,0.0f ,1.9f,1.9f,1.0f},        //pipe
 
-                new float[]{0.7f,0.0f,0.7f ,2.3f,0.5f,2.3f},
-                new float[]{0.4f,0.5f,0.4f, 2.6f,1.0f,2.6f},
+                new float[]{0.7f,0.0f,0.7f ,2.3f,0.5f,2.3f},        //base
+                new float[]{0.4f,0.5f,0.4f ,2.6f,1.0f,2.6f},
 
-                new float[]{0.4f,0.5f,0.4f, 2.6f,1.0f,2.6f},
+                new float[]{0.4f,0.5f,0.4f ,2.6f,1.0f,2.6f},        //top
                 new float[]{0.6f,1.5f,0.6f ,2.4f,2.0f,2.4f},
                 new float[]{0.7f,2.0f,0.7f ,2.3f,2.5f,2.3f},
                 new float[]{1.0f,2.3f,1.0f ,2.0f,3.0f,2.0f}

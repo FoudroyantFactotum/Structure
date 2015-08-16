@@ -35,6 +35,7 @@ import mod.steamnsteel.library.ModItem;
 import mod.steamnsteel.proxy.Proxies;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.utility.ModNetwork;
+import mod.steamnsteel.waila.WailaProvider;
 import mod.steamnsteel.world.WorldGen;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -74,6 +75,7 @@ public class TheMod
         ModItem.init();
         ModBlock.init();
         ModNetwork.init();
+        WailaProvider.init();
     }
 
     @SuppressWarnings("AssignmentToStaticFieldFromInstanceMethod")
