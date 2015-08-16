@@ -30,18 +30,39 @@ public class WailaStructureShapeBlock implements IWailaDataProvider
     @Override
     public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
+        if (accessor.getTileEntity() instanceof StructureShapeTE)
+        {
+            final StructureShapeTE te = (StructureShapeTE) accessor.getTileEntity();
+
+            return te.getMasterBlockInstance().getWailaHead(itemStack, currenttip, accessor, config);
+        }
+
         return currenttip;
     }
 
     @Override
     public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
+        if (accessor.getTileEntity() instanceof StructureShapeTE)
+        {
+            final StructureShapeTE te = (StructureShapeTE) accessor.getTileEntity();
+
+            return te.getMasterBlockInstance().getWailaBody(itemStack, currenttip, accessor, config);
+        }
+
         return currenttip;
     }
 
     @Override
     public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
+        if (accessor.getTileEntity() instanceof StructureShapeTE)
+        {
+            final StructureShapeTE te = (StructureShapeTE) accessor.getTileEntity();
+
+            return te.getMasterBlockInstance().getWailaTail(itemStack, currenttip, accessor, config);
+        }
+
         return currenttip;
     }
 

@@ -18,6 +18,9 @@ package mod.steamnsteel.block;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
+import mcp.mobius.waila.api.IWailaDataProvider;
 import mod.steamnsteel.block.structure.StructureShapeBlock;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.structure.IStructure.IPatternHolder;
@@ -40,8 +43,11 @@ import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.MovingObjectPosition;
 import net.minecraft.world.World;
@@ -55,7 +61,7 @@ import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalCollisionBoxes;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
-public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock implements IPatternHolder, IStructureAspects, ITileEntityProvider
+public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock implements IPatternHolder, IStructureAspects, ITileEntityProvider, IWailaDataProvider
 {
     public static final TripleCoord ORIGIN = TripleCoord.of(0,0,0);
     public static final int flagMirrored = 1 << 2;
@@ -407,5 +413,36 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                         origin.x,origin.y,origin.z,
                         o, isMirrored, structureSize)
         );
+    }
+
+
+    //=======================================================
+    //        W a i l a   D a t a   P r o v i d e r
+    //=======================================================
+    public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config)
+    {
+        //no op
+        return null;
+    }
+
+	public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
+    {
+        return currenttip;
+    }
+
+	public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
+    {
+        return currenttip;
+    }
+
+	public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
+    {
+        return currenttip;
+    }
+
+	public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, int x, int y, int z)
+    {
+        //no op
+        return tag;
     }
 }
