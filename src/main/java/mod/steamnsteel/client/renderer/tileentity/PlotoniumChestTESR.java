@@ -16,8 +16,8 @@
 
 package mod.steamnsteel.client.renderer.tileentity;
 
-import mod.steamnsteel.block.container.PlotoniumChest;
-import mod.steamnsteel.tileentity.PlotoniumChestTE;
+import mod.steamnsteel.block.container.RemnantRuinChestBlock;
+import mod.steamnsteel.tileentity.RemnantRuinChestTE;
 import mod.steamnsteel.utility.Orientation;
 import net.minecraft.client.model.ModelChest;
 import net.minecraft.tileentity.TileEntity;
@@ -28,15 +28,15 @@ import org.lwjgl.opengl.GL12;
 
 public class PlotoniumChestTESR extends SteamNSteelTESR
 {
-    public static final ResourceLocation TEXTURE = getResourceLocation(PlotoniumChest.NAME);
+    public static final ResourceLocation TEXTURE = getResourceLocation(RemnantRuinChestBlock.NAME);
     private static final ModelChest vanillaChest = new ModelChest();
 
     @Override
     public void renderTileEntityAt(TileEntity tileEntity, double x, double y, double z, float tick)
     {
-        if (tileEntity instanceof PlotoniumChestTE)
+        if (tileEntity instanceof RemnantRuinChestTE)
         {
-            final PlotoniumChestTE te = (PlotoniumChestTE) tileEntity;
+            final RemnantRuinChestTE te = (RemnantRuinChestTE) tileEntity;
 
             // Open Render buffer
             GL11.glPushMatrix();
@@ -52,7 +52,7 @@ public class PlotoniumChestTESR extends SteamNSteelTESR
         }
     }
 
-    private void renderPlotoniumChest(PlotoniumChestTE te, float tick)
+    private void renderPlotoniumChest(RemnantRuinChestTE te, float tick)
     {
         final int x = te.xCoord;
         final int y = te.yCoord;

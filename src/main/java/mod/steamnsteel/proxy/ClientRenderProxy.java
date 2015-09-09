@@ -20,12 +20,20 @@ import cpw.mods.fml.client.registry.ClientRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import mod.steamnsteel.client.renderer.item.*;
 import mod.steamnsteel.client.renderer.tileentity.*;
+import mod.steamnsteel.block.machine.PipeBlock;
+import mod.steamnsteel.block.machine.PipeJunctionBlock;
+import mod.steamnsteel.block.machine.PipeRedstoneValveBlock;
+import mod.steamnsteel.block.machine.PipeValveBlock;
+import mod.steamnsteel.client.renderer.block.SteamNSteelPaneRenderer;
+import mod.steamnsteel.client.renderer.item.*;
+import mod.steamnsteel.client.renderer.tileentity.*;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.tileentity.CupolaTE;
 import mod.steamnsteel.tileentity.PlotoniumChestTE;
 import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
+import mod.steamnsteel.tileentity.*;
 import net.minecraft.item.Item;
 import net.minecraftforge.client.MinecraftForgeClient;
 
@@ -37,6 +45,7 @@ public class ClientRenderProxy extends RenderProxy
     {
         registerItemRenderers();
         registerTESRs();
+        registerEventHandlers();
     }
 
     @Override
@@ -51,7 +60,11 @@ public class ClientRenderProxy extends RenderProxy
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.blastFurnace), new BlastFurnaceItemRenderer());
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.boiler), new BoilerItemRenderer());
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.cupola), new CupolaItemRenderer());
-        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.chestPlotonium), new PlotoniumChestItemRenderer());
+        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.pipe), new PipeItemRenderer());
+        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.pipeValve), new PipeValveItemRenderer());
+        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.pipeRedstoneValve), new PipeRedstoneValveItemRenderer());
+        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.pipeJunction), new PipeJunctionItemRenderer());
+        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.remnantRuinChest), new PlotoniumChestItemRenderer());
     }
 
     private void registerTESRs()
@@ -59,7 +72,23 @@ public class ClientRenderProxy extends RenderProxy
         ClientRegistry.bindTileEntitySpecialRenderer(BallMillTE.class, new BallMillTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(BlastFurnaceTE.class, new BlastFurnaceTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(BoilerTE.class, new BoilerTESR());
+        PipeBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
+        PipeValveBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
+        PipeRedstoneValveBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
+        PipeJunctionBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
+
+        RenderingRegistry.registerBlockHandler(SteamNSteelPaneRenderer.INSTANCE);
+
         ClientRegistry.bindTileEntitySpecialRenderer(CupolaTE.class, new CupolaTESR());
-        ClientRegistry.bindTileEntitySpecialRenderer(PlotoniumChestTE.class, new PlotoniumChestTESR());
+        ClientRegistry.bindTileEntitySpecialRenderer(PipeTE.class, new PipeTESR());
+        ClientRegistry.bindTileEntitySpecialRenderer(PipeValveTE.class, new PipeValveTESR());
+        ClientRegistry.bindTileEntitySpecialRenderer(PipeRedstoneValveTE.class, new PipeRedstoneValveTESR());
+        ClientRegistry.bindTileEntitySpecialRenderer(PipeJunctionTE.class, new PipeJunctionTESR());
+        ClientRegistry.bindTileEntitySpecialRenderer(RemnantRuinChestTE.class, new PlotoniumChestTESR());
+    }
+
+    private void registerEventHandlers() {
+        //FIXME: The Block Parts are not currently working.
+        //MinecraftForge.EVENT_BUS.register(BlockHighlightEventListener.getInstance());
     }
 }

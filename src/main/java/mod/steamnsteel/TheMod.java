@@ -23,6 +23,7 @@ import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
+import cpw.mods.fml.common.event.*;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import mod.steamnsteel.api.crafting.CraftingManager;
 import mod.steamnsteel.api.crafting.IAlloyManager;
@@ -31,11 +32,14 @@ import mod.steamnsteel.crafting.Recipes;
 import mod.steamnsteel.crafting.alloy.AlloyManager;
 import mod.steamnsteel.gui.GuiHandler;
 import mod.steamnsteel.library.ModBlock;
+import mod.steamnsteel.library.ModBlockParts;
 import mod.steamnsteel.library.ModItem;
 import mod.steamnsteel.proxy.Proxies;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.utility.ModNetwork;
 import mod.steamnsteel.waila.WailaProvider;
+import mod.steamnsteel.world.LoadSchematicFromFileCommand;
+import mod.steamnsteel.world.LoadSchematicFromResourceCommand;
 import mod.steamnsteel.world.WorldGen;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
@@ -76,6 +80,7 @@ public class TheMod
         ModBlock.init();
         ModNetwork.init();
         WailaProvider.init();
+        ModBlockParts.init();
     }
 
     @SuppressWarnings("AssignmentToStaticFieldFromInstanceMethod")
@@ -109,5 +114,16 @@ public class TheMod
     public void onServerStartingLoad(FMLServerStartingEvent event)
     {
         event.registerServerCommand(new StructureRegistry.CommandReloadStructures());
+    }
+
+    @Mod.EventHandler
+    public void onServerStarting(FMLServerStartingEvent event) {
+        event.registerServerCommand(new LoadSchematicFromResourceCommand());
+        event.registerServerCommand(new LoadSchematicFromFileCommand());
+    }
+
+    @Mod.EventHandler
+    public void onMissingMappings(FMLMissingMappingsEvent event) {
+        ModBlock.remapMissingMappings(event.get());
     }
 }

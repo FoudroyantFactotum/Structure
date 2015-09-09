@@ -16,6 +16,7 @@
 
 package mod.steamnsteel.library;
 
+import cpw.mods.fml.common.event.FMLMissingMappingsEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import mod.steamnsteel.TheMod;
 import mod.steamnsteel.block.SteamNSteelBlock;
@@ -24,6 +25,9 @@ import mod.steamnsteel.block.SteamNSteelStorageBlock;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.block.container.PlotoniumChest;
 import mod.steamnsteel.block.machine.CupolaBlock;
+import mod.steamnsteel.block.*;
+import mod.steamnsteel.block.container.RemnantRuinChestBlock;
+import mod.steamnsteel.block.machine.*;
 import mod.steamnsteel.block.resource.ore.*;
 import mod.steamnsteel.block.resource.structure.PlotoniumRuinFloor;
 import mod.steamnsteel.block.resource.structure.PlotoniumRuinPillar;
@@ -40,8 +44,15 @@ import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
 import mod.steamnsteel.tileentity.structure.StructureShapeTE;
+import mod.steamnsteel.block.resource.structure.*;
+import mod.steamnsteel.item.resource.structure.RemnantRuinIronBarsBlockItem;
+import mod.steamnsteel.tileentity.*;
 import net.minecraft.block.Block;
+import net.minecraft.item.Item;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.oredict.OreDictionary;
+
+import java.util.List;
 
 import static mod.steamnsteel.block.SteamNSteelStorageBlock.*;
 
@@ -61,6 +72,7 @@ public final class ModBlock
     public static final SteamNSteelBlock blockTin = new SteamNSteelStorageBlock(TIN_BLOCK);
     public static final SteamNSteelBlock blockZinc = new SteamNSteelStorageBlock(ZINC_BLOCK);
 
+    public static final SteamNSteelBlock remnantRuinChest = new RemnantRuinChestBlock();
     public static final SteamNSteelStructureBlock ballMill = new BallMillBlock();
     public static final SteamNSteelStructureBlock blastFurnace = new BlastFurnaceBlock();
     public static final SteamNSteelStructureBlock boiler = new BoilerBlock();
@@ -68,14 +80,21 @@ public final class ModBlock
 
     public static final SteamNSteelBlock chestPlotonium = new PlotoniumChest();
     public static final SteamNSteelBlock cupola = new CupolaBlock();
+    public static final SteamNSteelBlock pipe = new PipeBlock();
+    public static final SteamNSteelBlock pipeValve = new PipeValveBlock();
+    public static final SteamNSteelBlock pipeRedstoneValve = new PipeRedstoneValveBlock();
+    public static final SteamNSteelBlock pipeJunction = new PipeJunctionBlock();
+
     public static final SteamNSteelOreBlock oreCopper = new CopperOre();
     public static final SteamNSteelOreBlock oreNiter = new NiterOre();
     public static final SteamNSteelOreBlock oreSulfur = new SulfurOre();
     public static final SteamNSteelOreBlock oreTin = new TinOre();
     public static final SteamNSteelOreBlock oreZinc = new ZincOre();
-    public static final SteamNSteelBlock ruinFloorPlotonium = new PlotoniumRuinFloor();
-    public static final SteamNSteelBlock ruinPillarPlotonium = new PlotoniumRuinPillar();
-    public static final SteamNSteelBlock ruinWallPlotonium = new PlotoniumRuinWall();
+
+    public static final SteamNSteelBlock remnantRuinFloor = new RemnantRuinFloorBlock();
+    public static final SteamNSteelBlock remnantRuinPillar = new RemnantRuinPillarBlock();
+    public static final SteamNSteelBlock remnantRuinWall = new RemnantRuinWallBlock();
+    public static final SteamNSteelPaneBlock remnantRuinIronBars = new RemnantRuinIronBarsBlock();
 
     private ModBlock()
     {
@@ -90,6 +109,12 @@ public final class ModBlock
         GameRegistry.registerTileEntity(CupolaTE.class, getTEName(CupolaBlock.NAME));
         GameRegistry.registerTileEntity(PlotoniumChestTE.class, getTEName(PlotoniumChest.NAME));
         GameRegistry.registerTileEntity(StructureShapeTE.class, getTEName(StructureShapeBlock.NAME));
+        GameRegistry.registerTileEntity(RemnantRuinChestTE.class, getTEName(RemnantRuinChestBlock.NAME));
+        GameRegistry.registerTileEntity(PipeTE.class, getTEName(PipeBlock.NAME));
+        GameRegistry.registerTileEntity(PipeValveTE.class, getTEName(PipeValveBlock.NAME));
+        GameRegistry.registerTileEntity(PipeRedstoneValveTE.class, getTEName(PipeRedstoneValveBlock.NAME));
+        GameRegistry.registerTileEntity(PipeJunctionTE.class, getTEName(PipeJunctionBlock.NAME));
+
     }
 
     private static String getTEName(String name) { return "tile." + name;}
@@ -97,11 +122,16 @@ public final class ModBlock
     public static void init()
     {
         GameRegistry.registerBlock(chestPlotonium, PlotoniumChest.NAME);
+        GameRegistry.registerBlock(remnantRuinChest, RemnantRuinChestBlock.NAME);
         GameRegistry.registerBlock(cupola, CupolaBlock.NAME);
         GameRegistry.registerBlock(structureShape, StructureShapeBlock.NAME);
         registerStructures(ballMill, BallMillBlock.NAME);
         registerStructures(blastFurnace, BlastFurnaceBlock.NAME);
         registerStructures(boiler, BoilerBlock.NAME);
+        GameRegistry.registerBlock(pipe, PipeBlock.NAME);
+        GameRegistry.registerBlock(pipeValve, PipeValveBlock.NAME);
+        GameRegistry.registerBlock(pipeRedstoneValve, PipeRedstoneValveBlock.NAME);
+        GameRegistry.registerBlock(pipeJunction, PipeJunctionBlock.NAME);
 
         registerBlockAndOre(oreCopper, CopperOre.NAME);
         registerBlockAndOre(oreNiter, NiterOre.NAME);
@@ -117,9 +147,13 @@ public final class ModBlock
         registerBlockAndOre(blockTin, TIN_BLOCK);
         registerBlockAndOre(blockZinc, ZINC_BLOCK);
 
-        GameRegistry.registerBlock(ruinFloorPlotonium, PlotoniumRuinFloor.NAME);
-        GameRegistry.registerBlock(ruinPillarPlotonium, PlotoniumRuinPillar.NAME);
-        GameRegistry.registerBlock(ruinWallPlotonium, PlotoniumRuinWall.NAME);
+        GameRegistry.registerBlock(remnantRuinFloor, RemnantRuinFloorBlock.NAME);
+        GameRegistry.registerBlock(remnantRuinPillar, RemnantRuinPillarBlock.NAME);
+        GameRegistry.registerBlock(remnantRuinWall, RemnantRuinWallBlock.NAME);
+        GameRegistry.registerBlock(remnantRuinIronBars, RemnantRuinIronBarsBlockItem.class, RemnantRuinIronBarsBlock.NAME);
+
+        //Compat
+        TileEntity.addMapping(RemnantRuinChestTE.class, "tile.chestPlotonium");
     }
 
     private static void registerBlockAndOre(Block block, String name)
@@ -132,5 +166,38 @@ public final class ModBlock
     {
         GameRegistry.registerBlock(structure, StructureBlockItem.class, name);
         StructureRegistry.registerStructureForLoad(structure);
+    }
+
+    public static void remapMissingMappings(List<FMLMissingMappingsEvent.MissingMapping> missingMappings)
+    {
+        //These mappings are temporary and are only really present to prevent Rorax' worlds from being destroyed.
+        for (FMLMissingMappingsEvent.MissingMapping missingMapping : missingMappings) {
+            if (missingMapping.name.equals(TheMod.MOD_ID + ":ruinWallPlotonium")) {
+                remapBlock(missingMapping, remnantRuinWall);
+            } else if (missingMapping.name.equals(TheMod.MOD_ID + ":blockSteelFloor")) {
+                remapBlock(missingMapping, remnantRuinFloor);
+            } else if (missingMapping.name.equals(TheMod.MOD_ID + ":ruinPillarPlotonium")) {
+                remapBlock(missingMapping, remnantRuinPillar);
+            } else if (missingMapping.name.equals(TheMod.MOD_ID + ":chestPlotonium")) {
+                remapBlock(missingMapping, remnantRuinChest);
+            } else if (missingMapping.name.equals(TheMod.MOD_ID + ":ironBarsRust")) {
+                remapBlock(missingMapping, remnantRuinIronBars);
+            }/* else if (missingMapping.name.equals(TheMod.MOD_ID + ":ironBarsMoss")) {
+                remapBlock(missingMapping, remnantRuinIronBars);
+            } else if (missingMapping.name.equals(TheMod.MOD_ID + ":ironBarsMossRust")) {
+                remapBlock(missingMapping, remnantRuinIronBars);
+            }*/
+
+        }
+    }
+
+    private static void remapBlock(FMLMissingMappingsEvent.MissingMapping missingMapping, Block block)
+    {
+        if (missingMapping.type == GameRegistry.Type.BLOCK)
+        {
+            missingMapping.remap(block);
+        } else {
+            missingMapping.remap(Item.getItemFromBlock(block));
+        }
     }
 }
