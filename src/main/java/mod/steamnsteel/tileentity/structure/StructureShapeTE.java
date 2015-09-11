@@ -16,6 +16,7 @@
 package mod.steamnsteel.tileentity.structure;
 
 import com.google.common.base.Optional;
+import mod.steamnsteel.api.plumbing.IPipeTileEntity;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
@@ -31,13 +32,14 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE.*;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
-public final class StructureShapeTE extends SteamNSteelTE implements IStructureTE, ISidedInventory
+public final class StructureShapeTE extends SteamNSteelTE implements IStructureTE, ISidedInventory, IPipeTileEntity
 {
     private TripleCoord local = TripleCoord.of(0,0,0);
     private int definitionHash = -1;
@@ -90,24 +92,6 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     }
 
     @Override
-    public TripleCoord getMasterLocation(int meta)
-    {
-        SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
-
-        if (sb != null)
-        {
-            return localToGlobal(
-                    -local.x, -local.y, -local.z,
-                    xCoord, yCoord, zCoord,
-                    getdecodedOrientation(meta), isMirrored(meta),
-                    sb.getPattern().getBlockBounds()
-            );
-        }
-
-        return TripleCoord.of(xCoord, yCoord, zCoord);
-    }
-
-    @Override
     public SteamNSteelStructureBlock getMasterBlockInstance()
     {
         return StructureRegistry.getStructureBlock(definitionHash);
@@ -117,7 +101,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     {
         if (!masterLocation.isPresent())
         {
-            final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
+            final int meta = getBlockMetadata();
             final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
 
             if (sb == null)
@@ -126,7 +110,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
             }
 
             masterLocation = Optional.of(localToGlobal(
-                    local.x, local.y, local.z,
+                    -local.x, -local.y, -local.z,
                     xCoord, yCoord, zCoord,
                     getdecodedOrientation(meta), isMirrored(meta),
                     sb.getPattern().getBlockBounds()));
@@ -158,7 +142,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
 
         if (sb != null)
         {
-            final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
+            final int meta = getBlockMetadata();
 
             return localToGlobal(
                     sb.getPattern().getBlockMetadata(local),
@@ -320,6 +304,43 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
     {
         return hasOriginTE() && getOriginTE().isItemValidForSlot(slotIndex, itemStack);
+    }
+
+    //================================================================
+    //                 P I P E   C O N E C T I O N
+    //================================================================
+
+    @Override
+    public boolean isSideConnected(ForgeDirection opposite)
+    {
+        return hasOriginTE() && getOriginTE().isStructureSideConnected(opposite, local);
+    }
+
+    @Override
+    public boolean tryConnect(ForgeDirection opposite)
+    {
+        return hasOriginTE() && getOriginTE().tryStructureConnect(opposite, local);
+    }
+
+    @Override
+    public boolean canConnect(ForgeDirection opposite)
+    {
+        return hasOriginTE() && getOriginTE().canStructureConnect(opposite, local);
+    }
+
+    @Override
+    public void recalculateVisuals()
+    {
+        //noop
+    }
+
+    @Override
+    public void disconnect(ForgeDirection opposite)
+    {
+        if (hasOriginTE())
+        {
+            getOriginTE().disconnectStructure(opposite, local);
+        }
     }
 
     //================================================================

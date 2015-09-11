@@ -42,6 +42,12 @@ public final class TripleCoord
                 this.z == coord.z;
     }
 
+    @Override
+    public String toString()
+    {
+        return "(" + x + ',' + y + ',' + z + ')';
+    }
+
     public static int hashLoc(int x, int y, int z)
     {
         return  (((byte) x) << 16) +

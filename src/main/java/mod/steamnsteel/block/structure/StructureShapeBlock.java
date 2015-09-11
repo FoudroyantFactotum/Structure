@@ -73,7 +73,7 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
         if (te != null)
         {
             final int meta = world.getBlockMetadata(x, y, z);
-            final TripleCoord mloc = te.getMasterLocation(meta);
+            final TripleCoord mloc = te.getMasterBlockLocation();
             final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
 
             if (sb == null)
@@ -104,7 +104,7 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
 
             if (block != null)
             {
-                final TripleCoord mloc = te.getMasterLocation(meta);
+                final TripleCoord mloc = te.getMasterBlockLocation();
                 return block.addDestroyEffects(world, mloc.x, mloc.y, mloc.z, meta, effectRenderer);
             }
         }
@@ -124,14 +124,14 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
         if (sb != null)
         {
             breakStructure(world,
-                    te.getMasterLocation(meta),
+                    te.getMasterBlockLocation(),
                     sb.getPattern(),
                     getdecodedOrientation(meta),
                     isMirrored(meta),
                     isPlayerCreative
             );
             updateExternalNeighbours(world,
-                    te.getMasterLocation(meta),
+                    te.getMasterBlockLocation(),
                     sb.getPattern(),
                     getdecodedOrientation(meta),
                     isMirrored(meta),
@@ -158,7 +158,7 @@ public final class StructureShapeBlock extends SteamNSteelMachineBlock implement
             if (block != null)
             {
                 final int meta = world.getBlockMetadata(x, y, z);
-                final TripleCoord mloc = te.getMasterLocation(meta);
+                final TripleCoord mloc = te.getMasterBlockLocation();
 
                 return block.onStructureBlockActivated(world, mloc.x, mloc.y, mloc.z, player, meta, sx, sy, sz, te.getLocal(), x, y, z);
             }

@@ -2,14 +2,14 @@ package mod.steamnsteel.tileentity;
 
 import com.google.common.base.Objects;
 import mod.steamnsteel.api.plumbing.IPipeTileEntity;
+import mod.steamnsteel.utility.PartSets;
 import mod.steamnsteel.utility.blockParts.BlockPart;
 import mod.steamnsteel.utility.blockParts.BlockPartConfiguration;
 import mod.steamnsteel.utility.blockParts.ITileEntityWithParts;
-import mod.steamnsteel.utility.PartSets;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 import org.apache.commons.lang3.tuple.ImmutablePair;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -53,7 +53,7 @@ public class PipeTE extends BasePlumbingTE implements ITileEntityWithParts
     }
 
     /**
-     * Verifies that the current ends are valid using the following ruels:
+     * Verifies that the current ends are valid using the following rules:
      * 1) If the current end configuration is valid, use that
      * 2) If it is not valid, use the first valid configuration with two ends connected
      * 3) If that is not possible, use the first valid end that is valid, and make a straight pipe

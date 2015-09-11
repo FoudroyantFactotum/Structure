@@ -25,9 +25,15 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.Vec3;
+import net.minecraftforge.common.util.ForgeDirection;
+
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
+import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public class BlastFurnaceTE extends SteamNSteelStructureTE
 {//TODO complete class
+
+    private final TripleCoord pipeConnectLocation = TripleCoord.of(1,1,0);
 
     public static final int INPUT = 0;
     public static final int INPUT_FUEL = 1;
@@ -150,5 +156,29 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     public int[] getAccessibleSlotsFromStructureSide(int side, TripleCoord blockID)
     {
         return new int[0];
+    }
+
+    @Override
+    public boolean isStructureSideConnected(ForgeDirection opposite, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean tryStructureConnect(ForgeDirection opposite, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean canStructureConnect(ForgeDirection opposite, TripleCoord blockID)
+    {
+        return opposite == localToGlobal(ForgeDirection.NORTH, getdecodedOrientation(getBlockMetadata()), false) && pipeConnectLocation.equals(blockID);
+    }
+
+    @Override
+    public void disconnectStructure(ForgeDirection opposite, TripleCoord blockID)
+    {
+
     }
 }

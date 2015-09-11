@@ -2,7 +2,6 @@ package mod.steamnsteel.tileentity;
 
 import mod.steamnsteel.api.plumbing.IDelegatedTileEntityBlock;
 import mod.steamnsteel.api.plumbing.IPipeTileEntity;
-import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,14 +9,13 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.ForgeDirection;
 
 public abstract class BasePlumbingTE extends SteamNSteelTE implements IPipeTileEntity
 {
     protected void sendUpdate()
     {
-        Logger.info("%s - Notifying Block Change - %s", worldObj.isRemote ? "client" : "server", toString());
+        //Logger.info("%s - Notifying Block Change - %s", worldObj.isRemote ? "client" : "server", toString());
         markDirty();
         worldObj.notifyBlockChange(xCoord, yCoord, zCoord, getBlockType());
         worldObj.markBlockForUpdate(xCoord, yCoord, zCoord);

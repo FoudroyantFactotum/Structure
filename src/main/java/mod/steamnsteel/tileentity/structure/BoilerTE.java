@@ -18,9 +18,13 @@ package mod.steamnsteel.tileentity.structure;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.common.util.ForgeDirection;
 
 public class BoilerTE extends SteamNSteelStructureTE
 {//TODO complete class
+
+    private final TripleCoord pipeConnectLocation = TripleCoord.of(1,3,1);
+
     @Override
     public int getSizeInventory()
     {
@@ -111,4 +115,27 @@ public class BoilerTE extends SteamNSteelStructureTE
         return new int[0];
     }
 
+    @Override
+    public boolean isStructureSideConnected(ForgeDirection opposite, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean tryStructureConnect(ForgeDirection opposite, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean canStructureConnect(ForgeDirection opposite, TripleCoord blockID)
+    {
+        return opposite == ForgeDirection.UP && pipeConnectLocation.equals(blockID);
+    }
+
+    @Override
+    public void disconnectStructure(ForgeDirection opposite, TripleCoord blockID)
+    {
+
+    }
 }

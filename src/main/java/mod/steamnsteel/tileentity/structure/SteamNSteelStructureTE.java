@@ -19,7 +19,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import mod.steamnsteel.api.plumbing.IPipeTileEntity;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.IStructure.IStructurePipe;
 import mod.steamnsteel.structure.IStructure.IStructureSidedInventory;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
@@ -34,6 +36,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraftforge.common.util.ForgeDirection;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.ORIGIN;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
@@ -41,7 +44,7 @@ import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
-public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, IStructureSidedInventory
+public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, IStructureSidedInventory, IPipeTileEntity, IStructurePipe
 {
     static final int maskBlockID = 0x00FFFFFF;
 
@@ -64,7 +67,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     }
 
     @Override
-    public TripleCoord getMasterLocation(int meta)
+    public TripleCoord getMasterBlockLocation()
     {
         return TripleCoord.of(xCoord, yCoord, zCoord);
     }
@@ -105,7 +108,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
 
         if (sb != null)
         {
-            final int meta = getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord);
+            final int meta = getBlockMetadata();
 
             return localToGlobal(
                     sb.getPattern().getBlockMetadata(local),
@@ -144,6 +147,40 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     public boolean canExtractItem(int slotIndex, ItemStack itemStack, int side)
     {
         return canStructureExtractItem(slotIndex, itemStack, side, ORIGIN);
+    }
+
+    //================================================================
+    //                 P I P E   C O N E C T I O N
+    //================================================================
+
+    @Override
+    public boolean isSideConnected(ForgeDirection opposite)
+    {
+        return isStructureSideConnected(opposite, ORIGIN);
+    }
+
+    @Override
+    public boolean tryConnect(ForgeDirection opposite)
+    {
+        return tryStructureConnect(opposite, ORIGIN);
+    }
+
+    @Override
+    public boolean canConnect(ForgeDirection opposite)
+    {
+        return canStructureConnect(opposite, ORIGIN);
+    }
+
+    @Override
+    public void recalculateVisuals()
+    {
+        //noop
+    }
+
+    @Override
+    public void disconnect(ForgeDirection opposite)
+    {
+        disconnectStructure(opposite, ORIGIN);
     }
 
     //================================================================
@@ -202,7 +239,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
                 return INFINITE_EXTENT_AABB;
             }
 
-            final Orientation o = getdecodedOrientation(getWorldObj().getBlockMetadata(xCoord, yCoord, zCoord));
+            final Orientation o = getdecodedOrientation(getBlockMetadata());
 
             renderBounds = Optional.of(localToGlobalBoundingBox(xCoord, yCoord, zCoord, local, sb.getPattern(), o, false));
         }

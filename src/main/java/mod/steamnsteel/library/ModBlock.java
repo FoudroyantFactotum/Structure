@@ -19,34 +19,26 @@ package mod.steamnsteel.library;
 import cpw.mods.fml.common.event.FMLMissingMappingsEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import mod.steamnsteel.TheMod;
-import mod.steamnsteel.block.SteamNSteelBlock;
-import mod.steamnsteel.block.SteamNSteelOreBlock;
-import mod.steamnsteel.block.SteamNSteelStorageBlock;
-import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.block.container.PlotoniumChest;
-import mod.steamnsteel.block.machine.CupolaBlock;
 import mod.steamnsteel.block.*;
 import mod.steamnsteel.block.container.RemnantRuinChestBlock;
 import mod.steamnsteel.block.machine.*;
 import mod.steamnsteel.block.resource.ore.*;
-import mod.steamnsteel.block.resource.structure.PlotoniumRuinFloor;
-import mod.steamnsteel.block.resource.structure.PlotoniumRuinPillar;
-import mod.steamnsteel.block.resource.structure.PlotoniumRuinWall;
+import mod.steamnsteel.block.resource.structure.RemnantRuinFloorBlock;
+import mod.steamnsteel.block.resource.structure.RemnantRuinIronBarsBlock;
+import mod.steamnsteel.block.resource.structure.RemnantRuinPillarBlock;
+import mod.steamnsteel.block.resource.structure.RemnantRuinWallBlock;
 import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.block.structure.BlastFurnaceBlock;
 import mod.steamnsteel.block.structure.BoilerBlock;
 import mod.steamnsteel.block.structure.StructureShapeBlock;
+import mod.steamnsteel.item.resource.structure.RemnantRuinIronBarsBlockItem;
 import mod.steamnsteel.structure.StructureBlockItem;
 import mod.steamnsteel.structure.registry.StructureRegistry;
-import mod.steamnsteel.tileentity.CupolaTE;
-import mod.steamnsteel.tileentity.PlotoniumChestTE;
+import mod.steamnsteel.tileentity.*;
 import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
 import mod.steamnsteel.tileentity.structure.StructureShapeTE;
-import mod.steamnsteel.block.resource.structure.*;
-import mod.steamnsteel.item.resource.structure.RemnantRuinIronBarsBlockItem;
-import mod.steamnsteel.tileentity.*;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
@@ -73,12 +65,12 @@ public final class ModBlock
     public static final SteamNSteelBlock blockZinc = new SteamNSteelStorageBlock(ZINC_BLOCK);
 
     public static final SteamNSteelBlock remnantRuinChest = new RemnantRuinChestBlock();
+
     public static final SteamNSteelStructureBlock ballMill = new BallMillBlock();
     public static final SteamNSteelStructureBlock blastFurnace = new BlastFurnaceBlock();
     public static final SteamNSteelStructureBlock boiler = new BoilerBlock();
     public static final SteamNSteelBlock structureShape = new StructureShapeBlock();
 
-    public static final SteamNSteelBlock chestPlotonium = new PlotoniumChest();
     public static final SteamNSteelBlock cupola = new CupolaBlock();
     public static final SteamNSteelBlock pipe = new PipeBlock();
     public static final SteamNSteelBlock pipeValve = new PipeValveBlock();
@@ -107,7 +99,6 @@ public final class ModBlock
         GameRegistry.registerTileEntity(BlastFurnaceTE.class, getTEName(BlastFurnaceBlock.NAME));
         GameRegistry.registerTileEntity(BoilerTE.class, getTEName(BoilerBlock.NAME));
         GameRegistry.registerTileEntity(CupolaTE.class, getTEName(CupolaBlock.NAME));
-        GameRegistry.registerTileEntity(PlotoniumChestTE.class, getTEName(PlotoniumChest.NAME));
         GameRegistry.registerTileEntity(StructureShapeTE.class, getTEName(StructureShapeBlock.NAME));
         GameRegistry.registerTileEntity(RemnantRuinChestTE.class, getTEName(RemnantRuinChestBlock.NAME));
         GameRegistry.registerTileEntity(PipeTE.class, getTEName(PipeBlock.NAME));
@@ -121,7 +112,6 @@ public final class ModBlock
 
     public static void init()
     {
-        GameRegistry.registerBlock(chestPlotonium, PlotoniumChest.NAME);
         GameRegistry.registerBlock(remnantRuinChest, RemnantRuinChestBlock.NAME);
         GameRegistry.registerBlock(cupola, CupolaBlock.NAME);
         GameRegistry.registerBlock(structureShape, StructureShapeBlock.NAME);

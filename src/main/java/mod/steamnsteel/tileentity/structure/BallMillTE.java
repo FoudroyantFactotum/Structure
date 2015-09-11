@@ -20,12 +20,20 @@ import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.inventory.Inventory;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
+import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraftforge.common.util.ForgeDirection;
+
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
+import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public class BallMillTE extends SteamNSteelStructureTE
 {//TODO complete class
+
+    private final TripleCoord pipeConnectLocation = TripleCoord.of(0,0,1);
+
     public static final int INPUT = 0;
     public static final int INPUT_FUEL = 1;
     public static final int OUTPUT_TOP = 2;
@@ -142,5 +150,30 @@ public class BallMillTE extends SteamNSteelStructureTE
     public int[] getAccessibleSlotsFromStructureSide(int side, TripleCoord blockID)
     {
         return new int[0];
+    }
+
+    @Override
+    public boolean isStructureSideConnected(ForgeDirection opposite, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean tryStructureConnect(ForgeDirection opposite, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean canStructureConnect(ForgeDirection opposite, TripleCoord blockID)
+    {
+        Logger.info("direction: " + getdecodedOrientation(getBlockMetadata()));
+        return localToGlobal(ForgeDirection.SOUTH, getdecodedOrientation(getBlockMetadata()), false) == opposite && pipeConnectLocation.equals(blockID);
+    }
+
+    @Override
+    public void disconnectStructure(ForgeDirection opposite, TripleCoord blockID)
+    {
+
     }
 }

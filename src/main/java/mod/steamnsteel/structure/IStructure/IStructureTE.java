@@ -26,7 +26,7 @@ public interface IStructureTE
 
     int getRegHash();
     SteamNSteelStructureBlock getMasterBlockInstance();
-    TripleCoord getMasterLocation(int meta);
+    TripleCoord getMasterBlockLocation();
 
     void configureBlock(TripleCoord local, int patternHash);
     TripleCoord getLocal();
