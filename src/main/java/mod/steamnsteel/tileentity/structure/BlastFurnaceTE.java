@@ -15,7 +15,6 @@
  */
 package mod.steamnsteel.tileentity.structure;
 
-import com.google.common.base.Objects;
 import mod.steamnsteel.block.structure.BlastFurnaceBlock;
 import mod.steamnsteel.inventory.Inventory;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
@@ -23,41 +22,51 @@ import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntityFurnace;
-import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
-import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalDirection;
 
 public class BlastFurnaceTE extends SteamNSteelStructureTE
-{//TODO complete class
+{
+    private static final TripleCoord LOCATION_STEAM_INPUT = TripleCoord.of(1,1,0);
+    private static final int DIRECTIONS_STEAM_INPUT = ForgeDirection.NORTH.flag;
 
-    private final TripleCoord pipeConnectLocation = TripleCoord.of(1,1,0);
+    private static final TripleCoord LOCATION_MATERIAL_INPUT = TripleCoord.of(1,2,1);
+    private static final int DIRECTIONS_MATERIAL_INPUT = ForgeDirection.UP.flag;
 
-    public static final int INPUT = 0;
-    public static final int INPUT_FUEL = 1;
-    public static final int OUTPUT_TOP = 2;
-    public static final int OUTPUT_BOTTOM = 3;
-    public static final int INVENTORY_SIZE = 4;
+    private static final TripleCoord LOCATION_METAL_OUTPUT = TripleCoord.of(1,2,1);
+    private static final int DIRECTIONS_METAL_OUTPUT = ForgeDirection.UP.flag;
 
-    private final Inventory inventory = new Inventory(INVENTORY_SIZE);
+    private static final TripleCoord LOCATION_SLAG_OUTPUT = TripleCoord.of(1,2,1);
+    private static final int DIRECTIONS_SLAG_OUTPUT = ForgeDirection.UP.flag;
 
-    public void readFromNBT(NBTTagCompound nbt)
+    //Global Directions
+    private int globalDirectionsSteamInput;
+    private int globalDirectionsMaterialInput;
+    private int globalDirectionsMetalOutput;
+    private int globalDirectionsSlagOutput;
+
+    private Inventory inventory = new Inventory(1);
+    private static final int INPUT = 0;
+    private static final int[] slotsDefault = {};
+    private static final int[] slotsMaterialInput = {INPUT};
+
+    public BlastFurnaceTE()
     {
-        super.readFromNBT(nbt);
-        inventory.readFromNBT(nbt);
+        //noop
     }
 
-    @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public BlastFurnaceTE(int meta)
     {
-        super.writeToNBT(nbt);
-        inventory.writeToNBT(nbt);
+        super(meta);
     }
+
+    //================================================================
+    //                     I T E M   I N P U T
+    //================================================================
 
     @Override
     public int getSizeInventory()
@@ -88,7 +97,6 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     {
         inventory.setSlot(slotIndex, itemStack);
     }
-
 
     @Override
     public String getInventoryName()
@@ -129,24 +137,15 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     @Override
     public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
     {
-        return slotIndex != OUTPUT_TOP &&
-                slotIndex != OUTPUT_BOTTOM &&
-                (slotIndex != INPUT_FUEL || TileEntityFurnace.isItemFuel(itemStack));
-    }
-
-    @Override
-    public String toString()
-    {
-        return Objects.toStringHelper(this)
-                .add("position", Vec3.createVectorHelper(xCoord,yCoord,zCoord))
-                .add("inventory", inventory)
-                .toString();
+        return slotIndex == INPUT;
     }
 
     @Override
     public boolean canStructureInsertItem(int slot, ItemStack item, int side, TripleCoord blockID)
     {
-        return false;
+        return isSide(globalDirectionsMaterialInput, side) &&
+                blockID.equals(LOCATION_MATERIAL_INPUT) &&
+                isItemValidForSlot(slot, item);
     }
 
     @Override
@@ -158,32 +157,11 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     @Override
     public int[] getAccessibleSlotsFromStructureSide(int side, TripleCoord blockID)
     {
-        return new int[0];
+        return LOCATION_MATERIAL_INPUT.equals(blockID)?
+                slotsMaterialInput :
+                slotsDefault;
     }
 
-    @Override
-    public boolean isStructureSideConnected(ForgeDirection opposite, TripleCoord blockID)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean tryStructureConnect(ForgeDirection opposite, TripleCoord blockID)
-    {
-        return false;
-    }
-
-    @Override
-    public boolean canStructureConnect(ForgeDirection opposite, TripleCoord blockID)
-    {
-        return opposite == localToGlobal(ForgeDirection.NORTH, getdecodedOrientation(getBlockMetadata()), false) && pipeConnectLocation.equals(blockID);
-    }
-
-    @Override
-    public void disconnectStructure(ForgeDirection opposite, TripleCoord blockID)
-    {
-
-    }
     //================================================================
     //                  F L U I D   H A N D L E R
     //================================================================
@@ -216,5 +194,61 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     public FluidTankInfo[] getStructureTankInfo(ForgeDirection from, TripleCoord blockID)
     {
         return emptyFluidTankInfo;
+    }
+
+    //================================================================
+    //                 P I P E   C O N E C T I O N
+    //================================================================
+
+    @Override
+    public boolean isStructureSideConnected(ForgeDirection opposite, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean tryStructureConnect(ForgeDirection opposite, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean canStructureConnect(ForgeDirection opposite, TripleCoord blockID)
+    {
+        return isSide(globalDirectionsSteamInput, opposite) && LOCATION_STEAM_INPUT.equals(blockID);
+    }
+
+    @Override
+    public void disconnectStructure(ForgeDirection opposite, TripleCoord blockID)
+    {
+
+    }
+
+    //================================================================
+    //                            N B T
+    //================================================================
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
+
+        inventory.readFromNBT(nbt);
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+
+        inventory.writeToNBT(nbt);
+    }
+
+    protected void transformDirectionsOnLoad()
+    {
+        globalDirectionsSteamInput    = localToGlobalDirection(DIRECTIONS_STEAM_INPUT,    getBlockMetadata());
+        globalDirectionsMaterialInput = localToGlobalDirection(DIRECTIONS_MATERIAL_INPUT, getBlockMetadata());
+        globalDirectionsMetalOutput   = localToGlobalDirection(DIRECTIONS_METAL_OUTPUT,   getBlockMetadata());
+        globalDirectionsSlagOutput    = localToGlobalDirection(DIRECTIONS_SLAG_OUTPUT,    getBlockMetadata());
     }
 }

@@ -58,7 +58,7 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
-        return new BlastFurnaceTE();
+        return new BlastFurnaceTE(meta);
     }
 
     @Override
