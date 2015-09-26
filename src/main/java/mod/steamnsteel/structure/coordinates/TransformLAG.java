@@ -33,6 +33,8 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
+import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 /**
  * This class is used as a utility class holding onto the function implementations that involve a basic transform.
@@ -115,6 +117,24 @@ public final class TransformLAG
                 gy + ly,
                 gz + rz
         );
+    }
+
+    public static int localToGlobalDirection(int fdOld, int meta)
+    {
+        final Orientation o = getdecodedOrientation(meta);
+        final boolean isMirrored = isMirrored(meta);
+
+        int fdNew = 0;
+
+        for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+        {
+            if ((fdOld & d.flag) != 0)
+            {
+                fdNew |= localToGlobal(d, o, isMirrored).flag;
+            }
+        }
+
+        return fdNew;
     }
 
     //direction - rotate

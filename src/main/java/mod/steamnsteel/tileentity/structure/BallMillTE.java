@@ -20,40 +20,51 @@ import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.inventory.Inventory;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
-import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalDirection;
 
 public class BallMillTE extends SteamNSteelStructureTE
-{//TODO complete class
+{
+    private static final TripleCoord LOCATION_STEAM_INPUT = TripleCoord.of(0,0,1);
+    private static final int DIRECTIONS_STEAM_INPUT = ForgeDirection.SOUTH.flag;
 
-    private final TripleCoord pipeConnectLocation = TripleCoord.of(0,0,1);
+    private static final TripleCoord LOCATION_WATER_INPUT = TripleCoord.of(4,1,0);
+    private static final int DIRECTIONS_WATER_INPUT = ForgeDirection.NORTH.flag;
 
-    public static final int INPUT = 0;
-    public static final int INPUT_FUEL = 1;
-    public static final int OUTPUT_TOP = 2;
-    public static final int OUTPUT_BOTTOM = 3;
-    public static final int INVENTORY_SIZE = 4;
+    private static final TripleCoord LOCATION_MATERIAL_INPUT = TripleCoord.of(0,1,1);
+    private static final int DIRECTIONS_MATERIAL_INPUT = ForgeDirection.WEST.flag;
 
-    private final Inventory inventory = new Inventory(INVENTORY_SIZE);
+    private static final TripleCoord LOCATION_MATERIAL_OUTPUT = TripleCoord.of(0,0,1);
+    private static final int DIRECTIONS_MATERIAL_OUTPUT = ForgeDirection.DOWN.flag;
 
-    public void readFromNBT(NBTTagCompound nbt)
+    //Global Directions
+    private int globalDirectionsSteamInput;
+    private int globalDirectionsWaterInput;
+    private int globalDirectionsMaterialInput;
+    private int globalDirectionsMaterialOutput;
+
+    private Inventory inventory = new Inventory(1);
+    private static final int INPUT = 0;
+    private static final int[] slotsDefault = {};
+    private static final int[] slotsMaterialInput = {INPUT};
+
+    public BallMillTE()
     {
-        super.readFromNBT(nbt);
-        inventory.readFromNBT(nbt);
+        //noop
     }
 
-    @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public BallMillTE(int meta)
     {
-        super.writeToNBT(nbt);
-        inventory.writeToNBT(nbt);
+        super(meta);
     }
+
+    //================================================================
+    //                     I T E M   I N P U T
+    //================================================================
 
     @Override
     public int getSizeInventory()
@@ -84,7 +95,6 @@ public class BallMillTE extends SteamNSteelStructureTE
     {
         inventory.setSlot(slotIndex, itemStack);
     }
-
 
     @Override
     public String getInventoryName()
@@ -125,32 +135,34 @@ public class BallMillTE extends SteamNSteelStructureTE
     @Override
     public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
     {
-        return slotIndex >= 0 && slotIndex < 4;
-    }
-
-    @Override
-    public String toString()
-    {
-        return inventory.toString();
+        return slotIndex == INPUT;
     }
 
     @Override
     public boolean canStructureInsertItem(int slot, ItemStack item, int side, TripleCoord blockID)
     {
-        return true;
+        return isSide(globalDirectionsMaterialInput, side) &&
+                blockID.equals(LOCATION_MATERIAL_INPUT) &&
+                isItemValidForSlot(slot, item);
     }
 
     @Override
     public boolean canStructureExtractItem(int slot, ItemStack item, int side, TripleCoord blockID)
     {
-        return true;
+        return slot == INPUT && isSide(globalDirectionsMaterialOutput, side);
     }
 
     @Override
     public int[] getAccessibleSlotsFromStructureSide(int side, TripleCoord blockID)
     {
-        return new int[0];
+        return LOCATION_MATERIAL_INPUT.equals(blockID) || LOCATION_MATERIAL_OUTPUT.equals(blockID) ?
+                slotsMaterialInput :
+                slotsDefault;
     }
+
+    //================================================================
+    //                 P I P E   C O N E C T I O N
+    //================================================================
 
     @Override
     public boolean isStructureSideConnected(ForgeDirection opposite, TripleCoord blockID)
@@ -167,13 +179,40 @@ public class BallMillTE extends SteamNSteelStructureTE
     @Override
     public boolean canStructureConnect(ForgeDirection opposite, TripleCoord blockID)
     {
-        Logger.info("direction: " + getdecodedOrientation(getBlockMetadata()));
-        return localToGlobal(ForgeDirection.SOUTH, getdecodedOrientation(getBlockMetadata()), false) == opposite && pipeConnectLocation.equals(blockID);
+        return isSide(globalDirectionsSteamInput, opposite) && LOCATION_STEAM_INPUT.equals(blockID);
     }
 
     @Override
     public void disconnectStructure(ForgeDirection opposite, TripleCoord blockID)
     {
 
+    }
+
+    //================================================================
+    //                            N B T
+    //================================================================
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
+
+        inventory.readFromNBT(nbt);
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+
+        inventory.writeToNBT(nbt);
+    }
+
+    protected void transformDirectionsOnLoad()
+    {
+        globalDirectionsSteamInput     = localToGlobalDirection(DIRECTIONS_STEAM_INPUT,     getBlockMetadata());
+        globalDirectionsWaterInput     = localToGlobalDirection(DIRECTIONS_WATER_INPUT,     getBlockMetadata());
+        globalDirectionsMaterialInput  = localToGlobalDirection(DIRECTIONS_MATERIAL_INPUT,  getBlockMetadata());
+        globalDirectionsMaterialOutput = localToGlobalDirection(DIRECTIONS_MATERIAL_OUTPUT, getBlockMetadata());
     }
 }

@@ -23,7 +23,6 @@ import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -62,13 +61,12 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
-        return new BallMillTE();
+        return new BallMillTE(meta);
     }
 
     @Override
     public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, TripleCoord sbID, int sbx, int sby, int sbz)
     {
-        Logger.info("Items: " + world.getTileEntity(x, y, z));
         return false;
     }
 

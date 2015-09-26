@@ -56,6 +56,18 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
 
     private Optional<AxisAlignedBB> renderBounds = Optional.absent();
 
+    public SteamNSteelStructureTE()
+    {
+        //noop
+    }
+
+    public SteamNSteelStructureTE(int meta)
+    {
+        blockMetadata = meta;
+
+        transformDirectionsOnLoad();
+    }
+
     //================================================================
     //                 S T R U C T U R E   C O N F I G
     //================================================================
@@ -211,6 +223,9 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         definitionHash = nbt.getInteger(BLOCK_PATTERN_NAME);
 
         local = TripleCoord.dehashLoc(blockInfo & maskBlockID);
+        blockMetadata = blockInfo >> 24;
+
+        transformDirectionsOnLoad();
     }
 
     @Override
@@ -218,9 +233,12 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         super.writeToNBT(nbt);
 
-        nbt.setInteger(BLOCK_INFO, local.hashCode());
+        nbt.setInteger(BLOCK_INFO, local.hashCode() | (getBlockMetadata() << 24));
         nbt.setInteger(BLOCK_PATTERN_NAME, definitionHash);
     }
+
+    protected void transformDirectionsOnLoad() { }
+
 
     //================================================================
     //                    C L I E N T   S I D E
@@ -245,6 +263,20 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         }
 
         return renderBounds.get();
+    }
+
+    //================================================================
+    //              S t r u c t u r e   H e l p e r s
+    //================================================================
+
+    protected boolean isSide(int flag, int side)
+    {
+        return (flag & ForgeDirection.VALID_DIRECTIONS[side].flag) != 0;
+    }
+
+    protected boolean isSide(int flag, ForgeDirection d)
+    {
+        return (flag & d.flag) != 0;
     }
 
     @Override
