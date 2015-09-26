@@ -67,7 +67,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
-        return new BoilerTE();
+        return new BoilerTE(meta);
     }
 
     @Override

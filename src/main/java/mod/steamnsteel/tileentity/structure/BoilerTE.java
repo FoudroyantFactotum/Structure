@@ -15,50 +15,86 @@
  */
 package mod.steamnsteel.tileentity.structure;
 
+import mod.steamnsteel.block.structure.BoilerBlock;
+import mod.steamnsteel.inventory.Inventory;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 
-public class BoilerTE extends SteamNSteelStructureTE
-{//TODO complete class
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalDirection;
 
-    private final TripleCoord pipeConnectLocation = TripleCoord.of(1,3,1);
+public class BoilerTE extends SteamNSteelStructureTE
+{
+    private static final TripleCoord LOCATION_WATER_INPUT = TripleCoord.of(1,0,1);
+    private static final int DIRECTIONS_WATER_INPUT = ForgeDirection.DOWN.flag;
+
+    private static final TripleCoord LOCATION_STEAM_OUTPUT = TripleCoord.of(1,3,1);
+    private static final int DIRECTIONS_STEAM_OUTPUT = ForgeDirection.UP.flag;
+
+    private static final TripleCoord LOCATION_MATERIAL_INPUT = TripleCoord.of(1,0,2);
+    private static final int DIRECTIONS_MATERIAL_INPUT = ForgeDirection.SOUTH.flag;
+
+    //Global Directions
+    private int globalDirectionsSteamOutput;
+    private int globalDirectionsWaterInput;
+    private int globalDirectionsMaterialInput;
+
+    private Inventory inventory = new Inventory(1);
+    private static final int INPUT = 0;
+    private static final int[] slotsDefault = {};
+    private static final int[] slotsMaterialInput = {INPUT};
+
+    public BoilerTE()
+    {
+        //noop
+    }
+
+    public BoilerTE(int meta)
+    {
+        super(meta);
+    }
+
+    //================================================================
+    //                     I T E M   I N P U T
+    //================================================================
 
     @Override
     public int getSizeInventory()
     {
-        return 0;
+        return inventory.getSize();
     }
 
     @Override
-    public ItemStack getStackInSlot(int p_70301_1_)
+    public ItemStack getStackInSlot(int slotIndex)
     {
-        return null;
+        return inventory.getStack(slotIndex);
     }
 
     @Override
-    public ItemStack decrStackSize(int p_70298_1_, int p_70298_2_)
+    public ItemStack decrStackSize(int slotIndex, int decrAmount)
     {
-        return null;
+        return inventory.decrStackSize(slotIndex, decrAmount);
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int p_70304_1_)
+    public ItemStack getStackInSlotOnClosing(int slotIndex)
     {
-        return null;
+        return inventory.getStackOnClosing(slotIndex);
     }
 
     @Override
-    public void setInventorySlotContents(int p_70299_1_, ItemStack p_70299_2_)
+    public void setInventorySlotContents(int slotIndex, ItemStack itemStack)
     {
-
+        inventory.setSlot(slotIndex, itemStack);
     }
 
     @Override
     public String getInventoryName()
     {
-        return null;
+        return SteamNSteelTE.containerName(BoilerBlock.NAME);
     }
 
     @Override
@@ -70,11 +106,11 @@ public class BoilerTE extends SteamNSteelStructureTE
     @Override
     public int getInventoryStackLimit()
     {
-        return 0;
+        return inventory.getStackSizeMax();
     }
 
     @Override
-    public boolean isUseableByPlayer(EntityPlayer p_70300_1_)
+    public boolean isUseableByPlayer(EntityPlayer player)
     {
         return false;
     }
@@ -82,25 +118,27 @@ public class BoilerTE extends SteamNSteelStructureTE
     @Override
     public void openInventory()
     {
-
+        //no op
     }
 
     @Override
     public void closeInventory()
     {
-
+        //no op
     }
 
     @Override
-    public boolean isItemValidForSlot(int p_94041_1_, ItemStack p_94041_2_)
+    public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
     {
-        return false;
+        return slotIndex == INPUT;
     }
 
     @Override
     public boolean canStructureInsertItem(int slot, ItemStack item, int side, TripleCoord blockID)
     {
-        return false;
+        return isSide(globalDirectionsMaterialInput, side) &&
+                blockID.equals(LOCATION_MATERIAL_INPUT) &&
+                isItemValidForSlot(slot, item);
     }
 
     @Override
@@ -112,8 +150,14 @@ public class BoilerTE extends SteamNSteelStructureTE
     @Override
     public int[] getAccessibleSlotsFromStructureSide(int side, TripleCoord blockID)
     {
-        return new int[0];
+        return LOCATION_MATERIAL_INPUT.equals(blockID) ?
+                slotsMaterialInput :
+                slotsDefault;
     }
+
+    //================================================================
+    //                 P I P E   C O N E C T I O N
+    //================================================================
 
     @Override
     public boolean isStructureSideConnected(ForgeDirection opposite, TripleCoord blockID)
@@ -130,12 +174,40 @@ public class BoilerTE extends SteamNSteelStructureTE
     @Override
     public boolean canStructureConnect(ForgeDirection opposite, TripleCoord blockID)
     {
-        return opposite == ForgeDirection.UP && pipeConnectLocation.equals(blockID);
+        return (isSide(globalDirectionsSteamOutput, opposite) && LOCATION_STEAM_OUTPUT.equals(blockID)) ||
+                (isSide(globalDirectionsWaterInput, opposite) && LOCATION_WATER_INPUT.equals(blockID));
     }
 
     @Override
     public void disconnectStructure(ForgeDirection opposite, TripleCoord blockID)
     {
 
+    }
+
+    //================================================================
+    //                            N B T
+    //================================================================
+
+    @Override
+    public void readFromNBT(NBTTagCompound nbt)
+    {
+        super.readFromNBT(nbt);
+
+        inventory.readFromNBT(nbt);
+    }
+
+    @Override
+    public void writeToNBT(NBTTagCompound nbt)
+    {
+        super.writeToNBT(nbt);
+
+        inventory.writeToNBT(nbt);
+    }
+
+    protected void transformDirectionsOnLoad()
+    {
+        globalDirectionsSteamOutput    = localToGlobalDirection(DIRECTIONS_STEAM_OUTPUT,    getBlockMetadata());
+        globalDirectionsWaterInput     = localToGlobalDirection(DIRECTIONS_WATER_INPUT,     getBlockMetadata());
+        globalDirectionsMaterialInput  = localToGlobalDirection(DIRECTIONS_MATERIAL_INPUT,  getBlockMetadata());
     }
 }
