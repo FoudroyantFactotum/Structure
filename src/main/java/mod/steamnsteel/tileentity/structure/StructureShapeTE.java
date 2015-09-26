@@ -33,13 +33,17 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fluids.IFluidHandler;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE.*;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
-public final class StructureShapeTE extends SteamNSteelTE implements IStructureTE, ISidedInventory, IPipeTileEntity
+public final class StructureShapeTE extends SteamNSteelTE implements IStructureTE, ISidedInventory, IFluidHandler, IPipeTileEntity
 {
     private TripleCoord local = TripleCoord.of(0,0,0);
     private int definitionHash = -1;
@@ -304,6 +308,66 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
     {
         return hasOriginTE() && getOriginTE().isItemValidForSlot(slotIndex, itemStack);
+    }
+
+    //================================================================
+    //                  F L U I D   H A N D L E R
+    //================================================================
+
+    @Override
+    public int fill(ForgeDirection from, FluidStack resource, boolean doFill)
+    {
+        if (hasOriginTE())
+        {
+            return getOriginTE().structureFill(from, resource, doFill, local);
+        }
+
+        return 0;
+    }
+
+    @Override
+    public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain)
+    {
+        if (hasOriginTE())
+        {
+            return getOriginTE().structureDrain(from, resource, doDrain, local);
+        }
+
+        return null;
+    }
+
+    @Override
+    public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain)
+    {
+        if (hasOriginTE())
+        {
+            return getOriginTE().structureDrain(from, maxDrain, doDrain, local);
+        }
+
+        return null;
+    }
+
+    @Override
+    public boolean canFill(ForgeDirection from, Fluid fluid)
+    {
+        return hasOriginTE() && getOriginTE().canStructureFill(from, fluid, local);
+    }
+
+    @Override
+    public boolean canDrain(ForgeDirection from, Fluid fluid)
+    {
+        return hasOriginTE() && getOriginTE().canStructureDrain(from, fluid, local);
+    }
+
+    @Override
+    public FluidTankInfo[] getTankInfo(ForgeDirection from)
+    {
+        if (hasOriginTE())
+        {
+            return getOriginTE().getStructureTankInfo(from, local);
+        }
+
+        return emptyFluidTankInfo;
     }
 
     //================================================================

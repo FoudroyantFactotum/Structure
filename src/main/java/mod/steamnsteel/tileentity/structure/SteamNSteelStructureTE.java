@@ -19,8 +19,8 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
-import mod.steamnsteel.api.plumbing.IPipeTileEntity;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.IStructure.IStructureFluidHandler;
 import mod.steamnsteel.structure.IStructure.IStructurePipe;
 import mod.steamnsteel.structure.IStructure.IStructureSidedInventory;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
@@ -37,6 +37,9 @@ import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.ORIGIN;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
@@ -44,7 +47,7 @@ import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
-public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, IStructureSidedInventory, IPipeTileEntity, IStructurePipe
+public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, IStructureSidedInventory, IStructureFluidHandler, IStructurePipe
 {
     static final int maskBlockID = 0x00FFFFFF;
 
@@ -152,13 +155,55 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     @Override
     public boolean canInsertItem(int slotIndex, ItemStack itemStack, int side)
     {
-        return canStructureInsertItem(slotIndex, itemStack, side, ORIGIN);
+        return canStructureInsertItem(slotIndex, itemStack, side, local);
     }
 
     @Override
     public boolean canExtractItem(int slotIndex, ItemStack itemStack, int side)
     {
-        return canStructureExtractItem(slotIndex, itemStack, side, ORIGIN);
+        return canStructureExtractItem(slotIndex, itemStack, side, local);
+    }
+
+    //================================================================
+    //                  F L U I D   H A N D L E R
+    //================================================================
+
+    public static final FluidTankInfo[] emptyFluidTankInfo = {};
+
+    @Override
+    public int fill(ForgeDirection from, FluidStack resource, boolean doFill)
+    {
+        return structureFill(from, resource, doFill, local);
+    }
+
+    @Override
+    public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain)
+    {
+        return structureDrain(from, resource, doDrain, local);
+    }
+
+    @Override
+    public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain)
+    {
+        return structureDrain(from, maxDrain, doDrain, local);
+    }
+
+    @Override
+    public boolean canFill(ForgeDirection from, Fluid fluid)
+    {
+        return canStructureFill(from, fluid, local);
+    }
+
+    @Override
+    public boolean canDrain(ForgeDirection from, Fluid fluid)
+    {
+        return canStructureDrain(from, fluid, local);
+    }
+
+    @Override
+    public FluidTankInfo[] getTankInfo(ForgeDirection from)
+    {
+        return getStructureTankInfo(from, local);
     }
 
     //================================================================
@@ -168,19 +213,19 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     @Override
     public boolean isSideConnected(ForgeDirection opposite)
     {
-        return isStructureSideConnected(opposite, ORIGIN);
+        return isStructureSideConnected(opposite, local);
     }
 
     @Override
     public boolean tryConnect(ForgeDirection opposite)
     {
-        return tryStructureConnect(opposite, ORIGIN);
+        return tryStructureConnect(opposite, local);
     }
 
     @Override
     public boolean canConnect(ForgeDirection opposite)
     {
-        return canStructureConnect(opposite, ORIGIN);
+        return canStructureConnect(opposite, local);
     }
 
     @Override
@@ -192,7 +237,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     @Override
     public void disconnect(ForgeDirection opposite)
     {
-        disconnectStructure(opposite, ORIGIN);
+        disconnectStructure(opposite, local);
     }
 
     //================================================================

@@ -26,6 +26,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
 
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
@@ -180,5 +183,38 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     public void disconnectStructure(ForgeDirection opposite, TripleCoord blockID)
     {
 
+    }
+    //================================================================
+    //                  F L U I D   H A N D L E R
+    //================================================================
+
+    public boolean canStructureFill(ForgeDirection from, Fluid fluid, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    public boolean canStructureDrain(ForgeDirection from, Fluid fluid, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    public int structureFill(ForgeDirection from, FluidStack resource, boolean doFill, TripleCoord blockID)
+    {
+        return 0;
+    }
+
+    public FluidStack structureDrain(ForgeDirection from, FluidStack resource, boolean doDrain, TripleCoord blockID)
+    {
+        return null;
+    }
+
+    public FluidStack structureDrain(ForgeDirection from, int maxDrain, boolean doDrain, TripleCoord blockID)
+    {
+        return null;
+    }
+
+    public FluidTankInfo[] getStructureTankInfo(ForgeDirection from, TripleCoord blockID)
+    {
+        return emptyFluidTankInfo;
     }
 }

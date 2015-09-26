@@ -23,6 +23,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
 
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalDirection;
 
@@ -155,6 +158,39 @@ public class BoilerTE extends SteamNSteelStructureTE
                 slotsDefault;
     }
 
+    //================================================================
+    //                  F L U I D   H A N D L E R
+    //================================================================
+
+    public boolean canStructureFill(ForgeDirection from, Fluid fluid, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    public boolean canStructureDrain(ForgeDirection from, Fluid fluid, TripleCoord blockID)
+    {
+        return false;
+    }
+
+    public int structureFill(ForgeDirection from, FluidStack resource, boolean doFill, TripleCoord blockID)
+    {
+        return 0;
+    }
+
+    public FluidStack structureDrain(ForgeDirection from, FluidStack resource, boolean doDrain, TripleCoord blockID)
+    {
+        return null;
+    }
+
+    public FluidStack structureDrain(ForgeDirection from, int maxDrain, boolean doDrain, TripleCoord blockID)
+    {
+        return null;
+    }
+
+    public FluidTankInfo[] getStructureTankInfo(ForgeDirection from, TripleCoord blockID)
+    {
+        return emptyFluidTankInfo;
+    }
     //================================================================
     //                 P I P E   C O N E C T I O N
     //================================================================
