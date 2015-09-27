@@ -45,7 +45,7 @@ public class BoilerTE extends SteamNSteelStructureTE
     private int globalDirectionsWaterInput;
     private int globalDirectionsMaterialInput;
 
-    private Inventory inventory = new Inventory(1);
+    private final Inventory inventory = new Inventory(1);
     private static final int INPUT = 0;
     private static final int[] slotsDefault = {};
     private static final int[] slotsMaterialInput = {INPUT};
@@ -162,31 +162,37 @@ public class BoilerTE extends SteamNSteelStructureTE
     //                  F L U I D   H A N D L E R
     //================================================================
 
+    @Override
     public boolean canStructureFill(ForgeDirection from, Fluid fluid, TripleCoord blockID)
     {
         return false;
     }
 
+    @Override
     public boolean canStructureDrain(ForgeDirection from, Fluid fluid, TripleCoord blockID)
     {
         return false;
     }
 
+    @Override
     public int structureFill(ForgeDirection from, FluidStack resource, boolean doFill, TripleCoord blockID)
     {
         return 0;
     }
 
+    @Override
     public FluidStack structureDrain(ForgeDirection from, FluidStack resource, boolean doDrain, TripleCoord blockID)
     {
         return null;
     }
 
+    @Override
     public FluidStack structureDrain(ForgeDirection from, int maxDrain, boolean doDrain, TripleCoord blockID)
     {
         return null;
     }
 
+    @Override
     public FluidTankInfo[] getStructureTankInfo(ForgeDirection from, TripleCoord blockID)
     {
         return emptyFluidTankInfo;
@@ -240,6 +246,7 @@ public class BoilerTE extends SteamNSteelStructureTE
         inventory.writeToNBT(nbt);
     }
 
+    @Override
     protected void transformDirectionsOnLoad()
     {
         globalDirectionsSteamOutput    = localToGlobalDirection(DIRECTIONS_STEAM_OUTPUT,    getBlockMetadata());
