@@ -41,7 +41,7 @@ import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalCollisionBoxes;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
-public final class StructureShapeBlock extends SteamNSteelMachineBlock implements ITileEntityProvider
+public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITileEntityProvider
 {
     public static boolean _DEBUG = true;
     public static final String NAME = "structureShape";

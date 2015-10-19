@@ -15,6 +15,7 @@
  */
 package mod.steamnsteel.block;
 
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -37,6 +38,7 @@ import mod.steamnsteel.utility.ModNetwork;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
+import mod.steamnsteel.waila.WailaProvider;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.client.particle.EffectRenderer;
@@ -61,9 +63,10 @@ import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalCollisionBoxes;
 import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
+@Optional.Interface(modid = WailaProvider.WAILA, iface = "mcp.mobius.waila.api.IWailaDataProvider", striprefs = true)
 public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock implements IPatternHolder, IStructureAspects, ITileEntityProvider, IWailaDataProvider
 {
-    public static final TripleCoord ORIGIN = TripleCoord.of(0,0,0);
+    public static final TripleCoord ORIGIN = TripleCoord.of(0, 0, 0);
     public static final int flagMirrored = 1 << 2;
     public static final int maskMeta = 0x7;
 
@@ -95,7 +98,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             world.setBlockMetadataWithNotify(x, y, z, meta, 0x2);
         }
 
-        formStructure(world, TripleCoord.of(x,y,z),meta, 0x2);
+        formStructure(world, TripleCoord.of(x, y, z), meta, 0x2);
     }
 
     @Override
@@ -104,7 +107,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         final Orientation orientation = getdecodedOrientation(meta);
         final boolean isMirrored = isMirrored(meta);
 
-        updateExternalNeighbours(world,TripleCoord.of(x,y,z), getPattern(), orientation, isMirrored, false);
+        updateExternalNeighbours(world, TripleCoord.of(x, y, z), getPattern(), orientation, isMirrored, false);
     }
 
     @Override
@@ -116,13 +119,13 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     @Override
     public boolean removedByPlayer(World world, EntityPlayer player, int x, int y, int z, boolean willHarvest)
     {
-        final int meta = world.getBlockMetadata(x,y,z);
-        final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
+        final int meta = world.getBlockMetadata(x, y, z);
+        final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x, y, z);
         final boolean isPlayerCreative = player != null && player.capabilities.isCreativeMode; //todo change?
 
         if (te != null)
         {
-            final TripleCoord origin = TripleCoord.of(x,y,z);
+            final TripleCoord origin = TripleCoord.of(x, y, z);
 
             breakStructure(world, origin, getPattern(), getdecodedOrientation(meta), isMirrored(meta), isPlayerCreative);
             updateExternalNeighbours(world, origin, getPattern(), getdecodedOrientation(meta), isMirrored(meta), false);
@@ -137,7 +140,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     @Override
     public void addCollisionBoxesToList(World world, int x, int y, int z, AxisAlignedBB aabb, List boundingBoxList, Entity entityColliding)
     {
-        final int meta = world.getBlockMetadata(x,y,z);
+        final int meta = world.getBlockMetadata(x, y, z);
 
         localToGlobalCollisionBoxes(x, y, z, aabb, boundingBoxList, getPattern().getCollisionBoxes(), getdecodedOrientation(meta), isMirrored(meta), getPattern().getBlockBounds());
     }
@@ -151,7 +154,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     @Override
     public boolean onBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz)
     {
-        return onStructureBlockActivated(world,x,y,z,player,side,sx,sy,sz,ORIGIN,x,y,z);
+        return onStructureBlockActivated(world, x, y, z, player, side, sx, sy, sz, ORIGIN, x, y, z);
     }
 
     @Override
@@ -165,7 +168,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     public boolean addDestroyEffects(World world, int x, int y, int z, int meta, EffectRenderer effectRenderer)
     {
         final float scaleVec = 0.05f;
-        final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x,y,z);
+        final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(x, y, z);
 
         if (te != null)
         {
@@ -197,7 +200,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
                 final TripleCoord global = localToGlobal(
                         local.x, local.y, local.z,
-                        x,       y,       z,
+                        x, y, z,
                         o, isMirrored, getPattern().getBlockBounds());
 
                 spawnBreakParticle(world, te, global, xSpeed * scaleVec, ySpeed * scaleVec, zSpeed * scaleVec);
@@ -231,6 +234,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
     /**
      * checks if meta is mirrored
+     *
      * @param meta block metadata
      * @return true if mirrored else false
      */
@@ -241,17 +245,18 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
     /**
      * Checks to see if the Structure block (that's called) is still valid in case of a bad break.
+     *
      * @param world world obj
-     * @param x x coord
-     * @param y y coord
-     * @param z z coord
-     * @param hash structure hash
+     * @param x     x coord
+     * @param y     y coord
+     * @param z     z coord
+     * @param hash  structure hash
      * @param block changed block
      */
     public static void onSharedNeighbourBlockChange(World world, int x, int y, int z, int hash, Block block)
     {
-        final IStructureTE te = (IStructureTE) world.getTileEntity(x,y,z);
-        final int meta = world.getBlockMetadata(x,y,z) & maskMeta;
+        final IStructureTE te = (IStructureTE) world.getTileEntity(x, y, z);
+        final int meta = world.getBlockMetadata(x, y, z) & maskMeta;
         final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
 
         if (sb == null)
@@ -260,7 +265,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             return;
         }
 
-        for (ForgeDirection d: ForgeDirection.VALID_DIRECTIONS) //local
+        for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) //local
         {
             if (!sb.getPattern().hasBlockAt(te.getLocal(), d))
             {
@@ -319,7 +324,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             world.spawnParticle("explode",
                     blockCoord.getX() + 0.5f,
                     blockCoord.getY() + 0.5f,
-                    blockCoord.getZ() + 0.5f, (-0.5+Math.random())*0.25f,0.05f,(-0.5+Math.random())*0.2f);
+                    blockCoord.getZ() + 0.5f, (-0.5 + Math.random()) * 0.25f, 0.05f, (-0.5 + Math.random()) * 0.2f);
 
             if (!local.equals(ORIGIN))
             {
@@ -355,7 +360,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 final int meta = sd.getBlockMetadata(local.x, local.y, local.z);
 
                 blockCoord.setBlock(world,
-                        block == null? Blocks.air : block,
+                        block == null ? Blocks.air : block,
                         localToGlobal(meta, block == null ? Blocks.air : block, orientation, false),
                         0x2);
 
@@ -409,8 +414,8 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     {
         return WorldBlockCoord.of(
                 localToGlobal(
-                        local .x,local .y,local .z,
-                        origin.x,origin.y,origin.z,
+                        local.x, local.y, local.z,
+                        origin.x, origin.y, origin.z,
                         o, isMirrored, structureSize)
         );
     }
@@ -419,28 +424,29 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     //=======================================================
     //        W a i l a   D a t a   P r o v i d e r
     //=======================================================
+
     public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
         //no op
         return null;
     }
 
-	public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
+    public List<String> getWailaHead(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
         return currenttip;
     }
 
-	public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
+    public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
         return currenttip;
     }
 
-	public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
+    public List<String> getWailaTail(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
         return currenttip;
     }
 
-	public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, int x, int y, int z)
+    public NBTTagCompound getNBTData(EntityPlayerMP player, TileEntity te, NBTTagCompound tag, World world, int x, int y, int z)
     {
         //no op
         return tag;
