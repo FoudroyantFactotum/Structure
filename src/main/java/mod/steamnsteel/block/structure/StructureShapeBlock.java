@@ -76,7 +76,7 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
             final TripleCoord mloc = te.getMasterBlockLocation();
             final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
 
-            if (sb == null)
+            if (sb == null || sb.getPattern().getCollisionBoxes() == null)
             {
                 return;
             }

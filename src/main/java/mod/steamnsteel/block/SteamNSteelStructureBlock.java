@@ -142,7 +142,10 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     {
         final int meta = world.getBlockMetadata(x, y, z);
 
-        localToGlobalCollisionBoxes(x, y, z, aabb, boundingBoxList, getPattern().getCollisionBoxes(), getdecodedOrientation(meta), isMirrored(meta), getPattern().getBlockBounds());
+        if (getPattern().getCollisionBoxes() != null)
+        {
+            localToGlobalCollisionBoxes(x, y, z, aabb, boundingBoxList, getPattern().getCollisionBoxes(), getdecodedOrientation(meta), isMirrored(meta), getPattern().getBlockBounds());
+        }
     }
 
     @Override
