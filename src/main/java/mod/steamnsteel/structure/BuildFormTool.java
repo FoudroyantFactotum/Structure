@@ -73,10 +73,11 @@ public class BuildFormTool extends SSToolShovel
 
     /**
      * Performs complete search on world with at the location
+     *
      * @param world target world
-     * @param x x location
-     * @param y y location
-     * @param z z location
+     * @param x     x location
+     * @param y     y location
+     * @param z     z location
      * @return returns {@link mod.steamnsteel.structure.BuildFormTool.StructureSearchResult StructureSearchResult} or null for no result.
      */
     private StructureSearchResult uberStructureSearch(World world, int x, int y, int z)
@@ -88,7 +89,8 @@ public class BuildFormTool extends SSToolShovel
             final StructureDefinition sd = ssBlock.getPattern();
 
             final TripleCoord tl = sd.getToolFormLocation();
-            final TripleCoord t2 = sd.getMasterLocation();
+            final TripleCoord ml = sd.getMasterLocation();
+
 
             //todo also search mirrored (currently disabled)
             //every Direction nsew
@@ -97,12 +99,12 @@ public class BuildFormTool extends SSToolShovel
             {
                 final TripleCoord origin =
                         localToGlobal(
-                                -tl.x - t2.x, -tl.y - t2.y, -tl.z - t2.z,
-                                x,            y,            z,
+                                -tl.x, -tl.y, -tl.z,
+                                x, y, z,
                                 o, false, sd.getBlockBounds()
                         );
 
-                final TripleIterator itr = sd.getConstructionItr();
+                final TripleIterator itr = sd.getStructureItr();
 
                 while (itr.hasNext())
                 {

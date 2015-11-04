@@ -23,6 +23,11 @@ public final class TripleCoord
         return new TripleCoord(x,y,z);
     }
 
+    public static TripleCoord of (TripleCoord tc)
+    {
+        return new TripleCoord(tc.x, tc.y, tc.z);
+    }
+
     @Override
     public int hashCode()
     {

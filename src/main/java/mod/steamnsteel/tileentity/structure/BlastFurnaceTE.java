@@ -18,6 +18,7 @@ package mod.steamnsteel.tileentity.structure;
 import mod.steamnsteel.block.structure.BlastFurnaceBlock;
 import mod.steamnsteel.inventory.Inventory;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -28,6 +29,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalDirection;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.transformFromDefinitionToMaster;
 
 public class BlastFurnaceTE extends SteamNSteelStructureTE
 {
@@ -49,6 +51,11 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     private int globalDirectionsMetalOutput;
     private int globalDirectionsSlagOutput;
 
+    private TripleCoord globalLocationSteamInput;
+    private TripleCoord globalLocationMaterialInput;
+    private TripleCoord globalLocationMetalOutput;
+    private TripleCoord globalLocationSlagOutput;
+
     private final Inventory inventory = new Inventory(1);
     private static final int INPUT = 0;
     private static final int[] slotsDefault = {};
@@ -59,9 +66,9 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
         //noop
     }
 
-    public BlastFurnaceTE(int meta)
+    public BlastFurnaceTE(int meta, StructureDefinition sd)
     {
-        super(meta);
+        super(meta, sd);
     }
 
     //================================================================
@@ -251,11 +258,16 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     }
 
     @Override
-    protected void transformDirectionsOnLoad()
+    protected void transformDirectionsOnLoad(StructureDefinition sd)
     {
         globalDirectionsSteamInput    = localToGlobalDirection(DIRECTIONS_STEAM_INPUT,    getBlockMetadata());
         globalDirectionsMaterialInput = localToGlobalDirection(DIRECTIONS_MATERIAL_INPUT, getBlockMetadata());
         globalDirectionsMetalOutput   = localToGlobalDirection(DIRECTIONS_METAL_OUTPUT,   getBlockMetadata());
         globalDirectionsSlagOutput    = localToGlobalDirection(DIRECTIONS_SLAG_OUTPUT,    getBlockMetadata());
+
+        globalLocationSteamInput    = transformFromDefinitionToMaster(sd, LOCATION_STEAM_INPUT);
+        globalLocationMaterialInput = transformFromDefinitionToMaster(sd, LOCATION_MATERIAL_INPUT);
+        globalLocationMetalOutput   = transformFromDefinitionToMaster(sd, LOCATION_METAL_OUTPUT);
+        globalLocationSlagOutput    = transformFromDefinitionToMaster(sd, LOCATION_SLAG_OUTPUT);
     }
 }

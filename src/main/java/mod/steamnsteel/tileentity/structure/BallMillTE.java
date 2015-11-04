@@ -19,6 +19,7 @@ package mod.steamnsteel.tileentity.structure;
 import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.inventory.Inventory;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -29,6 +30,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalDirection;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.transformFromDefinitionToMaster;
 
 public class BallMillTE extends SteamNSteelStructureTE
 {
@@ -50,6 +52,11 @@ public class BallMillTE extends SteamNSteelStructureTE
     private int globalDirectionsMaterialInput;
     private int globalDirectionsMaterialOutput;
 
+    private TripleCoord globalLocationSteamInput;
+    private TripleCoord globalLocationWaterInput;
+    private TripleCoord globalLocationMaterialInput;
+    private TripleCoord globalLocationMaterialOutput;
+
     private final Inventory inventory = new Inventory(1);
     private static final int INPUT = 0;
     private static final int[] slotsDefault = {};
@@ -60,9 +67,9 @@ public class BallMillTE extends SteamNSteelStructureTE
         //noop
     }
 
-    public BallMillTE(int meta)
+    public BallMillTE(int meta, StructureDefinition sd)
     {
-        super(meta);
+        super(meta, sd);
     }
 
     //================================================================
@@ -145,7 +152,7 @@ public class BallMillTE extends SteamNSteelStructureTE
     public boolean canStructureInsertItem(int slot, ItemStack item, int side, TripleCoord blockID)
     {
         return isSide(globalDirectionsMaterialInput, side) &&
-                blockID.equals(LOCATION_MATERIAL_INPUT) &&
+                blockID.equals(globalLocationMaterialInput) &&
                 isItemValidForSlot(slot, item);
     }
 
@@ -158,7 +165,7 @@ public class BallMillTE extends SteamNSteelStructureTE
     @Override
     public int[] getAccessibleSlotsFromStructureSide(int side, TripleCoord blockID)
     {
-        return LOCATION_MATERIAL_INPUT.equals(blockID) || LOCATION_MATERIAL_OUTPUT.equals(blockID) ?
+        return globalLocationMaterialInput.equals(blockID) || globalLocationMaterialOutput.equals(blockID) ?
                 slotsMaterialInput :
                 slotsDefault;
     }
@@ -222,7 +229,7 @@ public class BallMillTE extends SteamNSteelStructureTE
     @Override
     public boolean canStructureConnect(ForgeDirection opposite, TripleCoord blockID)
     {
-        return isSide(globalDirectionsSteamInput, opposite) && LOCATION_STEAM_INPUT.equals(blockID);
+        return isSide(globalDirectionsSteamInput, opposite) && globalLocationSteamInput.equals(blockID);
     }
 
     @Override
@@ -252,11 +259,16 @@ public class BallMillTE extends SteamNSteelStructureTE
     }
 
     @Override
-    protected void transformDirectionsOnLoad()
+    protected void transformDirectionsOnLoad(StructureDefinition sd)
     {
         globalDirectionsSteamInput     = localToGlobalDirection(DIRECTIONS_STEAM_INPUT,     getBlockMetadata());
         globalDirectionsWaterInput     = localToGlobalDirection(DIRECTIONS_WATER_INPUT,     getBlockMetadata());
         globalDirectionsMaterialInput  = localToGlobalDirection(DIRECTIONS_MATERIAL_INPUT,  getBlockMetadata());
         globalDirectionsMaterialOutput = localToGlobalDirection(DIRECTIONS_MATERIAL_OUTPUT, getBlockMetadata());
+
+        globalLocationSteamInput     = transformFromDefinitionToMaster(sd, LOCATION_STEAM_INPUT);
+        globalLocationWaterInput     = transformFromDefinitionToMaster(sd, LOCATION_WATER_INPUT);
+        globalLocationMaterialInput  = transformFromDefinitionToMaster(sd, LOCATION_MATERIAL_INPUT);
+        globalLocationMaterialOutput = transformFromDefinitionToMaster(sd, LOCATION_MATERIAL_OUTPUT);
     }
 }

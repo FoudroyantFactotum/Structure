@@ -178,7 +178,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             final Orientation o = getdecodedOrientation(meta);
             final boolean isMirrored = isMirrored(meta);
 
-            final TripleIterator itr = getPattern().getFormItr();
+            final TripleIterator itr = getPattern().getStructureItr();
 
             while (itr.hasNext())
             {
@@ -309,7 +309,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
     public void formStructure(World world, TripleCoord origin, int meta, int flag)
     {
-        final TripleIterator itr = getPattern().getFormItr();
+        final TripleIterator itr = getPattern().getStructureItr();
         final Orientation orientation = getdecodedOrientation(meta);
         final boolean isMirrored = isMirrored(meta);
 
@@ -348,7 +348,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
     public static void breakStructure(World world, TripleCoord origin, StructureDefinition sd, Orientation orientation, boolean isMirrored, boolean isCreative)
     {
-        TripleIterator itr = sd.getFormItr();
+        TripleIterator itr = sd.getStructureItr();
 
         while (itr.hasNext())
         {
@@ -375,7 +375,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     public static void updateExternalNeighbours(World world, TripleCoord origin, StructureDefinition sd, Orientation orientation, boolean isMirrored, boolean notifyBlocks)
     {
         //neighbour update
-        TripleIterator itr = sd.getFormItr();
+        TripleIterator itr = sd.getStructureItr();
 
         while (itr.hasNext())
         {

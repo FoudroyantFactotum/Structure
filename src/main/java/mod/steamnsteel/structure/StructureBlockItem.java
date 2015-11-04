@@ -60,12 +60,12 @@ public class StructureBlockItem extends ItemBlock
 
         TripleCoord mLoc
                 = localToGlobal(
-                -hSize.x - ml.x, ml.y, -hSize.z - ml.z,
+                -hSize.x + ml.x, ml.y, -hSize.z + ml.z,
                 x,               y,    z,
                 o, isMirrored, block.getPattern().getBlockBounds());
 
         //check block locations
-        final TripleIterator itr = block.getPattern().getFormItr();
+        final TripleIterator itr = block.getPattern().getStructureItr();
 
         while (itr.hasNext())
         {

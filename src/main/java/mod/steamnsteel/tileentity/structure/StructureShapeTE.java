@@ -15,6 +15,7 @@
  */
 package mod.steamnsteel.tileentity.structure;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import mod.steamnsteel.api.plumbing.IPipeTileEntity;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
@@ -444,5 +445,21 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
 
         nbt.setInteger(BLOCK_INFO, local.hashCode());
         nbt.setInteger(BLOCK_PATTERN_NAME, definitionHash);
+    }
+
+    //================================================================
+    //                          C l a s s
+    //================================================================
+
+    @Override
+    public String toString()
+    {
+        return Objects.toStringHelper(this)
+                .add("local", local)
+                .add("definitionHash", definitionHash)
+                .add("masterLocation", masterLocation)
+                .add("originTE", originTE)
+                .add("hasNotAttemptedAcquisitionOfOriginTE", hasNotAttemptedAcquisitionOfOriginTE)
+                .toString();
     }
 }

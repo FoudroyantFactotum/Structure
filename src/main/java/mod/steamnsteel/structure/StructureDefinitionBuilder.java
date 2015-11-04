@@ -95,6 +95,20 @@ public final class StructureDefinitionBuilder
             throw new StructureDefinitionError("tool form location missing");
         }
 
+        //From this point structure definition is valid.
+        //correct collision bounds.
+        for (float[] bb: collisionBoxes)
+        {
+            bb[0] -= masterPosition.x; bb[3] -= masterPosition.x;
+            bb[1] -= masterPosition.y; bb[4] -= masterPosition.y;
+            bb[2] -= masterPosition.z; bb[5] -= masterPosition.z;
+        }
+
+        //correct tool form location
+        toolFormPosition.x -= masterPosition.x;
+        toolFormPosition.y -= masterPosition.y;
+        toolFormPosition.z -= masterPosition.z;
+
         return new StructureDefinition(
                 sbLayout,
                 sbLayoutSize,

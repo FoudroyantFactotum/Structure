@@ -18,6 +18,7 @@ package mod.steamnsteel.tileentity.structure;
 import mod.steamnsteel.block.structure.BoilerBlock;
 import mod.steamnsteel.inventory.Inventory;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -28,6 +29,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalDirection;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.transformFromDefinitionToMaster;
 
 public class BoilerTE extends SteamNSteelStructureTE
 {
@@ -45,6 +47,10 @@ public class BoilerTE extends SteamNSteelStructureTE
     private int globalDirectionsWaterInput;
     private int globalDirectionsMaterialInput;
 
+    private TripleCoord globalLocationSteamOutput;
+    private TripleCoord globalLocationWaterInput;
+    private TripleCoord globalLocationMaterialInput;
+
     private final Inventory inventory = new Inventory(1);
     private static final int INPUT = 0;
     private static final int[] slotsDefault = {};
@@ -55,9 +61,9 @@ public class BoilerTE extends SteamNSteelStructureTE
         //noop
     }
 
-    public BoilerTE(int meta)
+    public BoilerTE(int meta, StructureDefinition sd)
     {
-        super(meta);
+        super(meta, sd);
     }
 
     //================================================================
@@ -247,10 +253,14 @@ public class BoilerTE extends SteamNSteelStructureTE
     }
 
     @Override
-    protected void transformDirectionsOnLoad()
+    protected void transformDirectionsOnLoad(StructureDefinition sd)
     {
         globalDirectionsSteamOutput    = localToGlobalDirection(DIRECTIONS_STEAM_OUTPUT,    getBlockMetadata());
         globalDirectionsWaterInput     = localToGlobalDirection(DIRECTIONS_WATER_INPUT,     getBlockMetadata());
         globalDirectionsMaterialInput  = localToGlobalDirection(DIRECTIONS_MATERIAL_INPUT,  getBlockMetadata());
+
+        globalLocationSteamOutput   = transformFromDefinitionToMaster(sd, LOCATION_STEAM_OUTPUT);
+        globalLocationWaterInput    = transformFromDefinitionToMaster(sd, LOCATION_WATER_INPUT);
+        globalLocationMaterialInput = transformFromDefinitionToMaster(sd, LOCATION_MATERIAL_INPUT);
     }
 }

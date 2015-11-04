@@ -113,7 +113,7 @@ public class StructurePacket implements IMessage
                 return null;
             }
 
-            TripleIterator itr = block.getPattern().getFormItr();
+            TripleIterator itr = block.getPattern().getStructureItr();
 
             while (itr.hasNext())
             {

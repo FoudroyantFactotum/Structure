@@ -61,7 +61,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
     @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
-        return new BallMillTE(meta);
+        return new BallMillTE(meta, getPattern());
     }
 
     @Override
@@ -95,7 +95,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
 
         builder.setConfiguration(TripleCoord.of(0,0,0),
                 new String[]{
-                        "M----",
+                        "-M---",
                         "-----"
                 },
                 new String[]{

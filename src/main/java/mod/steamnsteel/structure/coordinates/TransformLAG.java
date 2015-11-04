@@ -245,4 +245,16 @@ public final class TransformLAG
                 ub.x + tx, ub.y, ub.z + tz
         );
     }
+
+    public static TripleCoord transformFromDefinitionToMaster(StructureDefinition sd, TripleCoord loc)
+    {
+        final TripleCoord newLoc = TripleCoord.of(loc);
+        final TripleCoord ml = sd.getMasterLocation();
+
+        newLoc.x -= ml.x;
+        newLoc.y -= ml.y;
+        newLoc.z -= ml.z;
+
+        return newLoc;
+    }
 }

@@ -25,6 +25,7 @@ import mod.steamnsteel.structure.IStructure.IStructurePipe;
 import mod.steamnsteel.structure.IStructure.IStructureSidedInventory;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import mod.steamnsteel.utility.Orientation;
@@ -64,11 +65,11 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         //noop
     }
 
-    public SteamNSteelStructureTE(int meta)
+    public SteamNSteelStructureTE(int meta, StructureDefinition sd)
     {
         blockMetadata = meta;
 
-        transformDirectionsOnLoad();
+        transformDirectionsOnLoad(sd);
     }
 
     //================================================================
@@ -270,7 +271,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         local = TripleCoord.dehashLoc(blockInfo & maskBlockID);
         blockMetadata = blockInfo >> 24;
 
-        transformDirectionsOnLoad();
+        transformDirectionsOnLoad(getMasterBlockInstance().getPattern());
     }
 
     @Override
@@ -282,7 +283,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         nbt.setInteger(BLOCK_PATTERN_NAME, definitionHash);
     }
 
-    protected void transformDirectionsOnLoad() { }
+    protected void transformDirectionsOnLoad(StructureDefinition sd) { }
 
 
     //================================================================

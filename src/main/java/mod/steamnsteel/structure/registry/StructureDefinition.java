@@ -96,9 +96,9 @@ public class StructureDefinition
     public boolean hasBlockAt(TripleCoord loc) { return hasBlockAt(loc.x, loc.y, loc.z);}
     public boolean hasBlockAt(int x, int y, int z)
     {
-        x = x + masterPosition.x;
-        y = y + masterPosition.y;
-        z = z + masterPosition.z;
+        x += masterPosition.x;
+        y += masterPosition.y;
+        z += masterPosition.z;
 
         return  x < sbLayoutSize.x && x > -1 &&
                 y < sbLayoutSize.y && y > -1 &&
@@ -110,9 +110,9 @@ public class StructureDefinition
     public Block getBlock(TripleCoord loc) { return getBlock(loc.x, loc.y, loc.z);}
     public Block getBlock(int x, int y, int z)
     {
-        x = x + masterPosition.x;
-        y = y + masterPosition.y;
-        z = z + masterPosition.z;
+        x += masterPosition.x;
+        y += masterPosition.y;
+        z += masterPosition.z;
 
         if (blocks.length > x        &&
                 blocks[x].length > y &&
@@ -125,9 +125,9 @@ public class StructureDefinition
     public int getBlockMetadata(TripleCoord loc) { return getBlockMetadata(loc.x,loc.y, loc.z);}
     public int getBlockMetadata(int x, int y, int z)
     {
-        x = x + masterPosition.x;
-        y = y + masterPosition.y;
-        z = z + masterPosition.z;
+        x += masterPosition.x;
+        y += masterPosition.y;
+        z += masterPosition.z;
 
         if (metadata.length > x &&
                 metadata[x].length > y &&
@@ -157,12 +157,7 @@ public class StructureDefinition
         return toolFormPosition;
     }
 
-    public TripleIterator getConstructionItr()
-    {
-        return new TripleIterator(blocks.length, blocks[0].length, blocks[0][0].length);
-    }
-
-    public TripleIterator getFormItr()
+    public TripleIterator getStructureItr()
     {
         return new TripleIterator(
                 -masterPosition.x,                -masterPosition.y,                   -masterPosition.z,

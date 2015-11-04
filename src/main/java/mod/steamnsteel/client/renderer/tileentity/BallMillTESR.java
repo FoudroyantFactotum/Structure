@@ -79,12 +79,12 @@ public class BallMillTESR extends SteamNSteelTESR
 
             //rotate then translate offset
             GL11.glRotatef(getAngleFromOrientation(orientation), 0.0F, 1.0F, 0.0F);
-            GL11.glTranslatef(OFFSET.left, OFFSET.middle, OFFSET.right*3);
+            GL11.glTranslatef(OFFSET.left-1, OFFSET.middle, OFFSET.right*3);
 
         } else {
             //rotate then translate offset
             GL11.glRotatef(getAngleFromOrientation(orientation), 0.0F, 1.0F, 0.0F);
-            GL11.glTranslatef(OFFSET.left, OFFSET.middle, OFFSET.right);
+            GL11.glTranslatef(OFFSET.left-1, OFFSET.middle, OFFSET.right);
         }
 
         // Bind the texture
