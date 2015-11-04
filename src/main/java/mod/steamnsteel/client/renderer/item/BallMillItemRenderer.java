@@ -30,10 +30,10 @@ public class BallMillItemRenderer implements IItemRenderer
     private static final ImmutableTriple<Float, Float, Float> ENTITY_OFFSET = ImmutableTriple.of(1.2f,0.5f,1.0f);
     private static final ImmutableTriple<Float, Float, Float> EQUIPPED_OFFSET = ImmutableTriple.of(1.2f,0.5f,1.0f);
     private static final ImmutableTriple<Float, Float, Float> FIRST_PERSON_OFFSET = ImmutableTriple.of(1.2f,0.5f,1.0f);
-    private static final ImmutableTriple<Float, Float, Float> INVENTORY_OFFSET = ImmutableTriple.of(-0.0f, -1.0f, 0.0f);
+    private static final ImmutableTriple<Float, Float, Float> INVENTORY_OFFSET = ImmutableTriple.of(0.0f, 0.0f, 0.0f);
 
     private static final ImmutableTriple<Float, Float, Float> SCALE = ImmutableTriple.of(0.5f, 0.5f, 0.5f);
-    private static final ImmutableTriple<Float, Float, Float> INVENTORY_SCALE = ImmutableTriple.of(0.35f, 0.35f, 0.35f);
+    private static final ImmutableTriple<Float, Float, Float> INVENTORY_SCALE = ImmutableTriple.of(0.3f, 0.3f, 0.3f);
 
     private final BallMillModel model;
 

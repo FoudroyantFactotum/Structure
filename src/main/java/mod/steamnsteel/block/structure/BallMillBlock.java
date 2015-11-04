@@ -96,7 +96,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
         builder.setConfiguration(TripleCoord.of(0,0,0),
                 new String[]{
                         "-M---",
-                        "-----"
+                        "---- "
                 },
                 new String[]{
                         "-----",
@@ -108,7 +108,9 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
                 new float[]{0.0f,0.0f,0.0f, 1.0f,1.49f,2.0f},
                 new float[]{1.0f,0.0f,0.2f, 3.5f,1.77f,1.8f},
                 new float[]{3.5f,0.0f,0.0f, 4.0f,1.49f,2.0f},
-                new float[]{4.0f,0.0f,0.5f, 5.0f,1.49f,1.5f}
+                new float[]{4.0f,0.0f,0.0f, 4.6f,1.49f,1.0f},
+                new float[]{4.6f,0.0f,0.0f, 5.0f,1.1f,1.0f},
+                new float[]{3.5f,1.1f,1.1f, 5.0f,1.9f ,1.9f}
         );
 
         return builder;
