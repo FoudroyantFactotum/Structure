@@ -20,6 +20,7 @@ import cpw.mods.fml.common.registry.GameRegistry;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.registry.StructureDefinition;
+import mod.steamnsteel.structure.registry.StructureRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
 
@@ -144,6 +145,7 @@ public final class StructureDefinitionBuilder
 
         //default
         builder.put(' ', Blocks.air);
+        builder.put('-', StructureRegistry.generalNull);
 
         this.representation = builder.build();
     }

@@ -1,5 +1,7 @@
 package mod.steamnsteel.structure.coordinates;
 
+import net.minecraftforge.common.util.ForgeDirection;
+
 public final class TripleCoord
 {
     public int x;
@@ -26,6 +28,11 @@ public final class TripleCoord
     public static TripleCoord of (TripleCoord tc)
     {
         return new TripleCoord(tc.x, tc.y, tc.z);
+    }
+
+    public static TripleCoord of (TripleCoord tc, ForgeDirection d)
+    {
+        return new TripleCoord(tc.x + d.offsetX, tc.y + d.offsetY, tc.z + d.offsetZ);
     }
 
     @Override

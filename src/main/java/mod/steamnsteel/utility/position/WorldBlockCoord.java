@@ -92,6 +92,16 @@ public class WorldBlockCoord implements Comparable<WorldBlockCoord>
         world.setBlock(data.left, data.middle, data.right, block);
     }
 
+    public byte getMeta(World world)
+    {
+        return (byte) world.getBlockMetadata(data.left, data.middle, data.right);
+    }
+
+    public void setMeta(World world, int meta, int notify)
+    {
+        world.setBlockMetadataWithNotify(data.left, data.middle, data.right, meta, notify);
+    }
+
     @Override
     public int hashCode()
     {

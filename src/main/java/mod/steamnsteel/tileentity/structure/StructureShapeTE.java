@@ -21,6 +21,7 @@ import mod.steamnsteel.api.plumbing.IPipeTileEntity;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.registry.GeneralBlock.IGeneralBlock;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.block.Block;
@@ -132,7 +133,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
         if (sb != null)
         {
             Block block = sb.getPattern().getBlock(local);
-            return block == null ?
+            return block == null || block instanceof IGeneralBlock ?
                     Blocks.air :
                     block;
         }

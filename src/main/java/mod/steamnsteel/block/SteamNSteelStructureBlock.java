@@ -31,6 +31,7 @@ import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.net.StructurePacket;
 import mod.steamnsteel.structure.net.StructurePacketOption;
+import mod.steamnsteel.structure.registry.GeneralBlock.IGeneralBlock;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
@@ -348,26 +349,29 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
     public static void breakStructure(World world, TripleCoord origin, StructureDefinition sd, Orientation orientation, boolean isMirrored, boolean isCreative)
     {
-        TripleIterator itr = sd.getStructureItr();
+        final TripleIterator itr = sd.getStructureItr();
 
         while (itr.hasNext())
         {
             final TripleCoord local = itr.next();
-            final WorldBlockCoord blockCoord = bindLocalToGlobal(origin, local, orientation, isMirrored, sd.getBlockBounds());
 
-            final Block worldBlock = blockCoord.getBlock(world);
-
-            if (worldBlock instanceof StructureShapeBlock || worldBlock instanceof SteamNSteelStructureBlock)
+            if (sd.hasBlockAt(local))
             {
+                final WorldBlockCoord blockCoord = bindLocalToGlobal(origin, local, orientation, isMirrored, sd.getBlockBounds());
+                final Block worldBlock = blockCoord.getBlock(world);
+
                 final Block block = sd.getBlock(local);
                 final int meta = sd.getBlockMetadata(local.x, local.y, local.z);
 
-                blockCoord.setBlock(world,
-                        block == null ? Blocks.air : block,
-                        localToGlobal(meta, block == null ? Blocks.air : block, orientation, false),
-                        0x2);
+                if (block != null && !(block instanceof IGeneralBlock))
+                {
+                    blockCoord.setBlock(world,
+                            block,
+                            localToGlobal(meta, block, orientation, false),
+                            0x2);
 
-                world.removeTileEntity(blockCoord.getX(), blockCoord.getY(), blockCoord.getZ());
+                    world.removeTileEntity(blockCoord.getX(), blockCoord.getY(), blockCoord.getZ());
+                }
             }
         }
     }
@@ -386,10 +390,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 if (!sd.hasBlockAt(local, d))
                 {
                     final WorldBlockCoord blockCoord = bindLocalToGlobal(
-                            origin, TripleCoord.of(
-                                    local.x + d.offsetX,
-                                    local.y + d.offsetY,
-                                    local.z + d.offsetZ),
+                            origin, TripleCoord.of(local, d),
                             orientation, isMirrored, sd.getBlockBounds()
                     );
 

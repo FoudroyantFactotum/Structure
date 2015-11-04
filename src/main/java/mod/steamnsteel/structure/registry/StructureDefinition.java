@@ -28,6 +28,7 @@ import java.util.BitSet;
  * Structures contain two states. Construction & Form state C->F, F->C.
  *
  * 2D Example: (Ref grid CG-coord)
+ *      Construction       |              Form
  * b -> block, '-' -> null | none, S -> Structure, H -> Shape
  *
  *   State(Construction)      State(Form)
@@ -39,15 +40,21 @@ import java.util.BitSet;
  *
  * S(C) {
  *     blocks           = (as above)
- *     metadata         = (use your imagination)
- *     toolFormPosition = eg. (2,2) Note: player needs to be able to hit location with the tool
+ *     metadata         = metadata of the blocks
+ *     toolFormPosition = eg. (2,2) Note: player needs to be able to hit location with the tool else you'll never be
+ *                            able to form the structure
  * }
  *
  * S(F) {
- *     sbLayout{ ,Size, SizeHlf} = specify the location of shape blocks within State(Form)
- *     masterPosition            = translation of origin from S(C).origin -> S(F).origin eg. (0,0) -> (1,1)
- *                                 Note: location must exist in sbLayout
- *     collisionBoxes            = #imagination
+ *     sbLayout{Size, SizeHlf} = specify the location of shape blocks within State(Form)
+ *     masterPosition          = translation of origin from S(C).origin -> S(F).origin eg. (0,0) -> (1,1)
+ *                               Note: location must exist in sbLayout
+ *
+ *     collisionBoxes          = #imagination
+ * }
+ *
+ * Also watch out. The "getBlock(...)" can return blocks that are unregistered with minecraft (and null (no block). Double check with an
+ * (result instanceOf IGeneralBlock) for safety.
  */
 public class StructureDefinition
 {

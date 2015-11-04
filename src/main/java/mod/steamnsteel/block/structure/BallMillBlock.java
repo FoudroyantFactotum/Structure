@@ -83,7 +83,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
         builder.assignConstructionBlocks(
                 new String[]{
                         "S S S",
-                        "     "
+                        "    -"
                 },
                 new String[]{
                         "     ",

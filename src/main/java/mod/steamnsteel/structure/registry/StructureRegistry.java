@@ -17,7 +17,9 @@ package mod.steamnsteel.structure.registry;
 
 import com.google.common.collect.Lists;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.registry.GeneralBlock.GeneralNull;
 import mod.steamnsteel.utility.log.Logger;
+import net.minecraft.block.Block;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.ChatComponentText;
@@ -72,6 +74,8 @@ public final class StructureRegistry
             Logger.info("\n\n\nIllegalAccessException: " + e.getLocalizedMessage() + "\n\n\n");
         }
     }
+
+    public static final Block generalNull = new GeneralNull();
 
     private StructureRegistry()
     {

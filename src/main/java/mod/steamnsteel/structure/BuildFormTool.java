@@ -23,11 +23,13 @@ import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.net.StructurePacket;
 import mod.steamnsteel.structure.net.StructurePacketOption;
+import mod.steamnsteel.structure.registry.GeneralBlock.IGeneralBlock;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.utility.ModNetwork;
 import mod.steamnsteel.utility.Orientation;
 import mod.steamnsteel.utility.position.WorldBlockCoord;
+import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -110,10 +112,21 @@ public class BuildFormTool extends SSToolShovel
                 {
                     final TripleCoord local = itr.next();
                     final WorldBlockCoord coord = bindLocalToGlobal(origin, local, o, false, sd.getBlockBounds());
+                    final Block b = sd.getBlock(local);
+                    final Block wb = coord.getBlock(world);
 
-                    if (sd.getBlock(local) == null || sd.getBlock(local) != coord.getBlock(world))
+                    if (b == null || b != wb)
                     {
-                        continue nextOrientation;
+                        if (b instanceof IGeneralBlock)
+                        {
+                            final IGeneralBlock gb = (IGeneralBlock) b;
+
+                            if (!gb.canBlockBeUsed(wb,coord.getMeta(world),local))
+                                continue nextOrientation;
+                        } else
+                        {
+                            continue nextOrientation;
+                        }
                     }
                 }
 
