@@ -37,14 +37,14 @@ public class BallMillTE extends SteamNSteelStructureTE
     private static final TripleCoord LOCATION_STEAM_INPUT = TripleCoord.of(0,0,1);
     private static final int DIRECTIONS_STEAM_INPUT = ForgeDirection.SOUTH.flag;
 
-    private static final TripleCoord LOCATION_WATER_INPUT = TripleCoord.of(4,1,0);
-    private static final int DIRECTIONS_WATER_INPUT = ForgeDirection.NORTH.flag;
+    private static final TripleCoord LOCATION_WATER_INPUT = TripleCoord.of(4,1,1);
+    private static final int DIRECTIONS_WATER_INPUT = ForgeDirection.EAST.flag;
 
-    private static final TripleCoord LOCATION_MATERIAL_INPUT = TripleCoord.of(0,1,1);
-    private static final int DIRECTIONS_MATERIAL_INPUT = ForgeDirection.WEST.flag;
+    private static final TripleCoord LOCATION_MATERIAL_INPUT = TripleCoord.of(0,0,0);
+    private static final int DIRECTIONS_MATERIAL_INPUT = ForgeDirection.NORTH.flag;
 
-    private static final TripleCoord LOCATION_MATERIAL_OUTPUT = TripleCoord.of(0,0,1);
-    private static final int DIRECTIONS_MATERIAL_OUTPUT = ForgeDirection.DOWN.flag;
+    private static final TripleCoord LOCATION_MATERIAL_OUTPUT = TripleCoord.of(4,0,0);
+    private static final int DIRECTIONS_MATERIAL_OUTPUT = ForgeDirection.NORTH.flag;
 
     //Global Directions
     private int globalDirectionsSteamInput;
@@ -229,7 +229,8 @@ public class BallMillTE extends SteamNSteelStructureTE
     @Override
     public boolean canStructureConnect(ForgeDirection opposite, TripleCoord blockID)
     {
-        return isSide(globalDirectionsSteamInput, opposite) && globalLocationSteamInput.equals(blockID);
+        return isSide(globalDirectionsSteamInput, opposite) && globalLocationSteamInput.equals(blockID) ||
+                isSide(globalDirectionsWaterInput, opposite) && globalLocationWaterInput.equals(blockID);
     }
 
     @Override

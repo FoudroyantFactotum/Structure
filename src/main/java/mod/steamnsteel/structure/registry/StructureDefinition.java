@@ -28,8 +28,8 @@ import java.util.BitSet;
  * Structures contain two states. Construction & Form state C->F, F->C.
  *
  * 2D Example: (Ref grid CG-coord)
- *      Construction       |              Form
- * b -> block, '-' -> null | none, S -> Structure, H -> Shape
+ *              Construction           |              Form
+ * b -> block, '-' -> null, ' ' -> air | none, S -> Structure, H -> Shape
  *
  *   State(Construction)      State(Form)
  *        b,b,b,b               -,-,H,-
@@ -53,7 +53,7 @@ import java.util.BitSet;
  *     collisionBoxes          = #imagination
  * }
  *
- * Also watch out. The "getBlock(...)" can return blocks that are unregistered with minecraft (and null (no block). Double check with an
+ * Also watch out. The "getBlock(...)" can return blocks that are unregistered with minecraft (and null (no block)). Double check with an
  * (result instanceOf IGeneralBlock) for safety.
  */
 public class StructureDefinition
@@ -141,7 +141,7 @@ public class StructureDefinition
                 metadata[x][y].length > z)
             return metadata[x][y][z];
 
-        return 0;
+        return -1;
     }
 
     public TripleCoord getBlockBounds()

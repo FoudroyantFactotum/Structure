@@ -47,7 +47,7 @@ import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public final class StructureShapeTE extends SteamNSteelTE implements IStructureTE, ISidedInventory, IFluidHandler, IPipeTileEntity
 {
-    private TripleCoord local = TripleCoord.of(0,0,0);
+    private TripleCoord local = TripleCoord.of(0, 0, 0);
     private int definitionHash = -1;
 
     private Optional<TripleCoord> masterLocation = Optional.absent();
@@ -149,9 +149,10 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
         if (sb != null)
         {
             final int meta = getBlockMetadata();
+            final int worldMeta = sb.getPattern().getBlockMetadata(local);
 
             return localToGlobal(
-                    sb.getPattern().getBlockMetadata(local),
+                    worldMeta != -1 ? worldMeta : 0,
                     getTransmutedBlock(),
                     getdecodedOrientation(meta),
                     isMirrored(meta)
@@ -182,8 +183,8 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     @Override
     public int[] getAccessibleSlotsFromSide(int side)
     {
-        return hasOriginTE()?
-                getOriginTE().getAccessibleSlotsFromStructureSide(side, local):
+        return hasOriginTE() ?
+                getOriginTE().getAccessibleSlotsFromStructureSide(side, local) :
                 new int[0];
     }
 
@@ -434,9 +435,9 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
         super.readFromNBT(nbt);
 
         final int blockInfo = nbt.getInteger(BLOCK_INFO);
-        definitionHash = nbt.getInteger(BLOCK_PATTERN_NAME);
 
         local = TripleCoord.dehashLoc(blockInfo & maskBlockID);
+        definitionHash = nbt.getInteger(BLOCK_PATTERN_NAME);
     }
 
     @Override

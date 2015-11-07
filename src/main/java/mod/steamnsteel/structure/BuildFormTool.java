@@ -91,8 +91,6 @@ public class BuildFormTool extends SSToolShovel
             final StructureDefinition sd = ssBlock.getPattern();
 
             final TripleCoord tl = sd.getToolFormLocation();
-            final TripleCoord ml = sd.getMasterLocation();
-
 
             //todo also search mirrored (currently disabled)
             //every Direction nsew
@@ -112,8 +110,12 @@ public class BuildFormTool extends SSToolShovel
                 {
                     final TripleCoord local = itr.next();
                     final WorldBlockCoord coord = bindLocalToGlobal(origin, local, o, false, sd.getBlockBounds());
+
                     final Block b = sd.getBlock(local);
+                    final int m = sd.getBlockMetadata(local);
+
                     final Block wb = coord.getBlock(world);
+                    final int wm = coord.getMeta(world);
 
                     if (b == null || b != wb)
                     {
@@ -121,12 +123,17 @@ public class BuildFormTool extends SSToolShovel
                         {
                             final IGeneralBlock gb = (IGeneralBlock) b;
 
-                            if (!gb.canBlockBeUsed(wb,coord.getMeta(world),local))
+                            if (!gb.canBlockBeUsed(wb, coord.getMeta(world), local))
                                 continue nextOrientation;
                         } else
                         {
                             continue nextOrientation;
                         }
+                    }
+
+                    if (m != -1 && m != wm)
+                    {
+                        continue nextOrientation;
                     }
                 }
 
