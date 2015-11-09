@@ -17,15 +17,16 @@ package mod.steamnsteel.structure.coordinates;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import cpw.mods.fml.common.registry.GameRegistry;
 import mod.steamnsteel.structure.registry.IStructurePatternMetaCorrecter;
-import mod.steamnsteel.structure.registry.MetaCorrecter.SMCStairs;
+import mod.steamnsteel.structure.registry.MetaCorrecter.DefaultMinecraftRotation;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.utility.Orientation;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.List;
@@ -33,8 +34,6 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
-import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 /**
  * This class is used as a utility class holding onto the function implementations that involve a basic transform.
@@ -46,17 +45,17 @@ public final class TransformLAG
 
     static {
         final Builder<Block, IStructurePatternMetaCorrecter> builder = ImmutableMap.builder();
-        final IStructurePatternMetaCorrecter stairs = new SMCStairs();
+        final IStructurePatternMetaCorrecter defaultMinecraftRotation = new DefaultMinecraftRotation();
 
         for (ItemStack itemSk: OreDictionary.getOres("stairWood"))//all oreDic stairWood
-            builder.put(Block.getBlockFromItem(itemSk.getItem()), stairs);
+            builder.put(Block.getBlockFromItem(itemSk.getItem()), defaultMinecraftRotation);
 
-        registerMetaCorrector(builder, "minecraft:stone_stairs"          , stairs);
-        registerMetaCorrector(builder, "minecraft:brick_stairs"          , stairs);
-        registerMetaCorrector(builder, "minecraft:stone_brick_stairs"    , stairs);
-        registerMetaCorrector(builder, "minecraft:nether_brick_stairs"   , stairs);
-        registerMetaCorrector(builder, "minecraft:sandstone_stairs"      , stairs);
-        registerMetaCorrector(builder, "minecraft:quartz_stairs"         , stairs);
+        registerMetaCorrector(builder, "minecraft:stone_stairs"          , defaultMinecraftRotation);
+        registerMetaCorrector(builder, "minecraft:brick_stairs"          , defaultMinecraftRotation);
+        registerMetaCorrector(builder, "minecraft:stone_brick_stairs"    , defaultMinecraftRotation);
+        registerMetaCorrector(builder, "minecraft:nether_brick_stairs"   , defaultMinecraftRotation);
+        registerMetaCorrector(builder, "minecraft:sandstone_stairs"      , defaultMinecraftRotation);
+        registerMetaCorrector(builder, "minecraft:quartz_stairs"         , defaultMinecraftRotation);
 
         META_CORRECTOR = builder.build();
     }
@@ -119,14 +118,14 @@ public final class TransformLAG
         );
     }
 
-    public static int localToGlobalDirection(int fdOld, int meta)
+    /*public static int localToGlobalDirection(int fdOld, int meta)
     {
         final Orientation o = getdecodedOrientation(meta);
         final boolean isMirrored = isMirrored(meta);
 
         int fdNew = 0;
 
-        for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+        for (EnumFacing d : EnumFacing.VALUES)
         {
             if ((fdOld & d.flag) != 0)
             {
@@ -135,13 +134,13 @@ public final class TransformLAG
         }
 
         return fdNew;
-    }
+    }*/
 
     //direction - rotate
-    public static ForgeDirection localToGlobal(ForgeDirection d, Orientation o, boolean ismirrored)
+    public static EnumFacing localToGlobal(EnumFacing d, Orientation o, boolean ismirrored)
     {
         //switch from local direction to global
-        if (ismirrored && (d == ForgeDirection.NORTH || d == ForgeDirection.SOUTH))
+        if (ismirrored && (d == EnumFacing.NORTH || d == EnumFacing.SOUTH))
         {
             d = d.getOpposite();
         }
@@ -149,13 +148,13 @@ public final class TransformLAG
         switch (o)
         {
             case SOUTH:
-                d = d.getRotation(ForgeDirection.DOWN).getRotation(ForgeDirection.DOWN);
+                d = d.rotateY().rotateY();
                 break;
             case WEST:
-                d = d.getRotation(ForgeDirection.DOWN);
+                d = d.rotateY();
                 break;
             case EAST:
-                d = d.getRotation(ForgeDirection.UP);
+                d = d.rotateYCCW();
                 break;
             default://North
         }
@@ -164,14 +163,14 @@ public final class TransformLAG
     }
 
     //meta corrector
-    public static int localToGlobal(int meta, Block block, Orientation o, boolean ismirrored)
+    public static IBlockState localToGlobal(IBlockState state, Block block, Orientation o, boolean ismirrored)
     {
         if (META_CORRECTOR.containsKey(block))
         {
-            return META_CORRECTOR.get(block).correctMeta((byte) meta, o, ismirrored);
+            return META_CORRECTOR.get(block).alterBlockState(state, o, ismirrored);
         }
 
-        return meta;
+        return state;
     }
 
     //collision boxes
@@ -187,7 +186,7 @@ public final class TransformLAG
         final int tx = matrix[0][0] * ntx + matrix[0][1] * ntz;
         final int tz = matrix[1][0] * ntx + matrix[1][1] * ntz;
 
-        final AxisAlignedBB bb = AxisAlignedBB.getBoundingBox(0, 0, 0, 0, 0, 0);
+        final MutableAxisAlignedBB bb = MutableAxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
 
         for (final float[] f: collB)
         {
@@ -205,9 +204,9 @@ public final class TransformLAG
             bb.maxY = y + f[4];
             bb.maxZ = z + max(c1z, c2z) + tz;
 
-            if (aabb.intersectsWith(bb))
+            if (bb.intersectsWith(aabb))
             {
-                boundingBoxList.add(bb.copy());
+                boundingBoxList.add(bb.getAxisAlignedBB());
             }
         }
     }
@@ -240,7 +239,7 @@ public final class TransformLAG
         final int tx = matrix[0][0] * ntx + matrix[0][1] * ntz;
         final int tz = matrix[1][0] * ntx + matrix[1][1] * ntz;
 
-        return AxisAlignedBB.getBoundingBox(
+        return AxisAlignedBB.fromBounds(
                 lb.x + tx, lb.y, lb.z + tz,
                 ub.x + tx, ub.y, ub.z + tz
         );

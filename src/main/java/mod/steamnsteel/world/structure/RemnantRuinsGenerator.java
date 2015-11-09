@@ -10,15 +10,15 @@ import mod.steamnsteel.world.WorldGen;
 import mod.steamnsteel.world.structure.remnantruins.*;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.IResource;
-import net.minecraft.util.MinecraftError;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.World;
 import org.lwjgl.util.Dimension;
 import org.lwjgl.util.Point;
 import org.lwjgl.util.Rectangle;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.Iterator;
 
 public class RemnantRuinsGenerator extends StructureGenerator
 {

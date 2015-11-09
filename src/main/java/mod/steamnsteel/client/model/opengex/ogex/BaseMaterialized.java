@@ -36,7 +36,8 @@
 
 package mod.steamnsteel.client.model.opengex.ogex;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**

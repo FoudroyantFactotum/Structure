@@ -36,7 +36,9 @@
 
 package mod.steamnsteel.client.model.opengex.oddl;
 
-import java.io.*;
+import java.io.IOException;
+import java.io.PushbackReader;
+import java.io.Reader;
 
 
 /**

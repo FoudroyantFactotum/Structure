@@ -36,7 +36,10 @@
 
 package mod.steamnsteel.client.model.opengex.oddl;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
 import java.lang.reflect.Array;
 import java.util.*;
 

@@ -19,7 +19,7 @@ import com.google.common.base.Objects;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import net.minecraft.block.Block;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 
 import java.util.Arrays;
 import java.util.BitSet;
@@ -99,7 +99,7 @@ public class StructureDefinition
                 sbLayoutSize.z/2);
     }
 
-    public boolean hasBlockAt(TripleCoord loc, ForgeDirection d) { return hasBlockAt(loc.x + d.offsetX, loc.y + d.offsetY, loc.z + d.offsetZ);}
+    public boolean hasBlockAt(TripleCoord loc, EnumFacing d) { return hasBlockAt(loc.x + d.getFrontOffsetX(), loc.y + d.getFrontOffsetY(), loc.z + d.getFrontOffsetZ());}
     public boolean hasBlockAt(TripleCoord loc) { return hasBlockAt(loc.x, loc.y, loc.z);}
     public boolean hasBlockAt(int x, int y, int z)
     {

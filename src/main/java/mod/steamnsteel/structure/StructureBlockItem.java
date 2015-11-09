@@ -19,19 +19,20 @@ import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.utility.Orientation;
-import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.flagMirrored;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.propMirror;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
-import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
 public class StructureBlockItem extends ItemBlock
 {
@@ -41,9 +42,9 @@ public class StructureBlockItem extends ItemBlock
     }
 
     @Override
-    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ, int metadata)
+    public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState)
     {
-        final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) field_150939_a;
+        final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) this.block;
 
         if (player == null)
         {
@@ -52,7 +53,7 @@ public class StructureBlockItem extends ItemBlock
 
         final Orientation o = getdecodedOrientation(BlockDirectional.getDirection(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5)));
         final boolean isMirrored = false; //player.isSneaking(); Disabled until fix :p todo fix structure mirroring
-        metadata = o.encode() | (isMirrored ? flagMirrored : 0);
+        newState = o.setBlockState(newState).withProperty(propMirror, isMirrored);
 
         //find master block location
         final TripleCoord hSize = block.getPattern().getHalfBlockBounds();
@@ -61,7 +62,7 @@ public class StructureBlockItem extends ItemBlock
         TripleCoord mLoc
                 = localToGlobal(
                 -hSize.x + ml.x, ml.y, -hSize.z + ml.z,
-                x,               y,    z,
+                pos.getX(), pos.getY(), pos.getZ(),
                 o, isMirrored, block.getPattern().getBlockBounds());
 
         //check block locations
@@ -69,17 +70,16 @@ public class StructureBlockItem extends ItemBlock
 
         while (itr.hasNext())
         {
-            final WorldBlockCoord coord = bindLocalToGlobal(mLoc, itr.next(), o, isMirrored, block.getPattern().getBlockBounds());
+            final BlockPos coord = bindLocalToGlobal(mLoc, itr.next(), o, isMirrored, block.getPattern().getBlockBounds());
 
-            if (!coord.isReplaceable(world))
+            if (!world.getBlockState(coord).getBlock().isReplaceable(world, coord))
             {
                 return false;
             }
         }
 
-        world.setBlock(mLoc.x, mLoc.y, mLoc.z, block, metadata, 0x2);
-        block.onBlockPlacedBy(world, mLoc.x, mLoc.y, mLoc.z, player, stack);
-        block.onPostBlockPlaced(world, mLoc.x, mLoc.y, mLoc.z, metadata);
+        world.setBlockState(pos, newState, 0x2);
+        block.onBlockPlacedBy(world, mLoc.getBlockPos(), newState, player, stack);
 
         return true;
     }

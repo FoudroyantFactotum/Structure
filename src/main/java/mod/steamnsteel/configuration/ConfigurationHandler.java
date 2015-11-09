@@ -29,7 +29,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkState;
 
 @SuppressWarnings("NonSerializableFieldInSerializableClass")
 public enum ConfigurationHandler

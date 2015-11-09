@@ -2,8 +2,6 @@ package mod.steamnsteel.block.machine;
 
 import mod.steamnsteel.block.SteamNSteelBlock;
 import mod.steamnsteel.tileentity.PipeJunctionTE;
-import mod.steamnsteel.tileentity.PipeTE;
-import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;

@@ -16,8 +16,9 @@
 package mod.steamnsteel.structure.registry;
 
 import mod.steamnsteel.utility.Orientation;
+import net.minecraft.block.state.IBlockState;
 
 public interface IStructurePatternMetaCorrecter
 {
-    int correctMeta(byte meta, Orientation o, boolean isMirrored);
+    IBlockState alterBlockState(IBlockState state, Orientation o, boolean isMirrored);
 }

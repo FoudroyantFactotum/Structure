@@ -2,10 +2,10 @@ package mod.steamnsteel.tileentity;
 
 import com.google.common.base.Objects;
 import mod.steamnsteel.api.plumbing.IPipeTileEntity;
+import mod.steamnsteel.utility.PartSets;
 import mod.steamnsteel.utility.blockParts.BlockPart;
 import mod.steamnsteel.utility.blockParts.BlockPartConfiguration;
 import mod.steamnsteel.utility.blockParts.ITileEntityWithParts;
-import mod.steamnsteel.utility.PartSets;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import org.apache.commons.lang3.tuple.ImmutablePair;

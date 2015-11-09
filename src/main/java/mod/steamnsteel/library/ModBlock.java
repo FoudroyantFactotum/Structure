@@ -16,23 +16,19 @@
 
 package mod.steamnsteel.library;
 
+import mod.steamnsteel.TheMod;
+import mod.steamnsteel.block.SteamNSteelBlock;
+import mod.steamnsteel.block.SteamNSteelOreBlock;
+import mod.steamnsteel.block.SteamNSteelStorageBlock;
+import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.block.container.RemnantRuinChestBlock;
 import mod.steamnsteel.block.machine.*;
-import mod.steamnsteel.block.resource.structure.RemnantRuinPillarBlock;
-import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
-import net.minecraftforge.fml.common.registry.GameRegistry;
-import mod.steamnsteel.TheMod;
-import mod.steamnsteel.block.*;
 import mod.steamnsteel.block.resource.ore.*;
-import mod.steamnsteel.block.resource.structure.RemnantRuinFloorBlock;
-import mod.steamnsteel.block.resource.structure.RemnantRuinIronBarsBlock;
 import mod.steamnsteel.block.resource.structure.RemnantRuinPillarBlock;
-import mod.steamnsteel.block.resource.structure.RemnantRuinWallBlock;
 import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.block.structure.BlastFurnaceBlock;
 import mod.steamnsteel.block.structure.BoilerBlock;
 import mod.steamnsteel.block.structure.StructureShapeBlock;
-import mod.steamnsteel.item.resource.structure.RemnantRuinIronBarsBlockItem;
 import mod.steamnsteel.structure.StructureBlockItem;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.*;
@@ -43,6 +39,8 @@ import mod.steamnsteel.tileentity.structure.StructureShapeTE;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.List;

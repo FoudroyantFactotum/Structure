@@ -18,12 +18,13 @@ package mod.steamnsteel.crafting;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 import mod.steamnsteel.library.ModItem;
 import mod.steamnsteel.utility.crafting.RecipePattern;
 import net.minecraft.item.Item;
 import net.minecraft.item.crafting.IRecipe;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.ShapedOreRecipe;
+
 import java.util.List;
 
 enum ToolRecipes

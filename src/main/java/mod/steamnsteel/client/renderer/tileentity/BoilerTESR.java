@@ -15,21 +15,9 @@
  */
 package mod.steamnsteel.client.renderer.tileentity;
 
-import com.google.common.base.Objects;
-import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.block.structure.BoilerBlock;
-import mod.steamnsteel.client.renderer.model.BoilerModel;
-import mod.steamnsteel.tileentity.structure.BoilerTE;
-import mod.steamnsteel.utility.Orientation;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.lwjgl.opengl.GL11;
-
-public class BoilerTESR extends SteamNSteelTESR
+public class BoilerTESR //extends SteamNSteelTESR
 {
-    public static final ResourceLocation TEXTURE = getResourceLocation(BoilerBlock.NAME);
+    /*public static final ResourceLocation TEXTURE = getResourceLocation(BoilerBlock.NAME);
     private static  ImmutableTriple<Float, Float, Float> SCALE = ImmutableTriple.of(1.0f, 1.0f, 1.0f);
     private static  ImmutableTriple<Float, Float, Float> OFFSET = ImmutableTriple.of(1.0f, 0.0f, 1.0f);
 
@@ -100,5 +88,5 @@ public class BoilerTESR extends SteamNSteelTESR
         return Objects.toStringHelper(this)
                 .add("model", model)
                 .toString();
-    }
+    }*/
 }

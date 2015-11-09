@@ -22,6 +22,7 @@ import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 
 import java.lang.reflect.Field;
@@ -129,7 +130,7 @@ public final class StructureRegistry
         }
 
         @Override
-        public List addTabCompletionOptions(ICommandSender player, String[] args)
+        public List addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos)
         {
             return null;
         }

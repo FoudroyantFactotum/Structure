@@ -1,13 +1,13 @@
 package mod.steamnsteel.waila;
 
-import cpw.mods.fml.common.Optional;
-import cpw.mods.fml.common.event.FMLInterModComms;
 import mcp.mobius.waila.api.IWailaDataProvider;
 import mcp.mobius.waila.api.IWailaRegistrar;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.block.structure.StructureShapeBlock;
 import mod.steamnsteel.waila.structure.WailaStructureBlock;
 import mod.steamnsteel.waila.structure.WailaStructureShapeBlock;
+import net.minecraftforge.fml.common.Optional;
+import net.minecraftforge.fml.common.event.FMLInterModComms;
 
 public final class WailaProvider
 {

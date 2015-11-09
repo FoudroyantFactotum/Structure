@@ -16,17 +16,8 @@
 
 package mod.steamnsteel.client.renderer.item;
 
-import com.google.common.base.Objects;
-import cpw.mods.fml.client.FMLClientHandler;
-import mod.steamnsteel.client.renderer.model.BlastFurnaceModel;
-import mod.steamnsteel.client.renderer.tileentity.BlastFurnaceTESR;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.client.IItemRenderer;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.lwjgl.opengl.GL11;
-
-public class BlastFurnaceItemRenderer implements IItemRenderer
-{
+public class BlastFurnaceItemRenderer //implements IItemRenderer
+{/*
     private static final ImmutableTriple<Float, Float, Float> OFFSET = ImmutableTriple.of(1.0f, 0.0f, 1.2f);
     private static final ImmutableTriple<Float, Float, Float> ENTITY_OFFSET = ImmutableTriple.of(0.0f, -1.0f, 0.0f);
     private static final ImmutableTriple<Float, Float, Float> INVENTORY_OFFSET = ImmutableTriple.of(1.0f, -0.5f, 1.2f);
@@ -93,5 +84,5 @@ public class BlastFurnaceItemRenderer implements IItemRenderer
         return Objects.toStringHelper(this)
                 .add("model", model)
                 .toString();
-    }
+    }*/
 }

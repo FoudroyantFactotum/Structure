@@ -16,7 +16,6 @@
 
 package mod.steamnsteel.block;
 
-import mod.steamnsteel.block.SteamNSteelBlock;
 import net.minecraft.block.material.Material;
 
 public class SteamNSteelStorageBlock extends SteamNSteelBlock

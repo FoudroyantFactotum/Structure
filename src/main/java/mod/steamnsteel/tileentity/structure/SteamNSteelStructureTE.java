@@ -17,8 +17,6 @@ package mod.steamnsteel.tileentity.structure;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureFluidHandler;
 import mod.steamnsteel.structure.IStructure.IStructurePipe;
@@ -38,7 +36,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
@@ -173,37 +171,37 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     public static final FluidTankInfo[] emptyFluidTankInfo = {};
 
     @Override
-    public int fill(ForgeDirection from, FluidStack resource, boolean doFill)
+    public int fill(EnumFacing from, FluidStack resource, boolean doFill)
     {
         return structureFill(from, resource, doFill, local);
     }
 
     @Override
-    public FluidStack drain(ForgeDirection from, FluidStack resource, boolean doDrain)
+    public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain)
     {
         return structureDrain(from, resource, doDrain, local);
     }
 
     @Override
-    public FluidStack drain(ForgeDirection from, int maxDrain, boolean doDrain)
+    public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain)
     {
         return structureDrain(from, maxDrain, doDrain, local);
     }
 
     @Override
-    public boolean canFill(ForgeDirection from, Fluid fluid)
+    public boolean canFill(EnumFacing from, Fluid fluid)
     {
         return canStructureFill(from, fluid, local);
     }
 
     @Override
-    public boolean canDrain(ForgeDirection from, Fluid fluid)
+    public boolean canDrain(EnumFacing from, Fluid fluid)
     {
         return canStructureDrain(from, fluid, local);
     }
 
     @Override
-    public FluidTankInfo[] getTankInfo(ForgeDirection from)
+    public FluidTankInfo[] getTankInfo(EnumFacing from)
     {
         return getStructureTankInfo(from, local);
     }
@@ -213,19 +211,19 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     //================================================================
 
     @Override
-    public boolean isSideConnected(ForgeDirection opposite)
+    public boolean isSideConnected(EnumFacing opposite)
     {
         return isStructureSideConnected(opposite, local);
     }
 
     @Override
-    public boolean tryConnect(ForgeDirection opposite)
+    public boolean tryConnect(EnumFacing opposite)
     {
         return tryStructureConnect(opposite, local);
     }
 
     @Override
-    public boolean canConnect(ForgeDirection opposite)
+    public boolean canConnect(EnumFacing opposite)
     {
         return canStructureConnect(opposite, local);
     }
@@ -237,7 +235,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     }
 
     @Override
-    public void disconnect(ForgeDirection opposite)
+    public void disconnect(EnumFacing opposite)
     {
         disconnectStructure(opposite, local);
     }
@@ -318,10 +316,10 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
 
     protected boolean isSide(int flag, int side)
     {
-        return (flag & ForgeDirection.VALID_DIRECTIONS[side].flag) != 0;
+        return (flag & EnumFacing.VALID_DIRECTIONS[side].flag) != 0;
     }
 
-    protected boolean isSide(int flag, ForgeDirection d)
+    protected boolean isSide(int flag, EnumFacing d)
     {
         return (flag & d.flag) != 0;
     }

@@ -18,10 +18,6 @@ package mod.steamnsteel.tileentity;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
-import net.minecraft.server.gui.IUpdatePlayerListBox;
-import net.minecraft.util.*;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import mod.steamnsteel.api.crafting.IAlloyResult;
 import mod.steamnsteel.block.machine.CupolaBlock;
 import mod.steamnsteel.crafting.alloy.AlloyManager;
@@ -33,7 +29,11 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
+import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraft.util.*;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 @SuppressWarnings("ClassWithTooManyMethods")
 public class CupolaTE extends SteamNSteelTE implements ISidedInventory, IUpdatePlayerListBox

@@ -16,13 +16,13 @@
 package mod.steamnsteel.structure;
 
 import com.google.common.collect.ImmutableMap;
-import cpw.mods.fml.common.registry.GameRegistry;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
+import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import java.util.BitSet;
 

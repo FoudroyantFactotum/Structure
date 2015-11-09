@@ -1,6 +1,7 @@
 package mod.steamnsteel.structure.coordinates;
 
-import net.minecraftforge.common.util.ForgeDirection;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 
 public final class TripleCoord
 {
@@ -30,9 +31,19 @@ public final class TripleCoord
         return new TripleCoord(tc.x, tc.y, tc.z);
     }
 
-    public static TripleCoord of (TripleCoord tc, ForgeDirection d)
+    public static TripleCoord of (BlockPos pos)
     {
-        return new TripleCoord(tc.x + d.offsetX, tc.y + d.offsetY, tc.z + d.offsetZ);
+        return new TripleCoord(pos.getX(), pos.getY(), pos.getZ());
+    }
+
+    public static TripleCoord of (TripleCoord tc, EnumFacing d)
+    {
+        return new TripleCoord(tc.x + d.getFrontOffsetX(), tc.y + d.getFrontOffsetY(), tc.z + d.getFrontOffsetZ());
+    }
+
+    public BlockPos getBlockPos()
+    {
+        return new BlockPos(x,y,z);
     }
 
     @Override

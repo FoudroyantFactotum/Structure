@@ -4,7 +4,6 @@ import mod.steamnsteel.api.plumbing.IPipeTileEntity;
 import mod.steamnsteel.utility.PartSets;
 import mod.steamnsteel.utility.blockParts.BlockPartConfiguration;
 import mod.steamnsteel.utility.blockParts.ITileEntityWithParts;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;

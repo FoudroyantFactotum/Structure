@@ -15,26 +15,14 @@
  */
 package mod.steamnsteel.block.structure;
 
-import com.google.common.collect.ImmutableMap;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.structure.StructureDefinitionBuilder;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
-import mod.steamnsteel.tileentity.structure.BallMillTE;
-import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-
+/*
 public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
     public static final String NAME = "ballMill";
 
     public BallMillBlock()
     {
-        setBlockName(NAME);
+        setUnlocalizedName(NAME);
     }
 
     private static float rndRC()
@@ -115,4 +103,4 @@ public class BallMillBlock extends SteamNSteelStructureBlock implements ITileEnt
 
         return builder;
     }
-}
+}*/

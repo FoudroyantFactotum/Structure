@@ -16,17 +16,8 @@
 
 package mod.steamnsteel.client.renderer.item;
 
-import com.google.common.base.Objects;
-import cpw.mods.fml.client.FMLClientHandler;
-import mod.steamnsteel.client.renderer.model.BallMillModel;
-import mod.steamnsteel.client.renderer.tileentity.BallMillTESR;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.client.IItemRenderer;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.lwjgl.opengl.GL11;
-
-public class BallMillItemRenderer implements IItemRenderer
-{
+public class BallMillItemRenderer //implements IItemRenderer
+{/*
     private static final ImmutableTriple<Float, Float, Float> ENTITY_OFFSET = ImmutableTriple.of(1.2f,0.5f,1.0f);
     private static final ImmutableTriple<Float, Float, Float> EQUIPPED_OFFSET = ImmutableTriple.of(1.2f,0.5f,1.0f);
     private static final ImmutableTriple<Float, Float, Float> FIRST_PERSON_OFFSET = ImmutableTriple.of(1.2f,0.5f,1.0f);
@@ -94,5 +85,5 @@ public class BallMillItemRenderer implements IItemRenderer
         return Objects.toStringHelper(this)
                 .add("model", model)
                 .toString();
-    }
+    }*/
 }

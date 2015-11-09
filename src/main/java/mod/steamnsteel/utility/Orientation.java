@@ -18,8 +18,10 @@ package mod.steamnsteel.utility;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
-import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 
+import java.util.Arrays;
 import java.util.Map;
 
 import static java.lang.Math.PI;
@@ -43,6 +45,7 @@ public enum Orientation
     }
 
     private final int flag;
+    private static final PropertyOrientation propertyOrientation = new PropertyOrientation("orientation", Arrays.asList(values()));
 
     Orientation(int flag)
     {
@@ -51,7 +54,42 @@ public enum Orientation
 
     public static Orientation getdecodedOrientation(int encoded)
     {
-        return LOOKUP.get(BlockDirectional.getDirection(encoded));
+        return NORTH; //todo fix north bug
+        //return LOOKUP.get(BlockDirectional.getDirection(encoded));
+    }
+
+    public IBlockState setBlockState(IBlockState state)
+    {
+        return state.withProperty(propertyOrientation, this);
+    }
+
+    public static Orientation getdecodedOrientation(IBlockState state)
+    {
+        Comparable comp = state.getValue(propertyOrientation);
+
+        if (comp.compareTo(SOUTH) == 0)
+            return SOUTH;
+        else if (comp.compareTo(WEST) == 0)
+            return WEST;
+        else if (comp.compareTo(NORTH) == 0)
+            return NORTH;
+        else
+            return NORTH;
+    }
+
+    public EnumFacing getEnumFacing()
+    {
+        switch (this)
+        {
+            case SOUTH:
+                return EnumFacing.SOUTH;
+            case EAST:
+                return EnumFacing.EAST;
+            case WEST:
+                return EnumFacing.WEST;
+            default:
+                return EnumFacing.NORTH;
+        }
     }
 
     public int encode()
@@ -61,6 +99,6 @@ public enum Orientation
 
     public double getRotationValue()
     {
-        return PI * (1.0-ordinal()/2.0);
+        return PI * (1.0 - ordinal() / 2.0);
     }
 }

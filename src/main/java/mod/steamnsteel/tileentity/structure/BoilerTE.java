@@ -15,21 +15,10 @@
  */
 package mod.steamnsteel.tileentity.structure;
 
-import mod.steamnsteel.block.structure.BoilerBlock;
+
 import mod.steamnsteel.inventory.Inventory;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.registry.StructureDefinition;
-import mod.steamnsteel.tileentity.SteamNSteelTE;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalDirection;
-import static mod.steamnsteel.structure.coordinates.TransformLAG.transformFromDefinitionToMaster;
 
 public class BoilerTE extends SteamNSteelStructureTE
 {

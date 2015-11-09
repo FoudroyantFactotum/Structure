@@ -25,6 +25,7 @@ import net.minecraft.block.state.pattern.BlockHelper;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
 import net.minecraft.world.gen.feature.WorldGenMinable;
+
 import java.util.Random;
 
 public class OreGenerator extends WorldGenMinable

@@ -15,7 +15,6 @@
  */
 package mod.steamnsteel.structure;
 
-import cpw.mods.fml.common.network.NetworkRegistry;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.item.tool.SSToolShovel;
 import mod.steamnsteel.library.Material;
@@ -28,10 +27,11 @@ import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.utility.ModNetwork;
 import mod.steamnsteel.utility.Orientation;
-import mod.steamnsteel.utility.position.WorldBlockCoord;
 import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
@@ -46,7 +46,7 @@ public class BuildFormTool extends SSToolShovel
     }
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, int x, int y, int z, int side, float hitX, float hitY, float hitZ)
+    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         if (!world.isRemote)
         {
@@ -109,7 +109,7 @@ public class BuildFormTool extends SSToolShovel
                 while (itr.hasNext())
                 {
                     final TripleCoord local = itr.next();
-                    final WorldBlockCoord coord = bindLocalToGlobal(origin, local, o, false, sd.getBlockBounds());
+                    final BlockPos coord = bindLocalToGlobal(origin, local, o, false, sd.getBlockBounds());
 
                     final Block b = sd.getBlock(local);
                     final int m = sd.getBlockMetadata(local);

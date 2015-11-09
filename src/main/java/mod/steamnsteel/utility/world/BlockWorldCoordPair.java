@@ -20,7 +20,7 @@ import com.google.common.base.Objects;
 import net.minecraft.block.Block;
 import net.minecraft.util.BlockPos;
 
-import static com.google.common.base.Preconditions.*;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class BlockWorldCoordPair
 {

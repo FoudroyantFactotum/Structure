@@ -2,7 +2,6 @@ package mod.steamnsteel.library;
 
 import mod.steamnsteel.utility.blockParts.BlockPartConfiguration;
 import mod.steamnsteel.utility.blockParts.PartSet;
-import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.EnumFacing;
 
 /**

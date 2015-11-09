@@ -16,8 +16,6 @@
 package mod.steamnsteel.block.structure;
 
 import com.google.common.collect.ImmutableMap;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
@@ -27,6 +25,8 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
@@ -40,7 +40,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
 
     public BoilerBlock()
     {
-        setBlockName(NAME);
+        setUnlocalizedName(NAME);
     }
 
     @Override

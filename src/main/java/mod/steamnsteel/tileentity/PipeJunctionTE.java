@@ -1,7 +1,6 @@
 package mod.steamnsteel.tileentity;
 
 import mod.steamnsteel.api.plumbing.IPipeTileEntity;
-import mod.steamnsteel.block.SteamNSteelBlock;
 import net.minecraft.util.EnumFacing;
 
 public class PipeJunctionTE extends SteamNSteelTE implements IPipeTileEntity

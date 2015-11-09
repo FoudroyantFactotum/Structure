@@ -1,5 +1,3 @@
-import org.gradle.plugins.ide.idea.model.*
-
 // For those who want the bleeding edge
 buildscript {
     repositories {
@@ -87,7 +85,7 @@ dependencies {
 
     provided "codechicken:CodeChickenCore:${config.minecraft_version}-${config.codechicken_core_version}:dev"
     provided "codechicken:NotEnoughItems:${config.minecraft_version}-${config.codechicken_nei_version}:dev"
-    provided "mcp.mobius.waila:Waila:${config.waila_version}_${config.minecraft_version}-dev"
+    provided "mcp.mobius.waila:Waila:${config.waila_version}_${config.waila_minecraft_version}"
 }
 
 processResources

@@ -4,9 +4,9 @@ import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.world.WorldGen;
 import mod.steamnsteel.world.structure.remnantruins.Ruin;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.util.EnumFacing;
 import org.lwjgl.util.Rectangle;
 
 public class StructureChunkGenerator

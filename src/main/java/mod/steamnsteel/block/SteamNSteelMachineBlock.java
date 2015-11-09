@@ -27,6 +27,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+
 import java.util.Random;
 
 public abstract class SteamNSteelMachineBlock extends SteamNSteelDirectionalBlock

@@ -16,8 +16,6 @@
 package mod.steamnsteel.block.structure;
 
 import com.google.common.collect.ImmutableMap;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
@@ -26,7 +24,9 @@ import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
-
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+/*
 public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {
     public static final String NAME = "blastFurnace";
@@ -39,20 +39,20 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
 
     public BlastFurnaceBlock()
     {
-        setBlockName(NAME);
+        setUnlocalizedName(NAME);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void spawnBreakParticle(World world, SteamNSteelStructureTE te, TripleCoord coord, float sx, float sy, float sz)
     {
-        /*final int x = coord.getX();
+        *//*final int x = coord.getX();
         final int y = coord.getY();
         final int z = coord.getZ();
 
         for (int i = 0; i < 5; ++i) {
             world.spawnParticle("explode", x + rndRC(), y + 0.5,  z + rndRC(), sx, sy, sz);
-        }*/
+        }*//*
     }
 
     @Override
@@ -146,4 +146,4 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
 
         return builder;
     }
-}
+}*/

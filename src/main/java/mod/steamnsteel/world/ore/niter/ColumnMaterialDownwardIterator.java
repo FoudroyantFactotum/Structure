@@ -19,6 +19,7 @@ package mod.steamnsteel.world.ore.niter;
 import com.google.common.base.Objects;
 import net.minecraft.util.BlockPos;
 import net.minecraft.world.World;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 

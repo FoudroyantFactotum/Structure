@@ -21,15 +21,14 @@ import com.google.common.collect.ImmutableSet;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.utility.position.ChunkCoord;
 import mod.steamnsteel.world.ore.OreGenerator;
-import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraft.world.biome.BiomeGenBase;
-import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.common.BiomeDictionary;
-import net.minecraft.util.EnumFacing;
+
 import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Random;

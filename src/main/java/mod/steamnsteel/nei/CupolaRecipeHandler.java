@@ -44,6 +44,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityFurnace;
 import net.minecraft.util.StatCollector;
 import net.minecraftforge.oredict.OreDictionary;
+
 import java.awt.*;
 import java.util.List;
 import java.util.Set;

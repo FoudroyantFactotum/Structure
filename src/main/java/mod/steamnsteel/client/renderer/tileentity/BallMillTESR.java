@@ -15,20 +15,8 @@
  */
 package mod.steamnsteel.client.renderer.tileentity;
 
-import com.google.common.base.Objects;
-import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.block.structure.BallMillBlock;
-import mod.steamnsteel.client.renderer.model.BallMillModel;
-import mod.steamnsteel.tileentity.structure.BallMillTE;
-import mod.steamnsteel.utility.Orientation;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.World;
-import org.apache.commons.lang3.tuple.ImmutableTriple;
-import org.lwjgl.opengl.GL11;
-
-public class BallMillTESR extends SteamNSteelTESR
-{
+public class BallMillTESR //extends SteamNSteelTESR
+{/*
     public static final ResourceLocation TEXTURE = getResourceLocation(BallMillBlock.NAME);
     private static final ImmutableTriple<Float, Float, Float> SCALE = ImmutableTriple.of(1.0f, 1.0f, 1.0f);
     private static final ImmutableTriple<Float, Float, Float> OFFSET = ImmutableTriple.of(2.0f, 1.0f, 0.5f);
@@ -106,5 +94,5 @@ public class BallMillTESR extends SteamNSteelTESR
         return Objects.toStringHelper(this)
                 .add("model", model)
                 .toString();
-    }
+    }*/
 }

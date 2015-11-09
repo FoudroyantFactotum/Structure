@@ -36,9 +36,9 @@
 
 package mod.steamnsteel.client.model.opengex.ogex;
 
-import java.lang.reflect.Array;
-
 import mod.steamnsteel.client.model.opengex.oddl.PrimitiveType;
+
+import java.lang.reflect.Array;
 
 /**
  *

@@ -36,14 +36,16 @@
 
 package mod.steamnsteel.client.model.opengex.ogex;
 
-import java.io.*;
-import java.util.*;
-
 import mod.steamnsteel.client.model.opengex.oddl.BaseStructure;
 import mod.steamnsteel.client.model.opengex.oddl.DataStructure;
 import mod.steamnsteel.client.model.opengex.oddl.OddlParser;
 import mod.steamnsteel.client.model.opengex.oddl.PrimitiveStructure;
 import mod.steamnsteel.utility.log.Logger;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.Reader;
+import java.util.*;
 
 /**
  *

@@ -13,22 +13,21 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.client.renderer.model;
+package mod.steamnsteel.structure.registry.MetaCorrecter;
 
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import mod.steamnsteel.block.structure.BlastFurnaceBlock;
-import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.client.model.AdvancedModelLoader;
-import net.minecraftforge.client.model.IModelCustom;
+import mod.steamnsteel.structure.registry.IStructurePatternMetaCorrecter;
+import mod.steamnsteel.utility.Orientation;
+import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 
-@SideOnly(Side.CLIENT)
-public class BlastFurnaceModel extends SteamNSteelModel
+public class DefaultMinecraftRotation implements IStructurePatternMetaCorrecter
 {
-    private static final ResourceLocation MODEL = getResourceLocation(getModelPath(BlastFurnaceBlock.NAME));
-    private final IModelCustom model;
+    @Override
+    public IBlockState alterBlockState(IBlockState state, Orientation o, boolean isMirrored)
+    {
+        final EnumFacing f = o.getEnumFacing();
 
-    public BlastFurnaceModel() { model = AdvancedModelLoader.loadModel(MODEL); }
-
-    public void render() { model.renderAll(); }
+        return state.withProperty(BlockDirectional.FACING, isMirrored ? f == EnumFacing.EAST || f == EnumFacing.WEST? f.getOpposite(): f: f);
+    }
 }

@@ -16,8 +16,6 @@
 
 package mod.steamnsteel.block;
 
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import mod.steamnsteel.TheMod;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;

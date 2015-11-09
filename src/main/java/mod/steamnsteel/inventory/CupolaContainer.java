@@ -18,8 +18,6 @@ package mod.steamnsteel.inventory;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 import mod.steamnsteel.api.crafting.CraftingManager;
 import mod.steamnsteel.inventory.slot.CupolaSlot;
 import mod.steamnsteel.tileentity.CupolaTE;
@@ -29,6 +27,8 @@ import net.minecraft.inventory.ICrafting;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntityFurnace;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 public class CupolaContainer extends SteamNSteelContainer
 {

@@ -15,35 +15,20 @@
  */
 package mod.steamnsteel.tileentity.structure;
 
-import mod.steamnsteel.block.structure.BlastFurnaceBlock;
-import mod.steamnsteel.inventory.Inventory;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
-import mod.steamnsteel.structure.registry.StructureDefinition;
-import mod.steamnsteel.tileentity.SteamNSteelTE;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraftforge.common.util.ForgeDirection;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalDirection;
-import static mod.steamnsteel.structure.coordinates.TransformLAG.transformFromDefinitionToMaster;
-
+/*
 public class BlastFurnaceTE extends SteamNSteelStructureTE
 {
     private static final TripleCoord LOCATION_STEAM_INPUT = TripleCoord.of(1,1,0);
-    private static final int DIRECTIONS_STEAM_INPUT = ForgeDirection.NORTH.flag;
+    private static final int DIRECTIONS_STEAM_INPUT = EnumFacing.NORTH.flag;
 
     private static final TripleCoord LOCATION_MATERIAL_INPUT = TripleCoord.of(1,2,1);
-    private static final int DIRECTIONS_MATERIAL_INPUT = ForgeDirection.UP.flag;
+    private static final int DIRECTIONS_MATERIAL_INPUT = EnumFacing.UP.flag;
 
     private static final TripleCoord LOCATION_METAL_OUTPUT = TripleCoord.of(1,2,1);
-    private static final int DIRECTIONS_METAL_OUTPUT = ForgeDirection.UP.flag;
+    private static final int DIRECTIONS_METAL_OUTPUT = EnumFacing.UP.flag;
 
     private static final TripleCoord LOCATION_SLAG_OUTPUT = TripleCoord.of(1,2,1);
-    private static final int DIRECTIONS_SLAG_OUTPUT = ForgeDirection.UP.flag;
+    private static final int DIRECTIONS_SLAG_OUTPUT = EnumFacing.UP.flag;
 
     //Global Directions
     private int globalDirectionsSteamInput;
@@ -106,18 +91,6 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     }
 
     @Override
-    public String getInventoryName()
-    {
-        return SteamNSteelTE.containerName(BlastFurnaceBlock.NAME);
-    }
-
-    @Override
-    public boolean hasCustomInventoryName()
-    {
-        return false;
-    }
-
-    @Override
     public int getInventoryStackLimit()
     {
         return inventory.getStackSizeMax();
@@ -127,18 +100,6 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     public boolean isUseableByPlayer(EntityPlayer player)
     {
         return false;
-    }
-
-    @Override
-    public void openInventory()
-    {
-        //no op
-    }
-
-    @Override
-    public void closeInventory()
-    {
-        //no op
     }
 
     @Override
@@ -174,37 +135,37 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     //================================================================
 
     @Override
-    public boolean canStructureFill(ForgeDirection from, Fluid fluid, TripleCoord blockID)
+    public boolean canStructureFill(EnumFacing from, Fluid fluid, TripleCoord blockID)
     {
         return false;
     }
 
     @Override
-    public boolean canStructureDrain(ForgeDirection from, Fluid fluid, TripleCoord blockID)
+    public boolean canStructureDrain(EnumFacing from, Fluid fluid, TripleCoord blockID)
     {
         return false;
     }
 
     @Override
-    public int structureFill(ForgeDirection from, FluidStack resource, boolean doFill, TripleCoord blockID)
+    public int structureFill(EnumFacing from, FluidStack resource, boolean doFill, TripleCoord blockID)
     {
         return 0;
     }
 
     @Override
-    public FluidStack structureDrain(ForgeDirection from, FluidStack resource, boolean doDrain, TripleCoord blockID)
+    public FluidStack structureDrain(EnumFacing from, FluidStack resource, boolean doDrain, TripleCoord blockID)
     {
         return null;
     }
 
     @Override
-    public FluidStack structureDrain(ForgeDirection from, int maxDrain, boolean doDrain, TripleCoord blockID)
+    public FluidStack structureDrain(EnumFacing from, int maxDrain, boolean doDrain, TripleCoord blockID)
     {
         return null;
     }
 
     @Override
-    public FluidTankInfo[] getStructureTankInfo(ForgeDirection from, TripleCoord blockID)
+    public FluidTankInfo[] getStructureTankInfo(EnumFacing from, TripleCoord blockID)
     {
         return emptyFluidTankInfo;
     }
@@ -214,25 +175,25 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     //================================================================
 
     @Override
-    public boolean isStructureSideConnected(ForgeDirection opposite, TripleCoord blockID)
+    public boolean isStructureSideConnected(EnumFacing opposite, TripleCoord blockID)
     {
         return false;
     }
 
     @Override
-    public boolean tryStructureConnect(ForgeDirection opposite, TripleCoord blockID)
+    public boolean tryStructureConnect(EnumFacing opposite, TripleCoord blockID)
     {
         return false;
     }
 
     @Override
-    public boolean canStructureConnect(ForgeDirection opposite, TripleCoord blockID)
+    public boolean canStructureConnect(EnumFacing opposite, TripleCoord blockID)
     {
         return isSide(globalDirectionsSteamInput, opposite) && LOCATION_STEAM_INPUT.equals(blockID);
     }
 
     @Override
-    public void disconnectStructure(ForgeDirection opposite, TripleCoord blockID)
+    public void disconnectStructure(EnumFacing opposite, TripleCoord blockID)
     {
 
     }
@@ -270,4 +231,4 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
         globalLocationMetalOutput   = transformFromDefinitionToMaster(sd, LOCATION_METAL_OUTPUT);
         globalLocationSlagOutput    = transformFromDefinitionToMaster(sd, LOCATION_SLAG_OUTPUT);
     }
-}
+}*/

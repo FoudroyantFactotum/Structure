@@ -38,7 +38,8 @@ package mod.steamnsteel.client.model.opengex.ogex;
 
 import com.google.common.collect.Lists;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Iterator;
 
 /**
  *
