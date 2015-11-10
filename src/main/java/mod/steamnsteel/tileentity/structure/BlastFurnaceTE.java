@@ -123,7 +123,7 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     }
 
     @Override
-    public int[] getAccessibleSlotsFromStructureSide(int side, TripleCoord blockID)
+    public int[] getSlotsForStructureFace(int side, TripleCoord blockID)
     {
         return LOCATION_MATERIAL_INPUT.equals(blockID)?
                 slotsMaterialInput :

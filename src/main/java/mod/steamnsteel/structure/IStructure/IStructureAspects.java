@@ -19,10 +19,11 @@ import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 
 public interface IStructureAspects
 {
     StructureDefinitionBuilder getStructureBuild();
-    boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, TripleCoord sbID, float sx, float sy, float sz);
+    boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, TripleCoord sbID, float sx, float sy, float sz);
 }

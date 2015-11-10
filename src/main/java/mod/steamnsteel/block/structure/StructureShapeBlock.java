@@ -21,7 +21,6 @@ import mod.steamnsteel.structure.IStructure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.structure.StructureShapeTE;
-import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.EffectRenderer;
@@ -41,7 +40,7 @@ import java.util.Random;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalCollisionBoxes;
-import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
+import static net.minecraft.block.BlockDirectional.FACING;
 
 public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITileEntityProvider
 {
@@ -52,7 +51,7 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
     public StructureShapeBlock()
     {
         setUnlocalizedName(NAME);
-        setDefaultState(this.blockState.getBaseState().withProperty(BlockDirectional.FACING, EnumFacing.NORTH));
+        setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
     }
 
     @Override
@@ -84,7 +83,10 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
             }
 
             localToGlobalCollisionBoxes(mloc.x, mloc.y, mloc.z,
-                    mask, list, sb.getPattern().getCollisionBoxes(), getdecodedOrientation(state), isMirrored(state), sb.getPattern().getBlockBounds());
+                    mask, list, sb.getPattern().getCollisionBoxes(),
+                    (EnumFacing) state.getValue(FACING), isMirrored(state),
+                    sb.getPattern().getBlockBounds()
+            );
         }
     }
 
@@ -127,14 +129,14 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
             breakStructure(world,
                     te.getMasterBlockLocation(),
                     sb.getPattern(),
-                    getdecodedOrientation(state),
+                    (EnumFacing) state.getValue(FACING),
                     isMirrored(state),
                     isPlayerCreative
             );
             updateExternalNeighbours(world,
                     te.getMasterBlockLocation(),
                     sb.getPattern(),
-                    getdecodedOrientation(state),
+                    (EnumFacing) state.getValue(FACING),
                     isMirrored(state),
                     false
             );
@@ -161,7 +163,7 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
                 final TripleCoord mloc = te.getMasterBlockLocation();
                 final BlockPos mbp = new BlockPos(mloc.x, mloc.y, mloc.z);
 
-                return block.onStructureBlockActivated(world, mbp, player, pos, te.getLocal(), sx, sy, sz);
+                return block.onStructureBlockActivated(world, mbp, player, pos, side, te.getLocal(), sx, sy, sz);
             }
         }
 
@@ -173,7 +175,11 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
     @Override
     public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbourBlock)
     {
-        onSharedNeighbourBlockChange(world, pos, ((StructureShapeTE) world.getTileEntity(pos)).getRegHash(), world.getBlockState(pos).getBlock());
+        onSharedNeighbourBlockChange(world, pos,
+                ((StructureShapeTE) world.getTileEntity(pos)).getRegHash(),
+                world.getBlockState(neighbourBlock).getBlock(),
+                world.getBlockState(pos)
+        );
     }
 
     //======================================

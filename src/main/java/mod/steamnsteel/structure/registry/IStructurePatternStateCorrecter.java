@@ -15,10 +15,10 @@
  */
 package mod.steamnsteel.structure.registry;
 
-import mod.steamnsteel.utility.Orientation;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 
-public interface IStructurePatternMetaCorrecter
+public interface IStructurePatternStateCorrecter
 {
-    IBlockState alterBlockState(IBlockState state, Orientation o, boolean isMirrored);
+    IBlockState alterBlockState(IBlockState state, EnumFacing orientation, boolean isMirrored);
 }

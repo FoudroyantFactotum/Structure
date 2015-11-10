@@ -21,14 +21,18 @@ import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
+import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
+public class BoilerBlock extends SteamNSteelStructureBlock
 {
     public static final String NAME = "boiler";
 
@@ -65,15 +69,15 @@ public class BoilerBlock extends SteamNSteelStructureBlock implements ITileEntit
     }
 
     @Override
-    public TileEntity createNewTileEntity(World world, int meta)
+    public TileEntity createTileEntity(World world, IBlockState state)
     {
-        return new BoilerTE(meta, getPattern());
+        return new BoilerTE(getPattern(), (EnumFacing)state.getValue(BlockDirectional.FACING), (Boolean)state.getValue(propMirror));
     }
 
     @Override
-    public boolean onStructureBlockActivated(World world, int x, int y, int z, EntityPlayer player, int side, float sx, float sy, float sz, TripleCoord sbID, int sbx, int sby, int sbz)
+    public boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, TripleCoord sbID, float sx, float sy, float sz)
     {
-        return super.onStructureBlockActivated(world, x, y, z, player, side, sx, sy, sz, sbID, sbx, sby, sbz);
+        return super.onStructureBlockActivated(world, pos, player, callPos, side, sbID, sx, sy, sz);
     }
 
     @Override

@@ -18,7 +18,6 @@ package mod.steamnsteel.structure;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
-import mod.steamnsteel.utility.Orientation;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
@@ -33,6 +32,7 @@ import net.minecraft.world.World;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.propMirror;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
+import static net.minecraft.block.BlockDirectional.*;
 
 public class StructureBlockItem extends ItemBlock
 {
@@ -51,9 +51,11 @@ public class StructureBlockItem extends ItemBlock
             return false;
         }
 
-        final Orientation o = getdecodedOrientation(BlockDirectional.getDirection(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5)));
+        final int orientation = (MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5)) & 3;
+        final EnumFacing horizontal = EnumFacing.getHorizontal(orientation);
         final boolean isMirrored = false; //player.isSneaking(); Disabled until fix :p todo fix structure mirroring
-        newState = o.setBlockState(newState).withProperty(propMirror, isMirrored);
+
+        newState = newState.withProperty(FACING, horizontal).withProperty(propMirror, isMirrored);
 
         //find master block location
         final TripleCoord hSize = block.getPattern().getHalfBlockBounds();
@@ -63,14 +65,14 @@ public class StructureBlockItem extends ItemBlock
                 = localToGlobal(
                 -hSize.x + ml.x, ml.y, -hSize.z + ml.z,
                 pos.getX(), pos.getY(), pos.getZ(),
-                o, isMirrored, block.getPattern().getBlockBounds());
+                horizontal, isMirrored, block.getPattern().getBlockBounds());
 
         //check block locations
         final TripleIterator itr = block.getPattern().getStructureItr();
 
         while (itr.hasNext())
         {
-            final BlockPos coord = bindLocalToGlobal(mLoc, itr.next(), o, isMirrored, block.getPattern().getBlockBounds());
+            final BlockPos coord = bindLocalToGlobal(mLoc, itr.next(), horizontal, isMirrored, block.getPattern().getBlockBounds());
 
             if (!world.getBlockState(coord).getBlock().isReplaceable(world, coord))
             {

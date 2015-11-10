@@ -23,12 +23,13 @@ import mod.steamnsteel.structure.IStructure.IStructurePipe;
 import mod.steamnsteel.structure.IStructure.IStructureSidedInventory;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.net.StructurePacket;
 import mod.steamnsteel.structure.registry.GeneralBlock.IGeneralBlock;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
-import mod.steamnsteel.utility.Orientation;
 import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -36,16 +37,18 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.ORIGIN;
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.flagEnumFacing;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
-import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
+import static net.minecraft.block.BlockDirectional.FACING;
 
 public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, IStructureSidedInventory, IStructureFluidHandler, IStructurePipe
 {
@@ -57,6 +60,9 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     private TripleCoord local = ORIGIN;
     private int definitionHash = -1;
 
+    protected EnumFacing orientation;
+    protected boolean mirror;
+
     private Optional<AxisAlignedBB> renderBounds = Optional.absent();
 
     public SteamNSteelStructureTE()
@@ -64,9 +70,10 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         //noop
     }
 
-    public SteamNSteelStructureTE(int meta, StructureDefinition sd)
+    public SteamNSteelStructureTE(StructureDefinition sd, EnumFacing orientation, boolean mirror)
     {
-        blockMetadata = meta;
+        this.orientation = orientation;
+        this.mirror = mirror;
 
         transformDirectionsOnLoad(sd);
     }
@@ -84,7 +91,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     @Override
     public TripleCoord getMasterBlockLocation()
     {
-        return TripleCoord.of(xCoord, yCoord, zCoord);
+        return TripleCoord.of(pos);
     }
 
     @Override
@@ -119,7 +126,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     @Override
     public int getTransmutedMeta()
     {
-        final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
+        /*final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
 
         if (sb != null)
         {
@@ -132,7 +139,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
                     isMirrored(meta)
             );
         }
-
+*/
         return 0;
     }
 
@@ -142,26 +149,66 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         return local;
     }
 
+    public EnumFacing getOrientation()
+    {
+        return orientation;
+    }
+
+    public boolean getMirror()
+    {
+        return mirror;
+    }
+
+        @Override
+    public BlockPos getMasterBlockLocationMinecraft()
+    {
+        return null;
+    }
+
     //================================================================
     //                     I T E M   I N P U T
     //================================================================
 
     @Override
-    public int[] getAccessibleSlotsFromSide(int side)
+    public int[] getSlotsForFace(EnumFacing side)
     {
         return new int[0];
     }
 
     @Override
-    public boolean canInsertItem(int slotIndex, ItemStack itemStack, int side)
+    public boolean canInsertItem(int slotIndex, ItemStack itemStack, EnumFacing side)
     {
         return canStructureInsertItem(slotIndex, itemStack, side, local);
     }
 
     @Override
-    public boolean canExtractItem(int slotIndex, ItemStack itemStack, int side)
+    public boolean canExtractItem(int slotIndex, ItemStack itemStack, EnumFacing side)
     {
         return canStructureExtractItem(slotIndex, itemStack, side, local);
+    }
+
+    @Override
+    public int getField(int id)
+    {
+        return 0;
+    }
+
+    @Override
+    public void setField(int id, int value)
+    {
+
+    }
+
+    @Override
+    public int getFieldCount()
+    {
+        return 0;
+    }
+
+    @Override
+    public void clear()
+    {
+
     }
 
     //================================================================
@@ -250,13 +297,13 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         final NBTTagCompound nbt = new NBTTagCompound();
         writeToNBT(nbt);
 
-        return new S35PacketUpdateTileEntity(xCoord, yCoord, zCoord, 1, nbt);
+        return new S35PacketUpdateTileEntity(pos, 1, nbt);
     }
 
     @Override
     public void onDataPacket(NetworkManager net, S35PacketUpdateTileEntity packet)
     {
-        readFromNBT(packet.func_148857_g());
+        readFromNBT(packet.getNbtCompound());
     }
 
     @Override
@@ -268,7 +315,9 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
         definitionHash = nbt.getInteger(BLOCK_PATTERN_NAME);
 
         local = TripleCoord.dehashLoc(blockInfo & maskBlockID);
-        blockMetadata = blockInfo >> 24;
+
+        orientation = EnumFacing.VALUES[blockInfo >> 24 & 0x7];
+        mirror = (blockInfo >> 24 & StructurePacket.flagMirrored) != 0;
 
         transformDirectionsOnLoad(getMasterBlockInstance().getPattern());
     }
@@ -278,7 +327,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         super.writeToNBT(nbt);
 
-        nbt.setInteger(BLOCK_INFO, local.hashCode() | (getBlockMetadata() << 24));
+        nbt.setInteger(BLOCK_INFO, local.hashCode() | (orientation.ordinal() & (mirror ? StructurePacket.flagMirrored:0)) << 24);
         nbt.setInteger(BLOCK_PATTERN_NAME, definitionHash);
     }
 
@@ -302,9 +351,10 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
                 return INFINITE_EXTENT_AABB;
             }
 
-            final Orientation o = getdecodedOrientation(getBlockMetadata());
+            final IBlockState metadata = getWorld().getBlockState(pos);
+            final EnumFacing orientation = (EnumFacing)metadata.getValue(FACING);
 
-            renderBounds = Optional.of(localToGlobalBoundingBox(xCoord, yCoord, zCoord, local, sb.getPattern(), o, false));
+            renderBounds = Optional.of(localToGlobalBoundingBox(pos, local, sb.getPattern(), orientation, false));
         }
 
         return renderBounds.get();
@@ -314,14 +364,9 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     //              S t r u c t u r e   H e l p e r s
     //================================================================
 
-    protected boolean isSide(int flag, int side)
+    public static boolean isSide(int flag, EnumFacing d)
     {
-        return (flag & EnumFacing.VALID_DIRECTIONS[side].flag) != 0;
-    }
-
-    protected boolean isSide(int flag, EnumFacing d)
-    {
-        return (flag & d.flag) != 0;
+        return (flag & flagEnumFacing(d)) != 0;
     }
 
     @Override
@@ -331,6 +376,8 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
                 .add("local", local)
                 .add("renderBounds", renderBounds)
                 .add("blockPatternHash", definitionHash)
+                .add("mirror", mirror)
+                .add("orientation", orientation)
                 .toString();
     }
 }

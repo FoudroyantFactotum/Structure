@@ -19,7 +19,7 @@
         "gui": {"rotation": {"y": 180 }}
       }
     }],
-    "orientation": {
+    "facing": {
         "north": { },
         "south": { "transform": {
           "rotation": {"y": 180 }

@@ -20,46 +20,54 @@ import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.registry.StructureRegistry;
-import mod.steamnsteel.utility.Orientation;
+import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
-import static mod.steamnsteel.utility.Orientation.getdecodedOrientation;
 
+//todo fix and clean up this packet code
 public class StructurePacket implements IMessage
 {
+    public static final int flagMirrored = 1 << 3;
+    public static final int orientationMask = 0x7;
+
+    private BlockPos pos;
+    private int structureHash;
+    private int orientationAndMirror;
+    private StructurePacketOption sc;
 
     public StructurePacket()
     {
         //no op
     }
 
-    public StructurePacket(int x, int y, int z, int structureHash, Orientation o, boolean mirror, StructurePacketOption sc)
+    public StructurePacket(BlockPos pos, int structureHash, EnumFacing orientation, boolean mirror, StructurePacketOption sc)
     {
-        this.x = x; this.y = y; this.z = z;
+        this.pos = pos;
 
         this.structureHash = structureHash;
-        orientationAndMirror = o.encode() | (mirror? flagMirrored : 0);
+        orientationAndMirror = orientation.ordinal() | (mirror ? flagMirrored : 0);
         this.sc = sc;
     }
-
-    private int x,y,z;
-    private int structureHash;
-    private int orientationAndMirror;
-    private StructurePacketOption sc;
 
     @Override
     public void fromBytes(ByteBuf buf)
     {
-        x = ByteBufUtils.readVarInt(buf, 5);
-        y = ByteBufUtils.readVarInt(buf, 5);
-        z = ByteBufUtils.readVarInt(buf, 5);
+        final int x = ByteBufUtils.readVarInt(buf, 5);
+        final int y = ByteBufUtils.readVarInt(buf, 5);
+        final int z = ByteBufUtils.readVarInt(buf, 5);
 
+        pos = new BlockPos(x,y,z);
         structureHash = ByteBufUtils.readVarInt(buf, 5);
         orientationAndMirror = ByteBufUtils.readVarShort(buf);
         sc = StructurePacketOption.values()[ByteBufUtils.readVarShort(buf)];
@@ -68,9 +76,9 @@ public class StructurePacket implements IMessage
     @Override
     public void toBytes(ByteBuf buf)
     {
-        ByteBufUtils.writeVarInt(buf, x, 5);
-        ByteBufUtils.writeVarInt(buf, y, 5);
-        ByteBufUtils.writeVarInt(buf, z, 5);
+        ByteBufUtils.writeVarInt(buf, pos.getX(), 5);
+        ByteBufUtils.writeVarInt(buf, pos.getY(), 5);
+        ByteBufUtils.writeVarInt(buf, pos.getZ(), 5);
 
         ByteBufUtils.writeVarInt(buf, structureHash, 5);
 
@@ -93,19 +101,20 @@ public class StructurePacket implements IMessage
 
             int particleCount = 0;
             final float sAjt = 0.05f;
-            final TileEntity te = world.getTileEntity(msg.x, msg.y, msg.z);
-            final Orientation orientation = getdecodedOrientation(msg.orientationAndMirror);
-            final boolean isMirrored = isMirrored(msg.orientationAndMirror);
+            final TripleCoord origin = TripleCoord.of(msg.pos);
+            final EnumFacing orientation = EnumFacing.VALUES[msg.orientationAndMirror & orientationMask];
+            final boolean mirror = (msg.orientationAndMirror & flagMirrored) != 0;
 
             if (msg.sc == StructurePacketOption.BUILD)
             {
-                final int meta = orientation.encode() | (isMirrored ? SteamNSteelStructureBlock.flagMirrored : 0x0);
-                final TripleCoord origin = TripleCoord.of(msg.x, msg.y, msg.z);
+                final IBlockState state = block.getDefaultState()
+                        .withProperty(BlockDirectional.FACING, orientation)
+                        .withProperty(propMirror, mirror);
 
-                world.setBlock(msg.x, msg.y, msg.z, block, meta, 0x2);
-                block.formStructure(world, origin, meta, 0x2);
+                world.setBlockState(msg.pos, state, 0x2);
+                block.formStructure(world, origin, state, 0x2);
+                updateExternalNeighbours(world, origin, block.getPattern(), orientation, mirror, true);
 
-                updateExternalNeighbours(world, origin, block.getPattern(), orientation, isMirrored, true);
                 return null;
             }
 
@@ -114,9 +123,9 @@ public class StructurePacket implements IMessage
             while (itr.hasNext())
             {
                 final TripleCoord local = itr.next();
-                final WorldBlockCoord coord = bindLocalToGlobal(
-                        TripleCoord.of(msg.x, msg.y, msg.z), local,
-                        orientation, isMirrored,
+                final BlockPos coord = bindLocalToGlobal(
+                        origin, local,
+                        orientation, mirror,
                         block.getPattern().getBlockBounds()
                 );
 
@@ -125,15 +134,15 @@ public class StructurePacket implements IMessage
                 float ySpeed = 0.0f;
                 float zSpeed = 0.0f;
 
-                for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS)
+                for (EnumFacing d :EnumFacing.VALUES)
                 {
                     if (!block.getPattern().hasBlockAt(local, d))
                     {
-                        d = localToGlobal(d, orientation, isMirrored);
+                        d = localToGlobal(d, orientation, mirror);
 
-                        xSpeed += d.offsetX;
-                        ySpeed += d.offsetY;
-                        zSpeed += d.offsetZ;
+                        xSpeed += d.getFrontOffsetX();
+                        ySpeed += d.getFrontOffsetY();
+                        zSpeed += d.getFrontOffsetZ();
                     }
                 }
 
@@ -142,7 +151,7 @@ public class StructurePacket implements IMessage
                     case BOOM_PARTICLE:
                         if (particleCount++ % 9 != 0)
                         {
-                            world.spawnParticle("hugeexplosion", coord.getX(), coord.getY(), coord.getZ(), xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
+                            world.spawnParticle(EnumParticleTypes.EXPLOSION_HUGE, coord.getX(), coord.getY(), coord.getZ(), xSpeed * sAjt, ySpeed * sAjt, zSpeed * sAjt);
                         }
                 }
             }

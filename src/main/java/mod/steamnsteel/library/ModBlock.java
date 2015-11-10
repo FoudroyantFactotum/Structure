@@ -25,15 +25,11 @@ import mod.steamnsteel.block.container.RemnantRuinChestBlock;
 import mod.steamnsteel.block.machine.*;
 import mod.steamnsteel.block.resource.ore.*;
 import mod.steamnsteel.block.resource.structure.RemnantRuinPillarBlock;
-import mod.steamnsteel.block.structure.BallMillBlock;
-import mod.steamnsteel.block.structure.BlastFurnaceBlock;
 import mod.steamnsteel.block.structure.BoilerBlock;
 import mod.steamnsteel.block.structure.StructureShapeBlock;
 import mod.steamnsteel.structure.StructureBlockItem;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.*;
-import mod.steamnsteel.tileentity.structure.BallMillTE;
-import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
 import mod.steamnsteel.tileentity.structure.StructureShapeTE;
 import net.minecraft.block.Block;
@@ -63,8 +59,8 @@ public final class ModBlock
     public static final SteamNSteelBlock blockTin = new SteamNSteelStorageBlock(SteamNSteelStorageBlock.TIN_BLOCK);
     public static final SteamNSteelBlock blockZinc = new SteamNSteelStorageBlock(SteamNSteelStorageBlock.ZINC_BLOCK);
 
-    public static final SteamNSteelStructureBlock ballMill = new BallMillBlock();
-    public static final SteamNSteelStructureBlock blastFurnace = new BlastFurnaceBlock();
+    //public static final SteamNSteelStructureBlock ballMill = new BallMillBlock();
+    //public static final SteamNSteelStructureBlock blastFurnace = new BlastFurnaceBlock();
     public static final SteamNSteelStructureBlock boiler = new BoilerBlock();
     public static final SteamNSteelBlock structureShape = new StructureShapeBlock();
 
@@ -98,8 +94,8 @@ public final class ModBlock
 
     public static void registerTileEntities()
     {
-        GameRegistry.registerTileEntity(BallMillTE.class, getTEName(BallMillBlock.NAME));
-        GameRegistry.registerTileEntity(BlastFurnaceTE.class, getTEName(BlastFurnaceBlock.NAME));
+        //GameRegistry.registerTileEntity(BallMillTE.class, getTEName(BallMillBlock.NAME));
+        //GameRegistry.registerTileEntity(BlastFurnaceTE.class, getTEName(BlastFurnaceBlock.NAME));
         GameRegistry.registerTileEntity(BoilerTE.class, getTEName(BoilerBlock.NAME));
         GameRegistry.registerTileEntity(CupolaTE.class, getTEName(CupolaBlock.NAME));
         GameRegistry.registerTileEntity(StructureShapeTE.class, getTEName(StructureShapeBlock.NAME));
@@ -123,8 +119,8 @@ public final class ModBlock
         GameRegistry.registerBlock(fanLarge, FanLargeBlock.NAME);
 
         GameRegistry.registerBlock(structureShape, StructureShapeBlock.NAME);
-        registerStructures(ballMill, BallMillBlock.NAME);
-        registerStructures(blastFurnace, BlastFurnaceBlock.NAME);
+        //registerStructures(ballMill, BallMillBlock.NAME);
+        //registerStructures(blastFurnace, BlastFurnaceBlock.NAME);
         registerStructures(boiler, BoilerBlock.NAME);
         GameRegistry.registerBlock(pipe, PipeBlock.NAME);
         GameRegistry.registerBlock(pipeValve, PipeValveBlock.NAME);

@@ -19,24 +19,11 @@ import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.item.tool.SSToolShovel;
 import mod.steamnsteel.library.Material;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
-import mod.steamnsteel.structure.coordinates.TripleIterator;
-import mod.steamnsteel.structure.net.StructurePacket;
-import mod.steamnsteel.structure.net.StructurePacketOption;
-import mod.steamnsteel.structure.registry.GeneralBlock.IGeneralBlock;
-import mod.steamnsteel.structure.registry.StructureDefinition;
-import mod.steamnsteel.structure.registry.StructureRegistry;
-import mod.steamnsteel.utility.ModNetwork;
-import mod.steamnsteel.utility.Orientation;
-import net.minecraft.block.Block;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
-
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.updateExternalNeighbours;
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class BuildFormTool extends SSToolShovel
 {
@@ -50,7 +37,7 @@ public class BuildFormTool extends SSToolShovel
     {
         if (!world.isRemote)
         {
-            final StructureSearchResult result = uberStructureSearch(world, x, y, z);
+            /*final StructureSearchResult result = uberStructureSearch(world, x, y, z);
 
             if (result != null)
             {
@@ -67,7 +54,7 @@ public class BuildFormTool extends SSToolShovel
                                 StructurePacketOption.BUILD),
                         new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
                 );
-            }
+            }*/
         }
 
         return false;
@@ -86,7 +73,7 @@ public class BuildFormTool extends SSToolShovel
     {
         //do uber search and build structure todo Threaded? Reduce search space? Reduce memory usage?
 
-        for (SteamNSteelStructureBlock ssBlock : StructureRegistry.getStructureList())
+        /*for (SteamNSteelStructureBlock ssBlock : StructureRegistry.getStructureList())
         {
             final StructureDefinition sd = ssBlock.getPattern();
 
@@ -149,7 +136,7 @@ public class BuildFormTool extends SSToolShovel
             }
         }
 
-        //no matches
+        //no matches*/
         return null;
     }
 
@@ -159,7 +146,7 @@ public class BuildFormTool extends SSToolShovel
     private static final class StructureSearchResult
     {
         public SteamNSteelStructureBlock block;
-        public Orientation orientation;
+        public EnumFacing orientation;
         public boolean isMirrored;
         public TripleCoord origin;
     }

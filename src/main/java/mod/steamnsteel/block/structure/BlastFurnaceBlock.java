@@ -15,17 +15,6 @@
  */
 package mod.steamnsteel.block.structure;
 
-import com.google.common.collect.ImmutableMap;
-import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.structure.StructureDefinitionBuilder;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
-import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
-import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
-import net.minecraft.block.ITileEntityProvider;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.World;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
 /*
 public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
 {

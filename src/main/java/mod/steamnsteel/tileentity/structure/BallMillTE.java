@@ -148,7 +148,7 @@ public class BallMillTE extends SteamNSteelStructureTE
     }
 
     @Override
-    public int[] getAccessibleSlotsFromStructureSide(int side, TripleCoord blockID)
+    public int[] getSlotsForStructureFace(int side, TripleCoord blockID)
     {
         return globalLocationMaterialInput.equals(blockID) || globalLocationMaterialOutput.equals(blockID) ?
                 slotsMaterialInput :
