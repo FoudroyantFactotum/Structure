@@ -18,7 +18,11 @@
           "scale": 0.50
         },
         "firstperson": {"rotation": {"y": 180 }, "scale": 0.66},
-        "gui": {"rotation": {"y": 180 }}
+        "gui": {
+          "translation": [-0.18, 0.01, 0],
+          "rotation": {"y": 180 },
+          "scale": 0.39
+        }
       }
 
     }],
@@ -34,6 +38,10 @@
           "rotation": {"y": 90 }
         }}
       },
+    "mirror": {
+      "false": { },
+      "true": { }
+    },
     "render-dynamic": {
       "false": {
         "custom": {

@@ -15,20 +15,34 @@
  */
 package mod.steamnsteel.tileentity.structure;
 
-/*
+
+import mod.steamnsteel.inventory.Inventory;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.registry.StructureDefinition;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.IChatComponent;
+import net.minecraftforge.fluids.Fluid;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidTankInfo;
+
+import static mod.steamnsteel.structure.coordinates.TransformLAG.*;
+
 public class BlastFurnaceTE extends SteamNSteelStructureTE
 {
     private static final TripleCoord LOCATION_STEAM_INPUT = TripleCoord.of(1,1,0);
-    private static final int DIRECTIONS_STEAM_INPUT = EnumFacing.NORTH.flag;
+    private static final int DIRECTIONS_STEAM_INPUT = flagEnumFacing(EnumFacing.NORTH);
 
     private static final TripleCoord LOCATION_MATERIAL_INPUT = TripleCoord.of(1,2,1);
-    private static final int DIRECTIONS_MATERIAL_INPUT = EnumFacing.UP.flag;
+    private static final int DIRECTIONS_MATERIAL_INPUT = flagEnumFacing(EnumFacing.UP);
 
     private static final TripleCoord LOCATION_METAL_OUTPUT = TripleCoord.of(1,2,1);
-    private static final int DIRECTIONS_METAL_OUTPUT = EnumFacing.UP.flag;
+    private static final int DIRECTIONS_METAL_OUTPUT = flagEnumFacing(EnumFacing.UP);
 
     private static final TripleCoord LOCATION_SLAG_OUTPUT = TripleCoord.of(1,2,1);
-    private static final int DIRECTIONS_SLAG_OUTPUT = EnumFacing.UP.flag;
+    private static final int DIRECTIONS_SLAG_OUTPUT = flagEnumFacing(EnumFacing.UP);
 
     //Global Directions
     private int globalDirectionsSteamInput;
@@ -51,14 +65,32 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
         //noop
     }
 
-    public BlastFurnaceTE(int meta, StructureDefinition sd)
+    public BlastFurnaceTE(StructureDefinition sd, EnumFacing orientation, boolean mirror)
     {
-        super(meta, sd);
+        super(sd, orientation, mirror);
     }
 
     //================================================================
     //                     I T E M   I N P U T
     //================================================================
+
+    @Override
+    public String getCommandSenderName()
+    {
+        return null;
+    }
+
+    @Override
+    public boolean hasCustomName()
+    {
+        return false;
+    }
+
+    @Override
+    public IChatComponent getDisplayName()
+    {
+        return null;
+    }
 
     @Override
     public int getSizeInventory()
@@ -103,13 +135,25 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     }
 
     @Override
+    public void openInventory(EntityPlayer player)
+    {
+
+    }
+
+    @Override
+    public void closeInventory(EntityPlayer player)
+    {
+
+    }
+
+    @Override
     public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
     {
         return slotIndex == INPUT;
     }
 
     @Override
-    public boolean canStructureInsertItem(int slot, ItemStack item, int side, TripleCoord blockID)
+    public boolean canStructureInsertItem(int slot, ItemStack item, EnumFacing side, TripleCoord blockID)
     {
         return isSide(globalDirectionsMaterialInput, side) &&
                 blockID.equals(LOCATION_MATERIAL_INPUT) &&
@@ -117,13 +161,13 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     }
 
     @Override
-    public boolean canStructureExtractItem(int slot, ItemStack item, int side, TripleCoord blockID)
+    public boolean canStructureExtractItem(int slot, ItemStack item, EnumFacing side, TripleCoord blockID)
     {
         return false;
     }
 
     @Override
-    public int[] getSlotsForStructureFace(int side, TripleCoord blockID)
+    public int[] getSlotsForStructureFace(EnumFacing side, TripleCoord blockID)
     {
         return LOCATION_MATERIAL_INPUT.equals(blockID)?
                 slotsMaterialInput :
@@ -201,7 +245,6 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     //================================================================
     //                            N B T
     //================================================================
-
     @Override
     public void readFromNBT(NBTTagCompound nbt)
     {
@@ -221,14 +264,16 @@ public class BlastFurnaceTE extends SteamNSteelStructureTE
     @Override
     protected void transformDirectionsOnLoad(StructureDefinition sd)
     {
-        globalDirectionsSteamInput    = localToGlobalDirection(DIRECTIONS_STEAM_INPUT,    getBlockMetadata());
-        globalDirectionsMaterialInput = localToGlobalDirection(DIRECTIONS_MATERIAL_INPUT, getBlockMetadata());
-        globalDirectionsMetalOutput   = localToGlobalDirection(DIRECTIONS_METAL_OUTPUT,   getBlockMetadata());
-        globalDirectionsSlagOutput    = localToGlobalDirection(DIRECTIONS_SLAG_OUTPUT,    getBlockMetadata());
+        globalDirectionsSteamInput    = localToGlobalDirection(DIRECTIONS_STEAM_INPUT,    orientation, mirror);
+        globalDirectionsMaterialInput = localToGlobalDirection(DIRECTIONS_MATERIAL_INPUT, orientation, mirror);
+        globalDirectionsMetalOutput   = localToGlobalDirection(DIRECTIONS_METAL_OUTPUT,   orientation, mirror);
+        globalDirectionsSlagOutput    = localToGlobalDirection(DIRECTIONS_SLAG_OUTPUT,    orientation, mirror);
 
         globalLocationSteamInput    = transformFromDefinitionToMaster(sd, LOCATION_STEAM_INPUT);
         globalLocationMaterialInput = transformFromDefinitionToMaster(sd, LOCATION_MATERIAL_INPUT);
         globalLocationMetalOutput   = transformFromDefinitionToMaster(sd, LOCATION_METAL_OUTPUT);
         globalLocationSlagOutput    = transformFromDefinitionToMaster(sd, LOCATION_SLAG_OUTPUT);
     }
-}*/
+
+
+}

@@ -15,8 +15,22 @@
  */
 package mod.steamnsteel.block.structure;
 
-/*
-public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITileEntityProvider
+
+import com.google.common.collect.ImmutableMap;
+import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.StructureDefinitionBuilder;
+import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
+import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
+import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.state.IBlockState;
+import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
+
+public class BlastFurnaceBlock extends SteamNSteelStructureBlock
 {
     public static final String NAME = "blastFurnace";
 
@@ -29,40 +43,53 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
     public BlastFurnaceBlock()
     {
         setUnlocalizedName(NAME);
+        setDefaultState(
+                this.blockState
+                        .getBaseState()
+                        .withProperty(BlockDirectional.FACING, EnumFacing.NORTH)
+                        .withProperty(propMirror, false)
+        );
     }
 
     @Override
     @SideOnly(Side.CLIENT)
     public void spawnBreakParticle(World world, SteamNSteelStructureTE te, TripleCoord coord, float sx, float sy, float sz)
     {
-        *//*final int x = coord.getX();
+        /*final int x = coord.getX();
         final int y = coord.getY();
         final int z = coord.getZ();
 
         for (int i = 0; i < 5; ++i) {
             world.spawnParticle("explode", x + rndRC(), y + 0.5,  z + rndRC(), sx, sy, sz);
-        }*//*
+        }*/
     }
 
     @Override
-    public TileEntity createNewTileEntity(World world, int meta)
+    public boolean hasTileEntity(IBlockState state)
     {
-        return new BlastFurnaceTE(meta, getPattern());
+        return true;
     }
+
+    @Override
+    public TileEntity createTileEntity(World world, IBlockState state)
+    {
+        return new BlastFurnaceTE(getPattern(), (EnumFacing)state.getValue(BlockDirectional.FACING), (Boolean)state.getValue(propMirror));
+    }
+
 
     @Override
     public StructureDefinitionBuilder getStructureBuild()
     {
         final StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
 
-        builder.assignBlockDefinitions(ImmutableMap.of(
-                'b', "steamnsteel:blockBrass",
-                'T', "minecraft:stone_stairs",
-                'l', "minecraft:lava",
-                'p', "minecraft:glass_pane"
+        builder.assignBlockDefinitions(ImmutableMap.<Character, String>of(
+                //'b', "steamnsteel:blockBrass",
+                //'T', "minecraft:stone_stairs",
+                //'l', "minecraft:lava",
+                //'p', "minecraft:glass_pane"
         ));
 
-        builder.assignConstructionBlocks(
+        /*builder.assignConstructionBlocks(
                 new String[]{
                         "bbb",
                         "TbT",
@@ -78,8 +105,24 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
                         "TbT",
                         "TTT"
                 }
+        );*/
+        builder.assignConstructionBlocks(
+                new String[]{
+                        "   ",
+                        "   ",
+                        "   "
+                },
+                new String[]{
+                        "   ",
+                        "   ",
+                        "   "
+                },
+                new String[]{
+                        "   ",
+                        "   ",
+                        "   "
+                }
         );
-
         //#magic
         builder.assignMetadata(
                 new String[]{
@@ -135,4 +178,4 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock implements ITil
 
         return builder;
     }
-}*/
+}

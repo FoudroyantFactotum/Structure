@@ -21,14 +21,13 @@ import mod.steamnsteel.structure.registry.IStructurePatternStateCorrecter;
 import mod.steamnsteel.structure.registry.MetaCorrecter.DefaultMinecraftRotation;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
+import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.common.registry.GameRegistry;
-import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.List;
 
@@ -41,13 +40,18 @@ import static java.lang.Math.min;
  */
 public final class TransformLAG
 {
+    public static void initStatic()
+    {
+        Logger.info("Dummy Said Hello");
+    }
+
     private static final ImmutableMap<Block,IStructurePatternStateCorrecter> META_CORRECTOR;
 
     static {
         final Builder<Block, IStructurePatternStateCorrecter> builder = ImmutableMap.builder();
         final IStructurePatternStateCorrecter defaultMinecraftRotation = new DefaultMinecraftRotation();
 
-        for (ItemStack itemSk: OreDictionary.getOres("stairWood"))//all oreDic stairWood
+        /*for (ItemStack itemSk: OreDictionary.getOres("stairWood"))//all oreDic stairWood
             builder.put(Block.getBlockFromItem(itemSk.getItem()), defaultMinecraftRotation);
 
         registerMetaCorrector(builder, "minecraft:stone_stairs"          , defaultMinecraftRotation);
@@ -56,7 +60,7 @@ public final class TransformLAG
         registerMetaCorrector(builder, "minecraft:nether_brick_stairs"   , defaultMinecraftRotation);
         registerMetaCorrector(builder, "minecraft:sandstone_stairs"      , defaultMinecraftRotation);
         registerMetaCorrector(builder, "minecraft:quartz_stairs"         , defaultMinecraftRotation);
-
+*/
         META_CORRECTOR = builder.build();
     }
 
@@ -145,6 +149,11 @@ public final class TransformLAG
         if (ismirrored && (direction == EnumFacing.NORTH || direction == EnumFacing.SOUTH))
         {
             direction = direction.getOpposite();
+        }
+
+        if (direction == EnumFacing.DOWN || direction == EnumFacing.UP)
+        {
+            return direction;
         }
 
         switch (orientation)

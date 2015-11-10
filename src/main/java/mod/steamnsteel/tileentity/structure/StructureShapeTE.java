@@ -35,7 +35,6 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
@@ -127,12 +126,6 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
         }
 
         return masterLocation.get();
-    }
-
-    @Override
-    public BlockPos getMasterBlockLocationMinecraft()
-    {
-        return null;
     }
 
     @Override

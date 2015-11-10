@@ -19,7 +19,6 @@ import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
@@ -32,7 +31,7 @@ import net.minecraft.world.World;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.propMirror;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
-import static net.minecraft.block.BlockDirectional.*;
+import static net.minecraft.block.BlockDirectional.FACING;
 
 public class StructureBlockItem extends ItemBlock
 {
@@ -72,7 +71,13 @@ public class StructureBlockItem extends ItemBlock
 
         while (itr.hasNext())
         {
-            final BlockPos coord = bindLocalToGlobal(mLoc, itr.next(), horizontal, isMirrored, block.getPattern().getBlockBounds());
+            final TripleCoord local = itr.next();
+            final BlockPos coord = bindLocalToGlobal(mLoc, local, horizontal, isMirrored, block.getPattern().getBlockBounds());
+
+            if (!block.getPattern().hasBlockAt(local))
+            {
+                continue;
+            }
 
             if (!world.getBlockState(coord).getBlock().isReplaceable(world, coord))
             {
@@ -80,7 +85,7 @@ public class StructureBlockItem extends ItemBlock
             }
         }
 
-        world.setBlockState(pos, newState, 0x2);
+        world.setBlockState(mLoc.getBlockPos(), newState, 0x2);
         block.onBlockPlacedBy(world, mLoc.getBlockPos(), newState, player, stack);
 
         return true;

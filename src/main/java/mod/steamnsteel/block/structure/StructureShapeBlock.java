@@ -22,6 +22,7 @@ import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.structure.StructureShapeTE;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.Entity;
@@ -30,6 +31,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumWorldBlockLayer;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -51,7 +53,17 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
     public StructureShapeBlock()
     {
         setUnlocalizedName(NAME);
-        setDefaultState(this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH));
+        setDefaultState(this.blockState
+                .getBaseState()
+                .withProperty(FACING, EnumFacing.NORTH)
+                .withProperty(propMirror, false)
+        );
+    }
+
+    @Override
+    protected BlockState createBlockState()
+    {
+        return new BlockState(this, FACING, propMirror);
     }
 
     @Override
@@ -108,7 +120,7 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
 
             if (block != null)
             {
-                return block.addDestroyEffects(world, te.getMasterBlockLocationMinecraft(), effectRenderer);
+                return block.addDestroyEffects(world, te.getMasterBlockLocation().getBlockPos(), effectRenderer);
             }
         }
 
@@ -185,6 +197,14 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
     //======================================
     //      V i s u a l   D e b u g
     //======================================
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public EnumWorldBlockLayer getBlockLayer()
+    {
+        return EnumWorldBlockLayer.TRANSLUCENT;
+    }
+
 /*
     @Override
     public boolean renderAsNormalBlock() {

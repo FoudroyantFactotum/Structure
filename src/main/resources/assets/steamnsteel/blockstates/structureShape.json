@@ -1,0 +1,38 @@
+{
+  "forge_marker": 1,
+  "defaults": {
+    "transform": "forge:default-block",
+    "model": "minecraft:cube_all",
+    "textures": {
+        "all": "blocks/glass_blue"
+    }
+  },
+  "variants": {
+    "normal": [{
+    }],
+    "inventory": [{
+      "transform": {
+        "thirdperson": { },
+        "firstperson": { },
+        "gui": { }
+      }
+    }],
+    "facing": {
+      "north": {"textures": {"all": "blocks/glass_blue"}
+    },
+      "south": { "textures": {"all": "blocks/glass_red"}, "transform": {
+          "rotation": {"y": 180 }
+      }},
+      "east": { "textures": {"all": "blocks/glass_green"},"transform": {
+        "rotation": {"y": 270 }
+      }},
+      "west": { "textures": {"all": "blocks/glass_yellow"},"transform": {
+        "rotation": {"y": 90 }
+      }}
+    },
+    "mirror": {
+      "false": { },
+      "true": { }
+    }
+  }
+}

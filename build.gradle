@@ -83,6 +83,7 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+    provided "codechicken:CodeChickenLib:${config.minecraft_version}-${config.codechicken_lib_version}:dev"
     provided "codechicken:CodeChickenCore:${config.minecraft_version}-${config.codechicken_core_version}:dev"
     provided "codechicken:NotEnoughItems:${config.minecraft_version}-${config.codechicken_nei_version}:dev"
     provided "mcp.mobius.waila:Waila:${config.waila_version}_${config.waila_minecraft_version}"

@@ -11,7 +11,7 @@
  * PARTICULAR PURPOSE. See the GNU General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License along with
- * this program; if not, see <http://www.gnu.org/licenses>.
+ * this program; if not, see <http://   .gnu.org/licenses>.
  */
 package mod.steamnsteel.block.structure;
 
@@ -21,8 +21,8 @@ import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
+import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.BlockDirectional;
-import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
@@ -45,6 +45,12 @@ public class BoilerBlock extends SteamNSteelStructureBlock
     public BoilerBlock()
     {
         setUnlocalizedName(NAME);
+        setDefaultState(
+                this.blockState
+                        .getBaseState()
+                        .withProperty(BlockDirectional.FACING, EnumFacing.NORTH)
+                        .withProperty(propMirror, false)
+        );
     }
 
     @Override
@@ -69,6 +75,12 @@ public class BoilerBlock extends SteamNSteelStructureBlock
     }
 
     @Override
+    public boolean hasTileEntity(IBlockState state)
+    {
+        return true;
+    }
+
+    @Override
     public TileEntity createTileEntity(World world, IBlockState state)
     {
         return new BoilerTE(getPattern(), (EnumFacing)state.getValue(BlockDirectional.FACING), (Boolean)state.getValue(propMirror));
@@ -77,6 +89,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock
     @Override
     public boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, TripleCoord sbID, float sx, float sy, float sz)
     {
+        Logger.info("Active: " + world.getTileEntity(pos));
         return super.onStructureBlockActivated(world, pos, player, callPos, side, sbID, sx, sy, sz);
     }
 
@@ -85,15 +98,15 @@ public class BoilerBlock extends SteamNSteelStructureBlock
     {
         StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
 
-        builder.assignBlockDefinitions(ImmutableMap.of(
-                'p', "steamnsteel:blockPlotonium",
-                's', "steamnsteel:blockSteel",
-                'g', "minecraft:glass_pane",
-                'f', "minecraft:fire",
-                'w', "minecraft:planks"
-        ));
+        builder.assignBlockDefinitions(ImmutableMap.<Character, String>of());//ImmutableMap.of(
+                //'p', "steamnsteel:blockPlotonium",
+                //'s', "steamnsteel:blockSteel",
+                //'g', "minecraft:glass_pane",
+                //'f', "minecraft:fire",
+                //'w', "minecraft:planks"
+        //));
 
-        builder.assignConstructionBlocks(
+        /*builder.assignConstructionBlocks(
                 new String[]{
                         "ppp",
                         "sss",
@@ -113,6 +126,29 @@ public class BoilerBlock extends SteamNSteelStructureBlock
                         "ppp",
                         "sss",
                         "ppp"
+                }
+        );*/
+
+        builder.assignConstructionBlocks(
+                new String[]{
+                        "   ",
+                        "   ",
+                        "   "
+                },
+                new String[]{
+                        "   ",
+                        "   ",
+                        "   "
+                },
+                new String[]{
+                        "   ",
+                        "   ",
+                        "   "
+                },
+                new String[]{
+                        "   ",
+                        "   ",
+                        "   "
                 }
         );
 
@@ -151,4 +187,6 @@ public class BoilerBlock extends SteamNSteelStructureBlock
 
         return builder;
     }
+
+
 }

@@ -21,7 +21,7 @@ import mod.steamnsteel.client.model.opengex.OpenGEXModelLoader;
 import mod.steamnsteel.client.renderer.tileentity.LargeFanTESR;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.library.ModItem;
-import mod.steamnsteel.tileentity.LargeFanTE;
+import mod.steamnsteel.tileentity.structure.FanLargeTE;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -71,7 +71,6 @@ public class ClientRenderProxy extends RenderProxy
         registerBlockItemModel(ModBlock.blockZinc);
 
         registerBlockItemModel(ModBlock.cupola);
-        registerBlockItemModel(ModBlock.fanLarge);
         registerBlockItemModel(ModBlock.pipe);
         registerBlockItemModel(ModBlock.pipeValve);
         registerBlockItemModel(ModBlock.pipeValveRedstone);
@@ -79,6 +78,12 @@ public class ClientRenderProxy extends RenderProxy
 
         registerBlockItemModel(ModBlock.remnantRuinPillar);
         registerBlockItemModel(ModBlock.remnantRuinChest);
+
+        //Structures
+        registerBlockItemModel(ModBlock.fanLarge);
+        registerBlockItemModel(ModBlock.boiler);
+        registerBlockItemModel(ModBlock.ballMill);
+        registerBlockItemModel(ModBlock.blastFurnace);
     }
 
     private void registerBlockItemModel(Block block) {
@@ -138,6 +143,9 @@ public class ClientRenderProxy extends RenderProxy
         registerItemModel(ModItem.swordSteel);
         registerItemModel(ModItem.hoeSteel);
 
+        //tmp
+        registerItemModel(ModItem.buildToolForm);
+
         //TODO: reenable these once I have them working
         /*
         MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.pipe), new PipeItemRenderer());
@@ -151,11 +159,11 @@ public class ClientRenderProxy extends RenderProxy
 
     private void registerTESRs()
     {
-        ClientRegistry.bindTileEntitySpecialRenderer(LargeFanTE.class, new LargeFanTESR());
+        ClientRegistry.bindTileEntitySpecialRenderer(FanLargeTE.class, new LargeFanTESR());
+        //ClientRegistry.bindTileEntitySpecialRenderer(BoilerTE.class, new BoilerTESR());
         /*
         ClientRegistry.bindTileEntitySpecialRenderer(BallMillTE.class, new BallMillTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(BlastFurnaceTE.class, new BlastFurnaceTESR());
-        ClientRegistry.bindTileEntitySpecialRenderer(BoilerTE.class, new BoilerTESR());
 
         PipeBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
         PipeValveBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());

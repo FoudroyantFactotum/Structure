@@ -15,8 +15,11 @@
  */
 package mod.steamnsteel.block;
 
-import mcp.mobius.waila.api.*;
 import mcp.mobius.waila.api.ITaggedList.ITipList;
+import mcp.mobius.waila.api.IWailaConfigHandler;
+import mcp.mobius.waila.api.IWailaDataAccessor;
+import mcp.mobius.waila.api.IWailaDataAccessorServer;
+import mcp.mobius.waila.api.IWailaDataProvider;
 import mod.steamnsteel.block.structure.StructureShapeBlock;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.structure.IStructure.IPatternHolder;
@@ -30,7 +33,7 @@ import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.waila.WailaProvider;
 import net.minecraft.block.Block;
-import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
@@ -38,7 +41,6 @@ import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -55,6 +57,7 @@ import java.util.Random;
 import static mod.steamnsteel.block.structure.StructureShapeBlock.EMPTY_BOUNDS;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalCollisionBoxes;
+import static net.minecraft.block.BlockDirectional.*;
 import static net.minecraft.block.BlockDirectional.FACING;
 
 @Optional.Interface(modid = WailaProvider.WAILA, iface = "mcp.mobius.waila.api.IWailaDataProvider", striprefs = true)
@@ -74,6 +77,12 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     public int getRegHash()
     {
         return regHash;
+    }
+
+    @Override
+    protected BlockState createBlockState()
+    {
+        return new BlockState(this, FACING, propMirror);
     }
 
     @Override
@@ -330,7 +339,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 ssBlock.configureBlock(local, regHash);
             } else
             {
-                Logger.info("formStructure: Error te: " + local + " : " + blockCoord); //todo sub with proper error fix
+                Logger.info("formStructure: Error te: " + local + " : " + blockCoord + " : " + world.getBlockState(blockCoord)); //todo sub with proper error fix
             }
         }
     }

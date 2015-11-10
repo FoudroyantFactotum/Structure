@@ -27,6 +27,7 @@ import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.library.ModBlockParts;
 import mod.steamnsteel.library.ModItem;
 import mod.steamnsteel.proxy.Proxies;
+import mod.steamnsteel.structure.coordinates.TransformLAG;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.utility.ModNetwork;
 import mod.steamnsteel.waila.WailaProvider;
@@ -78,6 +79,7 @@ public class TheMod
         WailaProvider.init();
         ModBlockParts.init();
         Proxies.render.preInit();
+        TransformLAG.initStatic();
     }
 
     @SuppressWarnings("AssignmentToStaticFieldFromInstanceMethod")

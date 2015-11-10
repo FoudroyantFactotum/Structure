@@ -37,7 +37,6 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
@@ -157,12 +156,6 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     public boolean getMirror()
     {
         return mirror;
-    }
-
-        @Override
-    public BlockPos getMasterBlockLocationMinecraft()
-    {
-        return null;
     }
 
     //================================================================
@@ -327,7 +320,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         super.writeToNBT(nbt);
 
-        nbt.setInteger(BLOCK_INFO, local.hashCode() | (orientation.ordinal() & (mirror ? StructurePacket.flagMirrored:0)) << 24);
+        nbt.setInteger(BLOCK_INFO, local.hashCode() | (orientation.ordinal() | (mirror ? StructurePacket.flagMirrored:0)) << 24);
         nbt.setInteger(BLOCK_PATTERN_NAME, definitionHash);
     }
 
@@ -351,8 +344,8 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
                 return INFINITE_EXTENT_AABB;
             }
 
-            final IBlockState metadata = getWorld().getBlockState(pos);
-            final EnumFacing orientation = (EnumFacing)metadata.getValue(FACING);
+            final IBlockState state = getWorld().getBlockState(pos);
+            final EnumFacing orientation = (EnumFacing)state.getValue(FACING);
 
             renderBounds = Optional.of(localToGlobalBoundingBox(pos, local, sb.getPattern(), orientation, false));
         }
