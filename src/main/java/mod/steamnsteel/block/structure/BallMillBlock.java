@@ -83,12 +83,12 @@ public class BallMillBlock extends SteamNSteelStructureBlock
     {
         final StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
 
-        builder.assignBlockDefinitions(ImmutableMap.<Character, String>of(
-                //'b', "steamnsteel:blockBrass",
-                //'S', "steamnsteel:blockSteel"
+        builder.assignBlockDefinitions(ImmutableMap.of(
+                'b', "steamnsteel:blockBrass",
+                'S', "steamnsteel:blockSteel"
         ));
 
-        /*builder.assignConstructionBlocks(
+        builder.assignConstructionBlocks(
                 new String[]{
                         "S S S",
                         "    -"
@@ -97,19 +97,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock
                         "     ",
                         "  b  "
                 }
-        );*/
-
-        builder.assignConstructionBlocks(
-                new String[]{
-                        "     ",
-                        "    -"
-                },
-                new String[]{
-                        "     ",
-                        "     "
-                }
         );
-
 
         builder.assignToolFormPosition(TripleCoord.of(2,1,1));
 

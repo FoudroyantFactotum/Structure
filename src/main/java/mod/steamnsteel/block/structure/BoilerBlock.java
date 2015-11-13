@@ -22,12 +22,14 @@ import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.log.Logger;
+import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -57,21 +59,21 @@ public class BoilerBlock extends SteamNSteelStructureBlock
     @SideOnly(Side.CLIENT)
     public void spawnBreakParticle(World world, SteamNSteelStructureTE te, TripleCoord coord, float sx, float sy, float sz)
     {
-        /*final int x = coord.getX();
-        final int y = coord.getY();
-        final int z = coord.getZ();
+        final int x = coord.x;
+        final int y = coord.y;
+        final int z = coord.z;
 
-        final Block block = coord.getStructureDefinition().getBlock(coord.getLX(), coord.getLY(), coord.getLZ());
+        final Block block = getPattern().getBlock(te.getLocal());
 
         if (block != null)
         {
             for (int i = 0; i < 5; ++i)
             {
-                world.spawnParticle("explode", x + rndRC(), y + 1, z + rndRC(), sx, sy, sz);
-                world.spawnParticle("explode", x, y + 0.5, z, sx, sy, sz);
-                world.spawnParticle("explode", x + rndRC(), y, z + rndRC(), sx, sy, sz);
+                world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, x + rndRC(), y + 1, z + rndRC(), sx, sy, sz);
+                world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, x, y + 0.5, z, sx, sy, sz);
+                world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, x + rndRC(), y, z + rndRC(), sx, sy, sz);
             }
-        }*/
+        }
     }
 
     @Override
@@ -98,15 +100,15 @@ public class BoilerBlock extends SteamNSteelStructureBlock
     {
         StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
 
-        builder.assignBlockDefinitions(ImmutableMap.<Character, String>of());//ImmutableMap.of(
-                //'p', "steamnsteel:blockPlotonium",
-                //'s', "steamnsteel:blockSteel",
-                //'g', "minecraft:glass_pane",
-                //'f', "minecraft:fire",
-                //'w', "minecraft:planks"
-        //));
+        builder.assignBlockDefinitions(ImmutableMap.of(
+                'p', "steamnsteel:blockPlotonium",
+                's', "steamnsteel:blockSteel",
+                'g', "minecraft:glass_pane",
+                'f', "minecraft:fire",
+                'w', "minecraft:planks"
+        ));
 
-        /*builder.assignConstructionBlocks(
+        builder.assignConstructionBlocks(
                 new String[]{
                         "ppp",
                         "sss",
@@ -126,29 +128,6 @@ public class BoilerBlock extends SteamNSteelStructureBlock
                         "ppp",
                         "sss",
                         "ppp"
-                }
-        );*/
-
-        builder.assignConstructionBlocks(
-                new String[]{
-                        "   ",
-                        "   ",
-                        "   "
-                },
-                new String[]{
-                        "   ",
-                        "   ",
-                        "   "
-                },
-                new String[]{
-                        "   ",
-                        "   ",
-                        "   "
-                },
-                new String[]{
-                        "   ",
-                        "   ",
-                        "   "
                 }
         );
 

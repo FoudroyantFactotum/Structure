@@ -82,14 +82,14 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock
     {
         final StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
 
-        builder.assignBlockDefinitions(ImmutableMap.<Character, String>of(
-                //'b', "steamnsteel:blockBrass",
-                //'T', "minecraft:stone_stairs",
-                //'l', "minecraft:lava",
-                //'p', "minecraft:glass_pane"
+        builder.assignBlockDefinitions(ImmutableMap.of(
+                'b', "steamnsteel:blockBrass",
+                'T', "minecraft:stone_stairs",
+                'l', "minecraft:lava",
+                'p', "minecraft:glass_pane"
         ));
 
-        /*builder.assignConstructionBlocks(
+        builder.assignConstructionBlocks(
                 new String[]{
                         "bbb",
                         "TbT",
@@ -105,24 +105,8 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock
                         "TbT",
                         "TTT"
                 }
-        );*/
-        builder.assignConstructionBlocks(
-                new String[]{
-                        "   ",
-                        "   ",
-                        "   "
-                },
-                new String[]{
-                        "   ",
-                        "   ",
-                        "   "
-                },
-                new String[]{
-                        "   ",
-                        "   ",
-                        "   "
-                }
         );
+
         //#magic
         builder.assignMetadata(
                 new String[]{

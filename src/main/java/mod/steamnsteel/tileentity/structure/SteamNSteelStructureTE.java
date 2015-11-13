@@ -29,6 +29,7 @@ import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -45,9 +46,9 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.ORIGIN;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.propMirror;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.flagEnumFacing;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
-import static net.minecraft.block.BlockDirectional.FACING;
 
 public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, IStructureSidedInventory, IStructureFluidHandler, IStructurePipe
 {
@@ -337,7 +338,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         if (!renderBounds.isPresent())
         {
-            SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
+            final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
 
             if (sb == null)
             {
@@ -345,9 +346,10 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
             }
 
             final IBlockState state = getWorld().getBlockState(pos);
-            final EnumFacing orientation = (EnumFacing)state.getValue(FACING);
+            final EnumFacing orientation = (EnumFacing)state.getValue(BlockDirectional.FACING);
+            final boolean mirror = (Boolean)state.getValue(propMirror);
 
-            renderBounds = Optional.of(localToGlobalBoundingBox(pos, local, sb.getPattern(), orientation, false));
+            renderBounds = Optional.of(localToGlobalBoundingBox(pos, local, sb.getPattern(), orientation, mirror));
         }
 
         return renderBounds.get();

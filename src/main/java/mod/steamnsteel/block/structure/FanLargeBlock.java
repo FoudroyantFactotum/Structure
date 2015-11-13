@@ -130,16 +130,19 @@ public class FanLargeBlock extends SteamNSteelStructureBlock
     {
         StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
 
-        builder.assignBlockDefinitions(ImmutableMap.<Character, String>of());
+        builder.assignBlockDefinitions(ImmutableMap.of(
+                'c', "minecraft:cobblestone",
+                's', "minecraft:sand"
+        ));
         builder.assignConstructionBlocks(
                 new String[]{
-                        "   "
+                        "ccc"
                 },
                 new String[]{
-                        "   "
+                        "csc"
                 },
                 new String[]{
-                        "   "
+                        "ccc"
                 }
         );
 

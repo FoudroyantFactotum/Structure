@@ -56,6 +56,7 @@ import java.util.Random;
 
 import static mod.steamnsteel.block.structure.StructureShapeBlock.EMPTY_BOUNDS;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalCollisionBoxes;
 import static net.minecraft.block.BlockDirectional.*;
 import static net.minecraft.block.BlockDirectional.FACING;
@@ -113,12 +114,13 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     {
         final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(pos);
         final boolean isPlayerCreative = player != null && player.capabilities.isCreativeMode;
+        final boolean isPlayerSneaking = player != null && player.isSneaking();
 
         if (te != null)
         {
             final TripleCoord origin = TripleCoord.of(pos);
 
-            breakStructure(world, origin, getPattern(), te.getOrientation(), te.getMirror(), isPlayerCreative);
+            breakStructure(world, origin, getPattern(), te.getOrientation(), te.getMirror(), isPlayerCreative, isPlayerSneaking);
             updateExternalNeighbours(world, origin, getPattern(), te.getOrientation(), te.getMirror(), false);
         } else
         {
@@ -140,6 +142,11 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                     getPattern().getBlockBounds()
             );
         }
+    }
+
+    public boolean isFullCube()
+    {
+        return false;
     }
 
     @Override
@@ -218,7 +225,8 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBox(World world, BlockPos pos)
     {
-        return EMPTY_BOUNDS;
+        //return EMPTY_BOUNDS;
+        return world.getTileEntity(pos).getRenderBoundingBox();
     }
 
 
@@ -344,7 +352,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         }
     }
 
-    public static void breakStructure(World world, TripleCoord origin, StructureDefinition sd, EnumFacing orientation, boolean isMirrored, boolean isCreative)
+    public static void breakStructure(World world, TripleCoord origin, StructureDefinition sd, EnumFacing orientation, boolean isMirrored, boolean isCreative, boolean isSneaking)
     {
         final TripleIterator itr = sd.getStructureItr();
 
@@ -363,7 +371,15 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 if (block != null && !(block instanceof IGeneralBlock))
                 {
                     world.removeTileEntity(blockCoord);
-                    world.setBlockState(blockCoord, block.getStateFromMeta(meta), 0x2);
+
+                    if (isCreative && !isSneaking)
+                    {
+                        world.setBlockToAir(blockCoord);
+                    }
+                    else
+                    {
+                        world.setBlockState(blockCoord, block.getStateFromMeta(meta), 0x2);
+                    }
                 }
             }
         }

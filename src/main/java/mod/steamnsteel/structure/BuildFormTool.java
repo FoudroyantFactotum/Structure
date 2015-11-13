@@ -19,17 +19,33 @@ import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.item.tool.SSToolShovel;
 import mod.steamnsteel.library.Material;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.coordinates.TripleIterator;
+import mod.steamnsteel.structure.net.StructurePacket;
+import mod.steamnsteel.structure.net.StructurePacketOption;
+import mod.steamnsteel.structure.registry.GeneralBlock.IGeneralBlock;
+import mod.steamnsteel.structure.registry.StructureDefinition;
+import mod.steamnsteel.structure.registry.StructureRegistry;
+import mod.steamnsteel.utility.ModNetwork;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
+
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.propMirror;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class BuildFormTool extends SSToolShovel
 {
     public BuildFormTool()
     {
         super(Material.STEEL);
+        setUnlocalizedName(getUnlocalizedName() + "_form");
     }
 
     @Override
@@ -37,24 +53,25 @@ public class BuildFormTool extends SSToolShovel
     {
         if (!world.isRemote)
         {
-            /*final StructureSearchResult result = uberStructureSearch(world, x, y, z);
+            final StructureSearchResult result = uberStructureSearch(world, pos.getX(), pos.getY(), pos.getZ());
 
             if (result != null)
             {
-                final int meta = result.orientation.encode() | (result.isMirrored ? SteamNSteelStructureBlock.flagMirrored : 0x0);
+                final IBlockState state = result.block.getDefaultState()
+                        .withProperty(BlockDirectional.FACING, result.orientation)
+                        .withProperty(propMirror, result.isMirrored);
 
-                world.setBlock(result.origin.x, result.origin.y, result.origin.z, result.block, meta, 0x2);
-                result.block.formStructure(world, result.origin, meta, 0x2);
 
-                updateExternalNeighbours(world, result.origin, result.block.getPattern(), result.orientation, result.isMirrored, true);
+                world.setBlockState(result.origin.getBlockPos(), state, 0x2);
+                result.block.formStructure(world, result.origin, state, 0x2);
+
+                //updateExternalNeighbours(world, result.origin, result.block.getPattern(), result.orientation, result.isMirrored, true);
 
                 ModNetwork.network.sendToAllAround(
-                        new StructurePacket(result.origin.x, result.origin.y, result.origin.z,
-                                result.block.getRegHash(), result.orientation, result.isMirrored,
-                                StructurePacketOption.BUILD),
-                        new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
+                        new StructurePacket(result.origin.getBlockPos(), result.block.getRegHash(), result.orientation, result.isMirrored, StructurePacketOption.BUILD),
+                        new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), result.origin.x, result.origin.y, result.origin.z, 30)
                 );
-            }*/
+            }
         }
 
         return false;
@@ -73,7 +90,7 @@ public class BuildFormTool extends SSToolShovel
     {
         //do uber search and build structure todo Threaded? Reduce search space? Reduce memory usage?
 
-        /*for (SteamNSteelStructureBlock ssBlock : StructureRegistry.getStructureList())
+        for (SteamNSteelStructureBlock ssBlock : StructureRegistry.getStructureList())
         {
             final StructureDefinition sd = ssBlock.getPattern();
 
@@ -82,7 +99,7 @@ public class BuildFormTool extends SSToolShovel
             //todo also search mirrored (currently disabled)
             //every Direction nsew
             nextOrientation:
-            for (Orientation o : Orientation.values())
+            for (EnumFacing o: EnumFacing.HORIZONTALS)
             {
                 final TripleCoord origin =
                         localToGlobal(
@@ -101,16 +118,16 @@ public class BuildFormTool extends SSToolShovel
                     final Block b = sd.getBlock(local);
                     final int m = sd.getBlockMetadata(local);
 
-                    final Block wb = coord.getBlock(world);
-                    final int wm = coord.getMeta(world);
+                    final IBlockState wb = world.getBlockState(coord);
+                    //final int wm = coord.getMeta(world);
 
-                    if (b == null || b != wb)
+                    if (b == null || b != wb.getBlock())
                     {
                         if (b instanceof IGeneralBlock)
                         {
                             final IGeneralBlock gb = (IGeneralBlock) b;
 
-                            if (!gb.canBlockBeUsed(wb, coord.getMeta(world), local))
+                            if (!gb.canBlockBeUsed(wb.getBlock(), 0, local))
                                 continue nextOrientation;
                         } else
                         {
@@ -118,10 +135,10 @@ public class BuildFormTool extends SSToolShovel
                         }
                     }
 
-                    if (m != -1 && m != wm)
+                    /*if (m != -1 && m != wm)
                     {
                         continue nextOrientation;
-                    }
+                    }*/
                 }
 
                 //found match, eeek!
@@ -136,7 +153,7 @@ public class BuildFormTool extends SSToolShovel
             }
         }
 
-        //no matches*/
+        //no matches
         return null;
     }
 

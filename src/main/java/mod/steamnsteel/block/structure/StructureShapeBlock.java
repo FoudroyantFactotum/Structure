@@ -76,7 +76,9 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
     @SideOnly(Side.CLIENT)
     public AxisAlignedBB getSelectedBoundingBox(World world, BlockPos pos)
     {
-        return EMPTY_BOUNDS;
+        final StructureShapeTE te = (StructureShapeTE) world.getTileEntity(pos);
+        //return EMPTY_BOUNDS;
+        return world.getTileEntity(te.getMasterBlockLocation().getBlockPos()).getRenderBoundingBox();
     }
 
     @Override
@@ -100,6 +102,17 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
                     sb.getPattern().getBlockBounds()
             );
         }
+    }
+
+    public boolean isFullCube()
+    {
+        return false;
+    }
+
+    @Override
+    public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state)
+    {
+        return null;
     }
 
     @Override
@@ -133,6 +146,7 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
         final IBlockState state = world.getBlockState(pos);
         final IStructureTE te = (IStructureTE) world.getTileEntity(pos);
         final boolean isPlayerCreative = player != null && player.capabilities.isCreativeMode;
+        final boolean isPlayerSneaking = player != null && player.isSneaking();
 
         final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
 
@@ -143,7 +157,8 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
                     sb.getPattern(),
                     (EnumFacing) state.getValue(FACING),
                     isMirrored(state),
-                    isPlayerCreative
+                    isPlayerCreative,
+                    isPlayerSneaking
             );
             updateExternalNeighbours(world,
                     te.getMasterBlockLocation(),
@@ -199,38 +214,21 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
     //======================================
 
     @Override
-    @SideOnly(Side.CLIENT)
-    public EnumWorldBlockLayer getBlockLayer()
-    {
-        return EnumWorldBlockLayer.TRANSLUCENT;
-    }
-
-/*
-    @Override
-    public boolean renderAsNormalBlock() {
-        return !_DEBUG && super.renderAsNormalBlock();
-    }
-
-    @Override
     public int getRenderType()
     {
-        return _DEBUG?0:super.getRenderType();
-    }
-
-    @Override
-    public int getRenderBlockPass() {
-        return _DEBUG?1:super.getRenderType();
+        return _DEBUG?3: -1;
     }
 
     @Override
     public boolean isOpaqueCube()
     {
-        return !_DEBUG && super.isOpaqueCube();
+        return false;
     }
 
+    @Override
     @SideOnly(Side.CLIENT)
-    public IIcon getIcon(int side, int meta)
+    public EnumWorldBlockLayer getBlockLayer()
     {
-        return _DEBUG?Blocks.stained_glass.getIcon(side, meta): super.getIcon(side, meta);
-    }*/
+        return EnumWorldBlockLayer.TRANSLUCENT;
+    }
 }

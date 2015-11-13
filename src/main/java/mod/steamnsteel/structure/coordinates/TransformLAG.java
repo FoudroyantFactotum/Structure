@@ -232,9 +232,9 @@ public final class TransformLAG
         final int l_lby = local.y - sd.getMasterLocation().y;
         final int l_lbz = local.z - sd.getMasterLocation().z;
 
-        final int l_ubx = local.x + sd.getBlockBounds().x;
-        final int l_uby = local.y + sd.getBlockBounds().y;
-        final int l_ubz = local.z + sd.getBlockBounds().z;
+        final int l_ubx = local.x + sd.getBlockBounds().x - sd.getMasterLocation().x;
+        final int l_uby = local.y + sd.getBlockBounds().y - sd.getMasterLocation().y;
+        final int l_ubz = local.z + sd.getBlockBounds().z - sd.getMasterLocation().z;
 
         final TripleCoord lb
                 = localToGlobal(l_lbx, l_lby, l_lbz, pos.getX(), pos.getY(), pos.getZ(), orientation, ismirrored, sd.getBlockBounds());

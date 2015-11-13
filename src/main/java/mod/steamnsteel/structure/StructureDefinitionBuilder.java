@@ -22,7 +22,6 @@ import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.init.Blocks;
-import net.minecraftforge.fml.common.registry.GameRegistry;
 
 import java.util.BitSet;
 
@@ -134,9 +133,7 @@ public final class StructureDefinitionBuilder
         for (Character c: representation.keySet())
         {
             final String blockName = representation.get(c);
-            final int splitPos = blockName.indexOf(':');
-
-            final Block block = GameRegistry.findBlock(blockName.substring(0, splitPos), blockName.substring(splitPos+1));
+            final Block block = Block.getBlockFromName(blockName);
 
             checkNotNull(block, "assignBlockDefinitions.Block does not exist " + blockName);
 
