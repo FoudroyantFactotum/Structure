@@ -18,7 +18,7 @@ package mod.steamnsteel.structure.registry;
 import com.google.common.base.Objects;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 
 import java.util.Arrays;
@@ -65,8 +65,7 @@ public class StructureDefinition
     private TripleCoord masterPosition;
     private TripleCoord toolFormPosition;
 
-    private Block[][][] blocks;
-    private byte[][][] metadata;
+    private IBlockState[][][] blocks;
     private float[][] collisionBoxes;
 
     private StructureDefinition()
@@ -79,8 +78,7 @@ public class StructureDefinition
                                TripleCoord masterPosition,
                                TripleCoord toolFormPosition,
 
-                               Block[][][] blocks,
-                               byte[][][] metadata,
+                               IBlockState[][][] blocks,
                                float[][] collisionBoxes)
     {
         this.sbLayout = sbLayout;
@@ -90,7 +88,6 @@ public class StructureDefinition
         this.toolFormPosition = toolFormPosition;
 
         this.blocks = blocks;
-        this.metadata = metadata;
         this.collisionBoxes = collisionBoxes;
 
         sbLayoutSizeHlf = TripleCoord.of(
@@ -114,8 +111,8 @@ public class StructureDefinition
 
     }
 
-    public Block getBlock(TripleCoord loc) { return getBlock(loc.x, loc.y, loc.z);}
-    public Block getBlock(int x, int y, int z)
+    public IBlockState getBlock(TripleCoord loc) { return getBlock(loc.x, loc.y, loc.z);}
+    public IBlockState getBlock(int x, int y, int z)
     {
         x += masterPosition.x;
         y += masterPosition.y;
@@ -127,21 +124,6 @@ public class StructureDefinition
             return blocks[x][y][z];
 
         return null;
-    }
-
-    public int getBlockMetadata(TripleCoord loc) { return getBlockMetadata(loc.x,loc.y, loc.z);}
-    public int getBlockMetadata(int x, int y, int z)
-    {
-        x += masterPosition.x;
-        y += masterPosition.y;
-        z += masterPosition.z;
-
-        if (metadata.length > x &&
-                metadata[x].length > y &&
-                metadata[x][y].length > z)
-            return metadata[x][y][z];
-
-        return -1;
     }
 
     public TripleCoord getBlockBounds()
@@ -179,7 +161,6 @@ public class StructureDefinition
     public String toString(){
         return Objects.toStringHelper(this)
                 .add("blocks", Arrays.toString(blocks))
-                .add("metadata", Arrays.toString(metadata))
                 .add("collisionBoxes", Arrays.toString(collisionBoxes))
                 .add("masterPosition", masterPosition)
                 .add("toolFormPosition", toolFormPosition)

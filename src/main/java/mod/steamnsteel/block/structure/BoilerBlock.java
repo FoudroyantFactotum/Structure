@@ -22,7 +22,6 @@ import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.log.Logger;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -63,7 +62,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock
         final int y = coord.y;
         final int z = coord.z;
 
-        final Block block = getPattern().getBlock(te.getLocal());
+        final IBlockState block = getPattern().getBlock(te.getLocal());
 
         if (block != null)
         {

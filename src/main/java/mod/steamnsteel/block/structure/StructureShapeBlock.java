@@ -110,12 +110,6 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
     }
 
     @Override
-    public AxisAlignedBB getCollisionBoundingBox(World worldIn, BlockPos pos, IBlockState state)
-    {
-        return null;
-    }
-
-    @Override
     public TileEntity createNewTileEntity(World world, int meta)
     {
         return new StructureShapeTE();

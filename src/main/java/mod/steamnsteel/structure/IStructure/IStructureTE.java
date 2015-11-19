@@ -17,12 +17,11 @@ package mod.steamnsteel.structure.IStructure;
 
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 
 public interface IStructureTE
 {
-    Block getTransmutedBlock();
-    int getTransmutedMeta();
+    IBlockState getTransmutedBlock();
 
     int getRegHash();
     SteamNSteelStructureBlock getMasterBlockInstance();

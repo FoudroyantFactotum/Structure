@@ -13,12 +13,12 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.structure.registry;
+package mod.steamnsteel.structure.registry.GeneralBlock;
 
-import net.minecraft.block.state.IBlockState;
-import net.minecraft.util.EnumFacing;
-
-public interface IStructurePatternStateCorrecter
+public class GeneralBlockError extends Error
 {
-    IBlockState alterBlockState(IBlockState state, EnumFacing orientation, boolean isMirrored);
+    public GeneralBlockError(String msg)
+    {
+        super(msg);
+    }
 }

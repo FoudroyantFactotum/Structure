@@ -17,9 +17,10 @@ package mod.steamnsteel.structure.registry;
 
 import com.google.common.collect.Lists;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.structure.StructureDefinitionBuilder.StructureDefinitionError;
 import mod.steamnsteel.structure.registry.GeneralBlock.GeneralNull;
 import mod.steamnsteel.utility.log.Logger;
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.BlockPos;
@@ -36,6 +37,7 @@ public final class StructureRegistry
 
     /***
      * Register structures here for loading into system.
+     *
      * @param structure structure to be registered.
      */
     public static void registerStructureForLoad(SteamNSteelStructureBlock structure)
@@ -57,12 +59,18 @@ public final class StructureRegistry
             final Field regHash = SteamNSteelStructureBlock.class.getDeclaredField("regHash");
             regHash.setAccessible(true);
 
-            for (SteamNSteelStructureBlock block: registeredStructures)
+            for (SteamNSteelStructureBlock block : registeredStructures)
             {
-                structurePattern.set(block, block.getStructureBuild().build());
-                regHash.set(block, block.getUnlocalizedName().hashCode());
+                try
+                {
+                    structurePattern.set(block, block.getStructureBuild().build());
+                    regHash.set(block, block.getUnlocalizedName().hashCode());
 
-                structures.put(block.getUnlocalizedName().hashCode(), block);
+                    structures.put(block.getUnlocalizedName().hashCode(), block);
+                } catch (StructureDefinitionError e)
+                {
+                    throw new StructureDefinitionError(e.getMessage() + " on '" + block.getUnlocalizedName() + '\'');
+                }
             }
 
             Logger.info("Analytical Engine constructed " + structures.size() + " noteworthy contraptions");
@@ -76,7 +84,7 @@ public final class StructureRegistry
         }
     }
 
-    public static final Block generalNull = new GeneralNull();
+    public static final IBlockState generalNull = new GeneralNull();
 
     private StructureRegistry()
     {

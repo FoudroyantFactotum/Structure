@@ -16,14 +16,18 @@
 package mod.steamnsteel.structure;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableMap.Builder;
 import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 
 import java.util.BitSet;
+import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -35,67 +39,81 @@ public final class StructureDefinitionBuilder
     private TripleCoord masterPosition;
     private TripleCoord toolFormPosition;
 
-    private Block[][][] blocks;
-    private byte[][][] metadata;
+    private IBlockState[][][] states;
     private float[][] collisionBoxes;
 
     public StructureDefinition build()
     {
-        if(blocks == null)
+        if(states == null)
         {
-            throw new StructureDefinitionError("Missing Blocks");
-        }
-
-        if (metadata == null)
-        {
-            metadata = new byte[blocks.length][blocks[0].length][blocks[0][0].length];
+            throw new StructureDefinitionError("Missing block states");
         }
 
         //blocks jagged map test
-        for (Block[][] b: blocks)
+        for (final IBlockState[][] b: states)
         {
-            if (b.length != blocks[0].length)
+            if (b.length != states[0].length)
             {
                 throw new StructureDefinitionError("Construction map jagged");
             }
 
-            for (Block[] bb: b)
+            for (final IBlockState[] bb: b)
+            {
                 if (bb.length != b[0].length)
                 {
                     throw new StructureDefinitionError("Construction map jagged");
                 }
+            }
         }
 
-        //metadata jagged map test
-        for (byte[][] b: metadata)
+        //state jagged map test
+        if (state != null)
         {
-            if (b.length != metadata[0].length)
+            for (final String[][] s : state)
             {
-                throw new StructureDefinitionError("Metadata map jagged");
-            }
-
-            for (byte[] bb: b)
-            {
-                if (bb.length != b[0].length)
+                if (s.length != state[0].length)
                 {
-                    throw new StructureDefinitionError("Metadata map jagged");
+                    throw new StructureDefinitionError("Construction map jagged");
+                }
+
+                for (final String[] ss : s)
+                {
+                    if (ss.length != s[0].length)
+                    {
+                        throw new StructureDefinitionError("Construction map jagged");
+                    }
                 }
             }
-        }
 
-        if (blocks.length != metadata.length ||
-                blocks[0].length != metadata[0].length ||
-                blocks[0][0].length != metadata[0][0].length)
-            throw new StructureDefinitionError("Block map size != metadata size (" +
-                    blocks.length + "," +blocks[0].length+ "," + blocks[0][0].length + ") - " +
-                    "(" + metadata.length + "," +metadata[0].length+ "," + metadata[0][0].length + ")");
+            if (!(
+                    states.length == state.length &&
+                            states[0].length == state[0].length &&
+                            states[0][0].length == state[0][0].length
+            ))
+                throw new StructureDefinitionError("block/state sizing mismatch");
+        }
 
         if (toolFormPosition == null)
         {
             throw new StructureDefinitionError("tool form location missing");
         }
 
-        //From this point structure definition is valid.
+        //-------------------------------------------------------
+        //Correct data and align it to the inner data structures.
+        //-------------------------------------------------------
+        final int xsz = states.length;
+        final int ysz = states[0].length;
+        final int zsz = states[0][0].length;
+
+        final TripleIterator itr = new TripleIterator(xsz, ysz, zsz);
+
+        while (itr.hasNext())
+        {
+            final TripleCoord local = itr.next();
+
+            states[local.x][local.y][local.z] = getBlockState(local);
+        }
+
         //correct collision bounds.
         for (float[] bb: collisionBoxes)
         {
@@ -114,37 +132,116 @@ public final class StructureDefinitionBuilder
                 sbLayoutSize,
                 masterPosition,
                 toolFormPosition,
-                blocks,
-                metadata,
+                states,
                 collisionBoxes);
     }
 
-    private ImmutableMap<Character, Block> representation = ImmutableMap.of();
+    /**
+     * Gets the clean error checked block state
+     * @param local local coords of the block within the map
+     * @return block state
+     */
+    private IBlockState getBlockState(TripleCoord local)
+    {
+        final IBlockState block = states[local.x][local.y][local.z];
+
+        if (block == null) return null;
+        if (state == null) return block;
+
+        final String strBlockState = state[local.x][local.y][local.z];
+
+        if (strBlockState == null) return block;
+
+        IBlockState finalBlockState = block;
+
+        for (final String singleFullState : strBlockState.split(","))
+        {
+            if (!singleFullState.contains(":"))
+            {
+                throw new StructureDefinitionError("Missing property divider @" + local);
+            }
+
+            final String propName = singleFullState.split(":")[0];
+            final String propVal  = singleFullState.split(":")[1];
+            final Collection<IProperty> defaultProp = block.getPropertyNames();
+
+            boolean hasFoundProp = false;
+
+            for (final IProperty prop: defaultProp)
+            {
+                if (prop.getName().equalsIgnoreCase(propName))
+                {
+                    boolean hasFoundVal = false;
+
+                    for (final Object val : prop.getAllowedValues())
+                    {
+                        if (val.toString().equalsIgnoreCase(propVal))
+                        {
+                            finalBlockState = finalBlockState.withProperty(prop, (Comparable) val);
+
+                            hasFoundVal = true;
+                            break;
+                        }
+                    }
+
+                    if (!hasFoundVal)
+                    {
+                        throw new StructureDefinitionError(
+                                "Property value missing: '" + prop.getName() +
+                                        "' value missing: '" + propVal +
+                                        "' in '" + prop.getAllowedValues() +
+                                        "' on '" + block.getBlock().getUnlocalizedName() +
+                                        "' with property: '" + block.getPropertyNames() +
+                                        "' @" + local
+                        );
+                    }
+
+                    hasFoundProp = true;
+                    break;
+                }
+            }
+
+            if (!hasFoundProp)
+            {
+                throw new StructureDefinitionError(
+                        "Missing property: '" + propName +
+                        "' value: '" + propVal +
+                        "' on block: '" + block.getBlock().getUnlocalizedName() +
+                        "' with property: '" + block.getPropertyNames() +
+                        "' @" + local
+                );
+            }
+        }
+
+        return finalBlockState;
+    }
+
+    private ImmutableMap<Character, IBlockState> repBlock = ImmutableMap.of();
 
     /**
-     * Define what each character represents within the map
+     * Define what each character represents within the block map
      * @param representation char to unlocalized block name map
      * @exception NullPointerException thrown if block doesn't exist.
      */
     public void assignBlockDefinitions(ImmutableMap<Character, String> representation)
     {
-        ImmutableMap.Builder<Character, Block> builder = ImmutableMap.builder();
+        Builder<Character, IBlockState> builder = ImmutableMap.builder();
 
-        for (Character c: representation.keySet())
+        for (final Character c: representation.keySet())
         {
             final String blockName = representation.get(c);
             final Block block = Block.getBlockFromName(blockName);
 
             checkNotNull(block, "assignBlockDefinitions.Block does not exist " + blockName);
 
-            builder.put(c, block);
+            builder.put(c, block.getDefaultState());
         }
 
         //default
-        builder.put(' ', Blocks.air);
+        builder.put(' ', Blocks.air.getDefaultState());
         builder.put('-', StructureRegistry.generalNull);
 
-        this.representation = builder.build();
+        repBlock = builder.build();
     }
 
     /**
@@ -161,22 +258,9 @@ public final class StructureDefinitionBuilder
         final int ysz = layer.length;
         final int zsz = layer[0].length;
 
-        blocks = new Block [xsz][ysz][zsz];
+        states = new IBlockState[xsz][ysz][zsz];
 
-        final TripleIterator itr = new TripleIterator(xsz, ysz, zsz);
-
-        while (itr.hasNext())
-        {
-            final TripleCoord local = itr.next();
-            final char c = layer[local.y][local.z].charAt(local.x);
-
-            if (!representation.containsKey(c))
-            {
-                throw new NullPointerException("assignConstructionBlocks.Map missing " + c);
-            }
-
-            blocks[local.x][local.y][local.z] = representation.get(c);
-        }
+        assignX(repBlock, layer, new TripleIterator(xsz, ysz, zsz), states);
     }
 
     /**
@@ -231,38 +315,70 @@ public final class StructureDefinitionBuilder
                 }
             }
         }
+
+        if (masterPosition == null)
+        {
+            throw new StructureDefinitionError("setConfiguration.Master position not defined");
+        }
+    }
+
+    private ImmutableMap<Character, String> repState = ImmutableMap.of();
+    private String[][][] state;
+
+    /**
+     * Define what each character represents within the state map
+     * @param representation char to "equivelent json" state map
+     * @exception NullPointerException thrown if block doesn't exist.
+     */
+    public void assignStateDefinitions(ImmutableMap<Character, String> representation)
+    {
+        repState = representation;
     }
 
     /**
-     * String of hex vals where each char represents a single block
-     * @param layer layout of hex values representing the metadata
+     * builds the state array using the representation map and the layout(String[]...)
+     * String = x-line
+     * String[] = z-line
+     * String[]... = y-line
+     * @param layer the layout of the states.
+     * @exception NullPointerException the layout is missing a map
      */
-    public void assignMetadata(String[]... layer)
+    public void assignConstructionStates(String[]... layer)
     {
         final int xsz = layer[0][0].length();
         final int ysz = layer.length;
         final int zsz = layer[0].length;
 
-        metadata = new byte[xsz][ysz][zsz];
+        state = new String[xsz][ysz][zsz];
 
-        final TripleIterator itr = new TripleIterator(xsz, ysz, zsz);
+        assignX(repState, layer, new TripleIterator(xsz,ysz, zsz), state);
+    }
 
+    private static void assignX(ImmutableMap<Character, ?> map, String[][] layers, TripleIterator itr, Object[][][] res)
+    {
         while (itr.hasNext())
         {
             final TripleCoord local = itr.next();
+            final char c = layers[local.y][local.z].charAt(local.x);
 
-            metadata[local.x][local.y][local.z]
-                    = Byte.parseByte(
-                        String.valueOf(layer[local.y][local.z].charAt(local.x)),
-                        16);
+            if (!map.containsKey(c) && c != ' ')
+            {
+                throw new StructureDefinitionError("assignX.Map missing '" + c + "' @" + local);
+            }
+
+            res[local.x][local.y][local.z] = map.get(c);
         }
-
     }
 
     public void assignToolFormPosition(TripleCoord toolFormPosition)
     {
         this.toolFormPosition = toolFormPosition;
     }
+
+    /**
+     * set collision boxes of structure
+     * @param collisionBoxes arrays of collision. must have a length of 6 l=lower left back u=upper right front [lx, ly, lz, ux, uy, uz]
+     */
     public void setCollisionBoxes(float[]... collisionBoxes)
     {
         this.collisionBoxes = collisionBoxes;

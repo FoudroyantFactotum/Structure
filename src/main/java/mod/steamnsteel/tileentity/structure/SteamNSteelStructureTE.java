@@ -28,7 +28,6 @@ import mod.steamnsteel.structure.registry.GeneralBlock.IGeneralBlock;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
@@ -108,39 +107,19 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     }
 
     @Override
-    public Block getTransmutedBlock()
+    public IBlockState getTransmutedBlock()
     {
         SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
 
         if (sb != null)
         {
-            Block block = sb.getPattern().getBlock(local);
+            IBlockState block = sb.getPattern().getBlock(local);
             return block == null || block instanceof IGeneralBlock ?
-                    Blocks.air :
+                    Blocks.air.getDefaultState() :
                     block;
         }
 
-        return Blocks.air;
-    }
-
-    @Override
-    public int getTransmutedMeta()
-    {
-        /*final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
-
-        if (sb != null)
-        {
-            final int meta = getBlockMetadata();
-
-            return localToGlobal(
-                    sb.getPattern().getBlockMetadata(local),
-                    getTransmutedBlock(),
-                    getdecodedOrientation(meta),
-                    isMirrored(meta)
-            );
-        }
-*/
-        return 0;
+        return Blocks.air.getDefaultState();
     }
 
     @Override

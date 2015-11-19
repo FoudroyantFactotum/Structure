@@ -16,7 +16,7 @@
 package mod.steamnsteel.structure.registry.GeneralBlock;
 
 import mod.steamnsteel.structure.coordinates.TripleCoord;
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 
 /**
  * Blocks implementing this interface should never be registered with the ForgeBlock System. These are not blocks, but
@@ -39,7 +39,7 @@ public interface IGeneralBlock
      * @param pos Local space location
      * @return true if specified in Block System
      */
-    boolean canBlockBeUsed(Block b, int meta, TripleCoord pos);
+    boolean canBlockBeUsed(IBlockState b, TripleCoord pos);
 
 
     /**

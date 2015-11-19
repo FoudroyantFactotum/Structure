@@ -17,17 +17,19 @@ package mod.steamnsteel.structure.coordinates;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import mod.steamnsteel.structure.registry.IStructurePatternStateCorrecter;
 import mod.steamnsteel.structure.registry.MetaCorrecter.DefaultMinecraftRotation;
+import mod.steamnsteel.structure.registry.MetaCorrecter.IStructurePatternStateCorrecter;
+import mod.steamnsteel.structure.registry.StateMatcher.IStateMatcher;
+import mod.steamnsteel.structure.registry.StateMatcher.StairMatcher;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fml.common.registry.GameRegistry;
+import net.minecraftforge.oredict.OreDictionary;
 
 import java.util.List;
 
@@ -42,47 +44,69 @@ public final class TransformLAG
 {
     public static void initStatic()
     {
-        Logger.info("Dummy Said Hello");
+        //noop
     }
 
     private static final ImmutableMap<Block,IStructurePatternStateCorrecter> META_CORRECTOR;
+    private static final ImmutableMap<Block,IStateMatcher> STATE_MATCHER;
 
-    static {
-        final Builder<Block, IStructurePatternStateCorrecter> builder = ImmutableMap.builder();
-        final IStructurePatternStateCorrecter defaultMinecraftRotation = new DefaultMinecraftRotation();
+    static
+    {
+        final String[] minecraftStairs = {
+                "minecraft:stone_stairs",
+                "minecraft:brick_stairs",
+                "minecraft:stone_brick_stairs",
+                "minecraft:nether_brick_stairs",
+                "minecraft:sandstone_stairs",
+                "minecraft:quartz_stairs"
+        };
 
-        /*for (ItemStack itemSk: OreDictionary.getOres("stairWood"))//all oreDic stairWood
-            builder.put(Block.getBlockFromItem(itemSk.getItem()), defaultMinecraftRotation);
+        final Builder<Block, IStructurePatternStateCorrecter> builderS = ImmutableMap.builder();
+        final Builder<Block, IStateMatcher> builderM = ImmutableMap.builder();
 
-        registerMetaCorrector(builder, "minecraft:stone_stairs"          , defaultMinecraftRotation);
-        registerMetaCorrector(builder, "minecraft:brick_stairs"          , defaultMinecraftRotation);
-        registerMetaCorrector(builder, "minecraft:stone_brick_stairs"    , defaultMinecraftRotation);
-        registerMetaCorrector(builder, "minecraft:nether_brick_stairs"   , defaultMinecraftRotation);
-        registerMetaCorrector(builder, "minecraft:sandstone_stairs"      , defaultMinecraftRotation);
-        registerMetaCorrector(builder, "minecraft:quartz_stairs"         , defaultMinecraftRotation);
-*/
-        META_CORRECTOR = builder.build();
+        final IStructurePatternStateCorrecter defaultRotation = new DefaultMinecraftRotation();
+        final IStateMatcher stairMatcher = new StairMatcher();
+
+        for (final ItemStack itemSk: OreDictionary.getOres("stairWood"))//all oreDic stairWood
+        {
+            builderS.put(Block.getBlockFromItem(itemSk.getItem()), defaultRotation);
+            builderM.put(Block.getBlockFromItem(itemSk.getItem()), stairMatcher);
+        }
+
+        for (final String s: minecraftStairs)
+        {
+            registerStateCorrector(builderS, s, defaultRotation);
+            registerStateMatcher(builderM,   s, stairMatcher);
+        }
+
+        META_CORRECTOR = builderS.build();
+        STATE_MATCHER = builderM.build();
     }
 
     /**
      * Used to validate state correctors.
      * @param builder   ImmutableMap builder
      * @param blockName block to register
-     * @param metaCorrecter correcter class
+     * @param stateCorrecter correcter class
      */
-    private static void registerMetaCorrector(Builder<Block, IStructurePatternStateCorrecter> builder, String blockName, IStructurePatternStateCorrecter metaCorrecter)
+    private static void registerStateCorrector(Builder<Block, IStructurePatternStateCorrecter> builder, String blockName, IStructurePatternStateCorrecter stateCorrecter)
     {
-        final int blockDividePoint = blockName.indexOf(':');
+        final Block block = Block.getBlockFromName(blockName);
 
-        Block block = GameRegistry.findBlock(
-                blockName.substring(0, blockDividePoint),
-                blockName.substring(blockDividePoint + 1, blockName.length())
-        );
+        checkNotNull(block,          blockName + " : Is missing from game Registry");
+        checkNotNull(stateCorrecter, blockName + " : stateCorrecter is null");
 
-        checkNotNull(block,         blockName + " : Is missing from game Registry");
-        checkNotNull(metaCorrecter, blockName + " : metaCorrecter class is null");
+        builder.put(block, stateCorrecter);
+    }
 
-        builder.put(block, metaCorrecter);
+    private static void registerStateMatcher(Builder<Block, IStateMatcher> builder, String blockName, IStateMatcher stateMatcher)
+    {
+        final Block block = Block.getBlockFromName(blockName);
+
+        checkNotNull(block,        blockName + " : Is missing from game Registry");
+        checkNotNull(stateMatcher, blockName + " : stateMatcher is null");
+
+        builder.put(block, stateMatcher);
     }
 
 
@@ -162,10 +186,10 @@ public final class TransformLAG
                 direction = direction.rotateY().rotateY();
                 break;
             case WEST:
-                direction = direction.rotateY();
+                direction = direction.rotateYCCW();
                 break;
             case EAST:
-                direction = direction.rotateYCCW();
+                direction = direction.rotateY();
                 break;
             default://North
         }
@@ -173,15 +197,47 @@ public final class TransformLAG
         return direction;
     }
 
-    //meta corrector
-    public static IBlockState localToGlobal(IBlockState state, Block block, EnumFacing orientation, boolean ismirrored)
+    //state modification on direction change.
+    public static IBlockState localToGlobal(IBlockState state, EnumFacing orientation, boolean ismirrored)
     {
-        if (META_CORRECTOR.containsKey(block))
+        if (META_CORRECTOR.containsKey(state.getBlock()))
         {
-            return META_CORRECTOR.get(block).alterBlockState(state, orientation, ismirrored);
+            return META_CORRECTOR.get(state.getBlock()).alterBlockState(state, orientation, ismirrored);
         }
 
         return state;
+    }
+
+    //state matcher. FIXME Prob doesn't belong here.
+    public static boolean doBlockStatesMatch(IBlockState b1, IBlockState b2)
+    {
+        if (STATE_MATCHER.containsKey(b1.getBlock()))
+        {
+            return STATE_MATCHER.get(b1.getBlock()).matchBlockState(b1, b2);
+        }
+        else
+        {
+            //complete check against all properties
+            /*
+            final ImmutableMap<String, IProperty> b2Props = b2.getProperties();
+
+            for (final IProperty prop : (Collection<IProperty>) b1.getPropertyNames())
+            {
+                if (!b2Props.containsKey(prop))
+                {
+                    return false;
+                }
+
+                final Comparable b2Prop = (Comparable) b2Props.get(prop);
+
+                if (b1.getValue(prop).compareTo(b2Prop) != 0)
+                {
+                    return false;
+                }
+            }*/
+
+            return true;
+        }
     }
 
     //collision boxes

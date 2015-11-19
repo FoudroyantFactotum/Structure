@@ -26,7 +26,6 @@ import mod.steamnsteel.structure.registry.GeneralBlock.IGeneralBlock;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.utility.ModNetwork;
-import net.minecraft.block.Block;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -36,8 +35,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.propMirror;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.doBlockStatesMatch;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class BuildFormTool extends SSToolShovel
@@ -65,7 +64,7 @@ public class BuildFormTool extends SSToolShovel
                 world.setBlockState(result.origin.getBlockPos(), state, 0x2);
                 result.block.formStructure(world, result.origin, state, 0x2);
 
-                //updateExternalNeighbours(world, result.origin, result.block.getPattern(), result.orientation, result.isMirrored, true);
+                updateExternalNeighbours(world, result.origin, result.block.getPattern(), result.orientation, result.isMirrored, true);
 
                 ModNetwork.network.sendToAllAround(
                         new StructurePacket(result.origin.getBlockPos(), result.block.getRegHash(), result.orientation, result.isMirrored, StructurePacketOption.BUILD),
@@ -97,7 +96,7 @@ public class BuildFormTool extends SSToolShovel
             final TripleCoord tl = sd.getToolFormLocation();
 
             //todo also search mirrored (currently disabled)
-            //every Direction nsew
+            //every Direction swne
             nextOrientation:
             for (EnumFacing o: EnumFacing.HORIZONTALS)
             {
@@ -115,30 +114,26 @@ public class BuildFormTool extends SSToolShovel
                     final TripleCoord local = itr.next();
                     final BlockPos coord = bindLocalToGlobal(origin, local, o, false, sd.getBlockBounds());
 
-                    final Block b = sd.getBlock(local);
-                    final int m = sd.getBlockMetadata(local);
+                    final IBlockState b = sd.getBlock(local);
+                    final IBlockState ncwb = world.getBlockState(coord);
+                    final IBlockState wb = ncwb.getBlock().getActualState(ncwb, world, coord);
 
-                    final IBlockState wb = world.getBlockState(coord);
-                    //final int wm = coord.getMeta(world);
-
-                    if (b == null || b != wb.getBlock())
+                    if (b instanceof IGeneralBlock)
                     {
-                        if (b instanceof IGeneralBlock)
-                        {
-                            final IGeneralBlock gb = (IGeneralBlock) b;
+                        final IGeneralBlock gb = (IGeneralBlock) b;
 
-                            if (!gb.canBlockBeUsed(wb.getBlock(), 0, local))
-                                continue nextOrientation;
-                        } else
+                        if (!gb.canBlockBeUsed(wb, local))
                         {
                             continue nextOrientation;
                         }
                     }
-
-                    /*if (m != -1 && m != wm)
+                    else
                     {
-                        continue nextOrientation;
-                    }*/
+                        if (b.getBlock() != wb.getBlock() || !doBlockStatesMatch(localToGlobal(b, o, false), wb))
+                        {
+                            continue nextOrientation;
+                        }
+                    }
                 }
 
                 //found match, eeek!

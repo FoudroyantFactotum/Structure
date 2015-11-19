@@ -13,29 +13,15 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.structure.registry.GeneralBlock;
+package mod.steamnsteel.structure.registry.MetaCorrecter;
 
-import mod.steamnsteel.structure.coordinates.TripleCoord;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.EnumFacing;
 
 /**
- * GeneralNull allows all types of blocks.
+ * Interface is used for any classes which need to define an alternative means of rotation a block.
  */
-public class GeneralNull extends GeneralBase
+public interface IStructurePatternStateCorrecter
 {
-    public GeneralNull()
-    {
-    }
-
-    @Override
-    public boolean canBlockBeUsed(IBlockState b, TripleCoord pos)
-    {
-        return true;
-    }
-
-    @Override
-    public void resetGeneralBlock()
-    {
-        //noop
-    }
+    IBlockState alterBlockState(IBlockState state, EnumFacing orientation, boolean isMirrored);
 }

@@ -15,16 +15,19 @@
  */
 package mod.steamnsteel.structure.registry.MetaCorrecter;
 
-import mod.steamnsteel.structure.registry.IStructurePatternStateCorrecter;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
+
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 
 public class DefaultMinecraftRotation implements IStructurePatternStateCorrecter
 {
     @Override
     public IBlockState alterBlockState(IBlockState state, EnumFacing o, boolean isMirrored)
     {
-        return state.withProperty(BlockDirectional.FACING, o);
+        final EnumFacing facing = (EnumFacing) state.getValue(BlockDirectional.FACING);
+
+        return state.withProperty(BlockDirectional.FACING, localToGlobal(facing, o, isMirrored));
     }
 }
