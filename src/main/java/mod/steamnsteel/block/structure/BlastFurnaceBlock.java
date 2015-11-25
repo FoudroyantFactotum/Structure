@@ -44,12 +44,6 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock
     public BlastFurnaceBlock()
     {
         setUnlocalizedName(NAME);
-        setDefaultState(
-                this.blockState
-                        .getBaseState()
-                        .withProperty(BlockDirectional.FACING, EnumFacing.NORTH)
-                        .withProperty(propMirror, false)
-        );
     }
 
     @Override

@@ -28,7 +28,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -37,43 +36,14 @@ public class BoilerBlock extends SteamNSteelStructureBlock
 {
     public static final String NAME = "boiler";
 
-    @SideOnly(Side.CLIENT)
-    private static float rndRC()
-    {
-        return ((float)Math.random())*1.0f-0.5f;
-    }
-
     public BoilerBlock()
     {
         setUnlocalizedName(NAME);
-        setDefaultState(
-                this.blockState
-                        .getBaseState()
-                        .withProperty(BlockDirectional.FACING, EnumFacing.NORTH)
-                        .withProperty(propMirror, false)
-        );
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, TripleCoord coord, float sx, float sy, float sz)
-    {
-        final int x = coord.x;
-        final int y = coord.y;
-        final int z = coord.z;
-
-        final IBlockState block = getPattern().getBlock(te.getLocal());
-
-        if (block != null)
-        {
-            for (int i = 0; i < 5; ++i)
-            {
-                world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, x + rndRC(), y + 1, z + rndRC(), sx, sy, sz);
-                world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, x, y + 0.5, z, sx, sy, sz);
-                world.spawnParticle(EnumParticleTypes.EXPLOSION_NORMAL, x + rndRC(), y, z + rndRC(), sx, sy, sz);
-            }
-        }
-    }
+    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, TripleCoord coord, float sx, float sy, float sz) { }
 
     @Override
     public boolean hasTileEntity(IBlockState state)

@@ -37,12 +37,6 @@ public class BallMillBlock extends SteamNSteelStructureBlock
     public BallMillBlock()
     {
         setUnlocalizedName(NAME);
-        setDefaultState(
-                this.blockState
-                        .getBaseState()
-                        .withProperty(BlockDirectional.FACING, EnumFacing.NORTH)
-                        .withProperty(propMirror, false)
-        );
     }
 
     private static float rndRC()

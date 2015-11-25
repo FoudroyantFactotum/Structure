@@ -15,6 +15,7 @@
  */
 package mod.steamnsteel.block;
 
+import com.google.common.base.Objects;
 import mcp.mobius.waila.api.ITaggedList.ITipList;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
@@ -33,7 +34,6 @@ import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.waila.WailaProvider;
 import net.minecraft.block.Block;
-import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
@@ -54,11 +54,8 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.List;
 import java.util.Random;
 
-import static mod.steamnsteel.block.structure.StructureShapeBlock.EMPTY_BOUNDS;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalCollisionBoxes;
-import static net.minecraft.block.BlockDirectional.*;
 import static net.minecraft.block.BlockDirectional.FACING;
 
 @Optional.Interface(modid = WailaProvider.WAILA, iface = "mcp.mobius.waila.api.IWailaDataProvider", striprefs = true)
@@ -68,6 +65,16 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
     private int regHash = 0;
     private StructureDefinition structureDefinition = null;
+
+    public SteamNSteelStructureBlock()
+    {
+        setDefaultState(
+                this.blockState
+                        .getBaseState()
+                        .withProperty(FACING, EnumFacing.NORTH)
+                        .withProperty(propMirror, false)
+        );
+    }
 
     @Override
     public StructureDefinition getPattern()
@@ -86,12 +93,30 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         return new BlockState(this, FACING, propMirror);
     }
 
+    public IBlockState getStateFromMeta(int meta)
+    {
+        final EnumFacing facing = EnumFacing.getHorizontal(meta & 0x3);
+        final boolean mirror = (meta & 0x4) != 0;
+
+        return getDefaultState()
+                .withProperty(FACING, facing)
+                .withProperty(propMirror, mirror);
+    }
+
+    public int getMetaFromState(IBlockState state)
+    {
+        final EnumFacing facing = getOrientation(state);
+        final boolean mirror = isMirrored(state);
+
+        return facing.getHorizontalIndex() | (mirror? 1<<2:0);
+    }
+
     @Override
     public void onBlockPlacedBy(World world, BlockPos pos, IBlockState state, EntityLivingBase placer, ItemStack stack)
     {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
 
-        final EnumFacing orientation = (EnumFacing) state.getValue(FACING);
+        final EnumFacing orientation = getOrientation(state);
         final boolean mirror = isMirrored(state); //todo entity.isSneaking();
 
         if (mirror)
@@ -236,28 +261,16 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
     public static final PropertyBool propMirror = PropertyBool.create("mirror");
 
-    /**
-     * checks if meta is mirrored
-     *
-     * @param state block state
-     * @return true if mirrored else false
-     */
     public static boolean isMirrored(IBlockState state)
     {
-        return (Boolean)state.getValue(propMirror);
+        return (Boolean) state.getValue(propMirror);
     }
 
-    /**
-     * Checks to see if the Structure block (that's called) is still valid in case of a bad break.
-     *
-     * @param world world obj
-     * @param x     x coord
-     * @param y     y coord
-     * @param z     z coord
-     * @param hash  structure hash
-     * @param pos  position of the changed block
-     * @param state block state
-     */
+    public static EnumFacing getOrientation(IBlockState state)
+    {
+        return (EnumFacing) state.getValue(FACING);
+    }
+
     public static void onSharedNeighbourBlockChange(IBlockAccess world, BlockPos pos, int hash, Block neibourBlock, IBlockState state)
     {//todo complete
         /*final IStructureTE te = (IStructureTE) world.getTileEntity(pos);
@@ -312,7 +325,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     public void formStructure(World world, TripleCoord origin, IBlockState state, int flag)
     {
         final TripleIterator itr = getPattern().getStructureItr();
-        final EnumFacing orientation = (EnumFacing) state.getValue(FACING);
+        final EnumFacing orientation = getOrientation(state);
         final boolean isMirrored = isMirrored(state);
         final IBlockState shapeState = ModBlock.structureShape
                 .getDefaultState()
@@ -458,5 +471,18 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     public NBTTagCompound getNBTData(TileEntity te, NBTTagCompound tag, IWailaDataAccessorServer accessor)
     {
         return null;
+    }
+
+    //=======================================================
+    //                     C l a s s
+    //=======================================================
+
+
+    @Override
+    public String toString()
+    {
+        return Objects.toStringHelper(this)
+                .add("Structure Definition", getPattern())
+                .toString();
     }
 }

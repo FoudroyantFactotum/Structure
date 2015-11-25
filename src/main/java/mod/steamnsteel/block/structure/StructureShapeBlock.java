@@ -66,6 +66,24 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
         return new BlockState(this, FACING, propMirror);
     }
 
+    public IBlockState getStateFromMeta(int meta)
+    {
+        final EnumFacing facing = EnumFacing.getHorizontal(meta & 0x3);
+        final boolean mirror = (meta & 0x4) != 0;
+
+        return getDefaultState()
+                .withProperty(FACING, facing)
+                .withProperty(propMirror, mirror);
+    }
+
+    public int getMetaFromState(IBlockState state)
+    {
+        final EnumFacing facing = getOrientation(state);
+        final boolean mirror = isMirrored(state);
+
+        return facing.getHorizontalIndex() | (mirror? 1<<2:0);
+    }
+
     @Override
     public int quantityDropped(Random rnd)
     {
