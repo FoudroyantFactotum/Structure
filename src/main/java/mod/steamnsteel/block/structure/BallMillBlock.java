@@ -19,12 +19,13 @@ package mod.steamnsteel.block.structure;
 import com.google.common.collect.ImmutableMap;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -46,11 +47,11 @@ public class BallMillBlock extends SteamNSteelStructureBlock
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, TripleCoord coord, float sx, float sy, float sz)
+    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, BlockPos local, float sx, float sy, float sz)
     {
-        final float x = coord.x + 0.5f;
-        final float y = coord.y + 0.5f;
-        final float z = coord.z + 0.5f;
+        final float x = local.getX() + 0.5f;
+        final float y = local.getY() + 0.5f;
+        final float z = local.getZ() + 0.5f;
 
         for (int i = 0; i < 1; ++i)
         {
@@ -93,9 +94,9 @@ public class BallMillBlock extends SteamNSteelStructureBlock
                 }
         );
 
-        builder.assignToolFormPosition(TripleCoord.of(2,1,1));
+        builder.assignToolFormPosition(BlockPosUtil.of(2,1,1));
 
-        builder.setConfiguration(TripleCoord.of(0,0,0),
+        builder.setConfiguration(BlockPosUtil.of(0,0,0),
                 new String[]{
                         "-M---",
                         "---- "

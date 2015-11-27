@@ -1,5 +1,8 @@
 package mod.steamnsteel.structure.coordinates;
 
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockPos.MutableBlockPos;
+
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
@@ -7,15 +10,18 @@ import java.util.NoSuchElementException;
  * This class is used as the basis of all iteration through out the structure. It allows the iteration over all the
  * values (designed in this case for (x,y,z))
  */
-public class TripleIterator implements Iterator<TripleCoord>
+public class StructureIterable implements Iterator<MutableBlockPos>
 {
     private int layerNo, depthNo, rowNo;
     private int layerNoU, depthNoU, rowNoU;
     private int layerNoL, depthNoL, rowNoL;
 
+    //because private constructor
+    private MutableBlockPos pos = (MutableBlockPos) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, BlockPos.ORIGIN).iterator().next();
+
     private boolean hasNext;
 
-    private TripleIterator()
+    private StructureIterable()
     {
         this(0,0,0);
     }
@@ -26,7 +32,7 @@ public class TripleIterator implements Iterator<TripleCoord>
      * @param y upper y-coord
      * @param z upper z-coord
      */
-    public TripleIterator(int x, int y, int z)
+    public StructureIterable(int x, int y, int z)
     {
         this(0,0,0, x,y,z);
     }
@@ -40,7 +46,7 @@ public class TripleIterator implements Iterator<TripleCoord>
      * @param yu upper y-coord
      * @param zu upper z-coord
      */
-    public TripleIterator(int xl, int yl, int zl, int xu, int yu, int zu)
+    public StructureIterable(int xl, int yl, int zl, int xu, int yu, int zu)
     {
         rowNoL = xl-1; layerNoL = yl; depthNoL = zl;
         rowNoU = xu; layerNoU = yu; depthNoU = zu;
@@ -81,18 +87,20 @@ public class TripleIterator implements Iterator<TripleCoord>
     }
 
     @Override
-    public TripleCoord next()
+    public MutableBlockPos next()
     {
         if (!hasNext())
         {
             throw new NoSuchElementException();
         }
 
-        final TripleCoord res = TripleCoord.of(rowNo,layerNo,depthNo);
+        pos.x = rowNo;
+        pos.y = layerNo;
+        pos.z = depthNo;
 
         shiftReadHead();
 
-        return res;
+        return pos;
     }
 
     @Override

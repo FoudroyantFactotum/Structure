@@ -18,12 +18,13 @@ package mod.steamnsteel.tileentity.structure;
 
 import mod.steamnsteel.block.structure.BallMillBlock;
 import mod.steamnsteel.inventory.Inventory;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fluids.Fluid;
@@ -34,16 +35,16 @@ import static mod.steamnsteel.structure.coordinates.TransformLAG.*;
 
 public class BallMillTE extends SteamNSteelStructureTE
 {
-    private static final TripleCoord LOCATION_STEAM_INPUT = TripleCoord.of(0,0,1);
+    private static final BlockPos LOCATION_STEAM_INPUT = BlockPosUtil.of(0,0,1);
     private static final int DIRECTIONS_STEAM_INPUT = flagEnumFacing(EnumFacing.SOUTH);
 
-    private static final TripleCoord LOCATION_WATER_INPUT = TripleCoord.of(4,1,1);
+    private static final BlockPos LOCATION_WATER_INPUT = BlockPosUtil.of(4,1,1);
     private static final int DIRECTIONS_WATER_INPUT = flagEnumFacing(EnumFacing.EAST);
 
-    private static final TripleCoord LOCATION_MATERIAL_INPUT = TripleCoord.of(0,0,0);
+    private static final BlockPos LOCATION_MATERIAL_INPUT = BlockPosUtil.of(0,0,0);
     private static final int DIRECTIONS_MATERIAL_INPUT = flagEnumFacing(EnumFacing.NORTH);
 
-    private static final TripleCoord LOCATION_MATERIAL_OUTPUT = TripleCoord.of(4,0,0);
+    private static final BlockPos LOCATION_MATERIAL_OUTPUT = BlockPosUtil.of(4,0,0);
     private static final int DIRECTIONS_MATERIAL_OUTPUT = flagEnumFacing(EnumFacing.NORTH);
 
     //Global Directions
@@ -52,10 +53,10 @@ public class BallMillTE extends SteamNSteelStructureTE
     private int globalDirectionsMaterialInput;
     private int globalDirectionsMaterialOutput;
 
-    private TripleCoord globalLocationSteamInput;
-    private TripleCoord globalLocationWaterInput;
-    private TripleCoord globalLocationMaterialInput;
-    private TripleCoord globalLocationMaterialOutput;
+    private BlockPos globalLocationSteamInput;
+    private BlockPos globalLocationWaterInput;
+    private BlockPos globalLocationMaterialInput;
+    private BlockPos globalLocationMaterialOutput;
 
     private final Inventory inventory = new Inventory(1);
     private static final int INPUT = 0;
@@ -159,23 +160,23 @@ public class BallMillTE extends SteamNSteelStructureTE
     }
 
     @Override
-    public boolean canStructureInsertItem(int slot, ItemStack item, EnumFacing side, TripleCoord blockID)
+    public boolean canStructureInsertItem(int slot, ItemStack item, EnumFacing side, BlockPos local)
     {
         return isSide(globalDirectionsMaterialInput, side) &&
-                blockID.equals(globalLocationMaterialInput) &&
+                local.equals(globalLocationMaterialInput) &&
                 isItemValidForSlot(slot, item);
     }
 
     @Override
-    public boolean canStructureExtractItem(int slot, ItemStack item, EnumFacing side, TripleCoord blockID)
+    public boolean canStructureExtractItem(int slot, ItemStack item, EnumFacing side, BlockPos local)
     {
         return slot == INPUT && isSide(globalDirectionsMaterialOutput, side);
     }
 
     @Override
-    public int[] getSlotsForStructureFace(EnumFacing side, TripleCoord blockID)
+    public int[] getSlotsForStructureFace(EnumFacing side, BlockPos local)
     {
-        return globalLocationMaterialInput.equals(blockID) || globalLocationMaterialOutput.equals(blockID) ?
+        return globalLocationMaterialInput.equals(local) || globalLocationMaterialOutput.equals(local) ?
                 slotsMaterialInput :
                 slotsDefault;
     }
@@ -184,37 +185,37 @@ public class BallMillTE extends SteamNSteelStructureTE
     //                  F L U I D   H A N D L E R
     //================================================================
     @Override
-    public boolean canStructureFill(EnumFacing from, Fluid fluid, TripleCoord blockID)
+    public boolean canStructureFill(EnumFacing from, Fluid fluid, BlockPos local)
     {
         return false;
     }
 
     @Override
-    public boolean canStructureDrain(EnumFacing from, Fluid fluid, TripleCoord blockID)
+    public boolean canStructureDrain(EnumFacing from, Fluid fluid, BlockPos local)
     {
         return false;
     }
 
     @Override
-    public int structureFill(EnumFacing from, FluidStack resource, boolean doFill, TripleCoord blockID)
+    public int structureFill(EnumFacing from, FluidStack resource, boolean doFill, BlockPos local)
     {
         return 0;
     }
 
     @Override
-    public FluidStack structureDrain(EnumFacing from, FluidStack resource, boolean doDrain, TripleCoord blockID)
+    public FluidStack structureDrain(EnumFacing from, FluidStack resource, boolean doDrain, BlockPos local)
     {
         return null;
     }
 
     @Override
-    public FluidStack structureDrain(EnumFacing from, int maxDrain, boolean doDrain, TripleCoord blockID)
+    public FluidStack structureDrain(EnumFacing from, int maxDrain, boolean doDrain, BlockPos local)
     {
         return null;
     }
 
     @Override
-    public FluidTankInfo[] getStructureTankInfo(EnumFacing from, TripleCoord blockID)
+    public FluidTankInfo[] getStructureTankInfo(EnumFacing from, BlockPos local)
     {
         return emptyFluidTankInfo;
     }
@@ -223,26 +224,26 @@ public class BallMillTE extends SteamNSteelStructureTE
     //                 P I P E   C O N E C T I O N
     //================================================================
     @Override
-    public boolean isStructureSideConnected(EnumFacing opposite, TripleCoord blockID)
+    public boolean isStructureSideConnected(EnumFacing opposite, BlockPos local)
     {
         return false;
     }
 
     @Override
-    public boolean tryStructureConnect(EnumFacing opposite, TripleCoord blockID)
+    public boolean tryStructureConnect(EnumFacing opposite, BlockPos local)
     {
         return false;
     }
 
     @Override
-    public boolean canStructureConnect(EnumFacing opposite, TripleCoord blockID)
+    public boolean canStructureConnect(EnumFacing opposite, BlockPos local)
     {
-        return isSide(globalDirectionsSteamInput, opposite) && globalLocationSteamInput.equals(blockID) ||
-                isSide(globalDirectionsWaterInput, opposite) && globalLocationWaterInput.equals(blockID);
+        return isSide(globalDirectionsSteamInput, opposite) && globalLocationSteamInput.equals(local) ||
+                isSide(globalDirectionsWaterInput, opposite) && globalLocationWaterInput.equals(local);
     }
 
     @Override
-    public void disconnectStructure(EnumFacing opposite, TripleCoord blockID)
+    public void disconnectStructure(EnumFacing opposite, BlockPos local)
     {
 
     }

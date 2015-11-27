@@ -17,13 +17,12 @@ package mod.steamnsteel.structure.net;
 
 import io.netty.buffer.ByteBuf;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
-import mod.steamnsteel.structure.coordinates.TripleIterator;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockPos.MutableBlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
 import net.minecraft.world.World;
@@ -101,7 +100,6 @@ public class StructurePacket implements IMessage
 
             int particleCount = 0;
             final float sAjt = 0.05f;
-            final TripleCoord origin = TripleCoord.of(msg.pos);
             final EnumFacing orientation = EnumFacing.VALUES[msg.orientationAndMirror & orientationMask];
             final boolean mirror = (msg.orientationAndMirror & flagMirrored) != 0;
 
@@ -112,19 +110,16 @@ public class StructurePacket implements IMessage
                         .withProperty(propMirror, mirror);
 
                 world.setBlockState(msg.pos, state, 0x2);
-                block.formStructure(world, origin, state, 0x2);
-                updateExternalNeighbours(world, origin, block.getPattern(), orientation, mirror, true);
+                block.formStructure(world, msg.pos, state, 0x2);
+                updateExternalNeighbours(world, msg.pos, block.getPattern(), orientation, mirror, true);
 
                 return null;
             }
 
-            TripleIterator itr = block.getPattern().getStructureItr();
-
-            while (itr.hasNext())
+            for (final MutableBlockPos local : block.getPattern().getStructureItr())
             {
-                final TripleCoord local = itr.next();
                 final BlockPos coord = bindLocalToGlobal(
-                        origin, local,
+                        msg.pos, local,
                         orientation, mirror,
                         block.getPattern().getBlockBounds()
                 );

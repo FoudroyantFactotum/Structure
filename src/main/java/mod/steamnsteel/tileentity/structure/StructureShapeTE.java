@@ -20,8 +20,7 @@ import com.google.common.base.Optional;
 import mod.steamnsteel.api.plumbing.IPipeTileEntity;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
-import mod.steamnsteel.structure.registry.GeneralBlock.IGeneralBlock;
+import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
 import net.minecraft.block.state.IBlockState;
@@ -34,6 +33,7 @@ import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
@@ -49,10 +49,10 @@ import static net.minecraft.block.BlockDirectional.FACING;
 
 public final class StructureShapeTE extends SteamNSteelTE implements IStructureTE, ISidedInventory, IFluidHandler, IPipeTileEntity
 {
-    private TripleCoord local = TripleCoord.of(0, 0, 0);
+    private BlockPos local = BlockPos.ORIGIN;
     private int definitionHash = -1;
 
-    private Optional<TripleCoord> masterLocation = Optional.absent();
+    private Optional<BlockPos> masterLocation = Optional.absent();
     private Optional<SteamNSteelStructureTE> originTE = Optional.absent();
     private boolean hasNotAttemptedAcquisitionOfOriginTE = true;
 
@@ -72,8 +72,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
         }
 
         //get te and test
-        final TripleCoord mloc = getMasterBlockLocation();
-        final TileEntity te = getWorld().getTileEntity(mloc.getBlockPos());
+        final TileEntity te = getWorld().getTileEntity(getMasterBlockLocation());
 
         if (hasNotAttemptedAcquisitionOfOriginTE && te instanceof SteamNSteelStructureTE)
         {
@@ -105,7 +104,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     }
 
     @Override
-    public TripleCoord getMasterBlockLocation()
+    public BlockPos getMasterBlockLocation()
     {
         if (!masterLocation.isPresent())
         {
@@ -114,11 +113,11 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
 
             if (sb == null)
             {
-                return TripleCoord.of(pos);
+                return pos;
             }
 
             masterLocation = Optional.of(localToGlobal(
-                    -local.x, -local.y, -local.z,
+                    -local.getX(), -local.getY(), -local.getZ(),
                     pos.getX(), pos.getY(), pos.getZ(),
                     (EnumFacing) state.getValue(FACING), isMirrored(state),
                     sb.getPattern().getBlockBounds()));
@@ -135,7 +134,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
         if (sb != null)
         {
             IBlockState block = sb.getPattern().getBlock(local);
-            return block == null || block instanceof IGeneralBlock ?
+            return block == null ?
                     Blocks.air.getDefaultState() :
                     block;
         }
@@ -144,14 +143,14 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     }
 
     @Override
-    public void configureBlock(TripleCoord local, int patternHash)
+    public void configureBlock(BlockPos local, int definitionHash)
     {
         this.local = local;
-        this.definitionHash = patternHash;
+        this.definitionHash = definitionHash;
     }
 
     @Override
-    public TripleCoord getLocal()
+    public BlockPos getLocal()
     {
         return local;
     }
@@ -447,7 +446,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
 
         final int blockInfo = nbt.getInteger(BLOCK_INFO);
 
-        local = TripleCoord.dehashLoc(blockInfo & maskBlockID);
+        local = BlockPosUtil.fromInt(blockInfo);
         definitionHash = nbt.getInteger(BLOCK_PATTERN_NAME);
     }
 

@@ -18,7 +18,7 @@ package mod.steamnsteel.block.structure;
 import com.google.common.collect.ImmutableMap;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.log.Logger;
@@ -43,7 +43,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, TripleCoord coord, float sx, float sy, float sz) { }
+    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, BlockPos local, float sx, float sy, float sz) { }
 
     @Override
     public boolean hasTileEntity(IBlockState state)
@@ -58,10 +58,10 @@ public class BoilerBlock extends SteamNSteelStructureBlock
     }
 
     @Override
-    public boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, TripleCoord sbID, float sx, float sy, float sz)
+    public boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, BlockPos local, float sx, float sy, float sz)
     {
         Logger.info("Active: " + world.getTileEntity(pos));
-        return super.onStructureBlockActivated(world, pos, player, callPos, side, sbID, sx, sy, sz);
+        return super.onStructureBlockActivated(world, pos, player, callPos, side, local, sx, sy, sz);
     }
 
     @Override
@@ -100,9 +100,9 @@ public class BoilerBlock extends SteamNSteelStructureBlock
                 }
         );
 
-        builder.assignToolFormPosition(TripleCoord.of(1,2,2));
+        builder.assignToolFormPosition(BlockPosUtil.of(1,2,2));
 
-        builder.setConfiguration(TripleCoord.of(0,0,0),
+        builder.setConfiguration(BlockPosUtil.of(0,0,0),
                 new String[]{
                         "M--",
                         "---",

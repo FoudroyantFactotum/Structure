@@ -18,7 +18,6 @@ package mod.steamnsteel.block.structure;
 import mod.steamnsteel.block.SteamNSteelMachineBlock;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.structure.StructureShapeTE;
 import net.minecraft.block.ITileEntityProvider;
@@ -46,7 +45,7 @@ import static net.minecraft.block.BlockDirectional.FACING;
 
 public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITileEntityProvider
 {
-    public static boolean _DEBUG = false;
+    public static boolean _DEBUG = true;
     public static final String NAME = "structureShape";
     public static final AxisAlignedBB EMPTY_BOUNDS = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
 
@@ -95,8 +94,8 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
     public AxisAlignedBB getSelectedBoundingBox(World world, BlockPos pos)
     {
         final StructureShapeTE te = (StructureShapeTE) world.getTileEntity(pos);
-        //return EMPTY_BOUNDS;
-        return world.getTileEntity(te.getMasterBlockLocation().getBlockPos()).getRenderBoundingBox();
+        return EMPTY_BOUNDS;
+        //return world.getTileEntity(te.getMasterBlockLocation()).getRenderBoundingBox();
     }
 
     @Override
@@ -106,7 +105,7 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
 
         if (te != null)
         {
-            final TripleCoord mloc = te.getMasterBlockLocation();
+            final BlockPos mloc = te.getMasterBlockLocation();
             final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
 
             if (sb == null || sb.getPattern().getCollisionBoxes() == null)
@@ -114,7 +113,7 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
                 return;
             }
 
-            localToGlobalCollisionBoxes(mloc.x, mloc.y, mloc.z,
+            localToGlobalCollisionBoxes(mloc.getX(), mloc.getY(), mloc.getZ(),
                     mask, list, sb.getPattern().getCollisionBoxes(),
                     (EnumFacing) state.getValue(FACING), isMirrored(state),
                     sb.getPattern().getBlockBounds()
@@ -145,7 +144,7 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
 
             if (block != null)
             {
-                return block.addDestroyEffects(world, te.getMasterBlockLocation().getBlockPos(), effectRenderer);
+                return block.addDestroyEffects(world, te.getMasterBlockLocation(), effectRenderer);
             }
         }
 
@@ -199,10 +198,7 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
 
             if (block != null)
             {
-                final TripleCoord mloc = te.getMasterBlockLocation();
-                final BlockPos mbp = new BlockPos(mloc.x, mloc.y, mloc.z);
-
-                return block.onStructureBlockActivated(world, mbp, player, pos, side, te.getLocal(), sx, sy, sz);
+                return block.onStructureBlockActivated(world, te.getMasterBlockLocation(), player, pos, side, te.getLocal(), sx, sy, sz);
             }
         }
 

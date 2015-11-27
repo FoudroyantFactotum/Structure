@@ -18,9 +18,7 @@ package mod.steamnsteel.structure.registry;
 import com.google.common.collect.Lists;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.StructureDefinitionBuilder.StructureDefinitionError;
-import mod.steamnsteel.structure.registry.GeneralBlock.GeneralNull;
 import mod.steamnsteel.utility.log.Logger;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.BlockPos;
@@ -83,8 +81,6 @@ public final class StructureRegistry
             Logger.info("\n\n\nIllegalAccessException: " + e.getLocalizedMessage() + "\n\n\n");
         }
     }
-
-    public static final IBlockState generalNull = new GeneralNull();
 
     private StructureRegistry()
     {

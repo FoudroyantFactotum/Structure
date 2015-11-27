@@ -16,8 +16,8 @@
 package mod.steamnsteel.structure.IStructure;
 
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockPos;
 
 public interface IStructureTE
 {
@@ -25,8 +25,8 @@ public interface IStructureTE
 
     int getRegHash();
     SteamNSteelStructureBlock getMasterBlockInstance();
-    TripleCoord getMasterBlockLocation();
+    BlockPos getMasterBlockLocation();
 
-    void configureBlock(TripleCoord local, int patternHash);
-    TripleCoord getLocal();
+    void configureBlock(BlockPos local, int patternHash);
+    BlockPos getLocal();
 }

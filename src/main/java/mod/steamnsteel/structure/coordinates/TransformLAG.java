@@ -123,23 +123,23 @@ public final class TransformLAG
     };
 
     //from external with local to master
-    public static TripleCoord localToGlobal(int lx, int ly, int lz,
+    public static BlockPos localToGlobal(int lx, int ly, int lz,
                                             int gx, int gy, int gz,
                                             EnumFacing orientation, boolean ismirrored,
-                                            TripleCoord strucSize)
+                                            BlockPos strucSize)
     {
         final int rotIndex = orientation.ordinal()-2;
 
         if (ismirrored)
         {
             lz *= -1;
-            if (strucSize.z % 2 == 0) ++lz;
+            if (strucSize.getZ() % 2 == 0) ++lz;
         }
 
         final int rx = rotationMatrix[rotIndex][0][0] * lx + rotationMatrix[rotIndex][0][1] * lz;
         final int rz = rotationMatrix[rotIndex][1][0] * lx + rotationMatrix[rotIndex][1][1] * lz;
 
-        return TripleCoord.of(
+        return BlockPosUtil.of(
                 gx + rx,
                 gy + ly,
                 gz + rz
@@ -244,7 +244,7 @@ public final class TransformLAG
     public static void localToGlobalCollisionBoxes(
             int x, int y, int z,
             AxisAlignedBB aabb, List<AxisAlignedBB> boundingBoxList, float[][] collB,
-            EnumFacing orientation, boolean isMirrored, TripleCoord size)
+            EnumFacing orientation, boolean isMirrored, BlockPos size)
     {
         final int[][] matrix = rotationMatrix[orientation.ordinal()-2];
 
@@ -281,21 +281,21 @@ public final class TransformLAG
     //Bounding box
     public static AxisAlignedBB localToGlobalBoundingBox(
             BlockPos pos,
-            TripleCoord local,
+            BlockPos local,
             StructureDefinition sd, EnumFacing orientation, boolean ismirrored)
     {
-        final int l_lbx = local.x - sd.getMasterLocation().x;
-        final int l_lby = local.y - sd.getMasterLocation().y;
-        final int l_lbz = local.z - sd.getMasterLocation().z;
+        final int l_lbx = local.getX() - sd.getMasterLocation().getX();
+        final int l_lby = local.getY() - sd.getMasterLocation().getY();
+        final int l_lbz = local.getZ() - sd.getMasterLocation().getZ();
 
-        final int l_ubx = local.x + sd.getBlockBounds().x - sd.getMasterLocation().x;
-        final int l_uby = local.y + sd.getBlockBounds().y - sd.getMasterLocation().y;
-        final int l_ubz = local.z + sd.getBlockBounds().z - sd.getMasterLocation().z;
+        final int l_ubx = local.getX() + sd.getBlockBounds().getX() - sd.getMasterLocation().getX();
+        final int l_uby = local.getY() + sd.getBlockBounds().getY() - sd.getMasterLocation().getY();
+        final int l_ubz = local.getZ() + sd.getBlockBounds().getZ() - sd.getMasterLocation().getZ();
 
-        final TripleCoord lb
+        final BlockPos lb
                 = localToGlobal(l_lbx, l_lby, l_lbz, pos.getX(), pos.getY(), pos.getZ(), orientation, ismirrored, sd.getBlockBounds());
 
-        final TripleCoord ub
+        final BlockPos ub
                 = localToGlobal(l_ubx, l_uby, l_ubz, pos.getX(), pos.getY(), pos.getZ(), orientation, ismirrored, sd.getBlockBounds());
 
         final int[][] matrix = rotationMatrix[orientation.ordinal()-2];
@@ -307,20 +307,13 @@ public final class TransformLAG
         final int tz = matrix[1][0] * ntx + matrix[1][1] * ntz;
 
         return AxisAlignedBB.fromBounds(
-                lb.x + tx, lb.y, lb.z + tz,
-                ub.x + tx, ub.y, ub.z + tz
+                lb.getX() + tx, lb.getY(), lb.getZ() + tz,
+                ub.getX() + tx, ub.getY(), ub.getZ() + tz
         );
     }
 
-    public static TripleCoord transformFromDefinitionToMaster(StructureDefinition sd, TripleCoord loc)
+    public static BlockPos transformFromDefinitionToMaster(StructureDefinition sd, BlockPos loc)
     {
-        final TripleCoord newLoc = TripleCoord.of(loc);
-        final TripleCoord ml = sd.getMasterLocation();
-
-        newLoc.x -= ml.x;
-        newLoc.y -= ml.y;
-        newLoc.z -= ml.z;
-
-        return newLoc;
+        return loc.subtract(sd.getMasterLocation());
     }
 }

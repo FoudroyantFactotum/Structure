@@ -16,13 +16,16 @@
 package mod.steamnsteel.structure.registry;
 
 import com.google.common.base.Objects;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
-import mod.steamnsteel.structure.coordinates.TripleIterator;
+import mod.steamnsteel.structure.coordinates.BlockPosUtil;
+import mod.steamnsteel.structure.coordinates.StructureIterable;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockPos.MutableBlockPos;
 import net.minecraft.util.EnumFacing;
 
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Iterator;
 
 /**
  * Structures contain two states. Construction & Form state C->F, F->C.
@@ -59,11 +62,11 @@ import java.util.BitSet;
 public class StructureDefinition
 {
     private BitSet sbLayout;
-    private TripleCoord sbLayoutSize;
-    private TripleCoord sbLayoutSizeHlf;
+    private BlockPos sbLayoutSize;
+    private BlockPos sbLayoutSizeHlf;
 
-    private TripleCoord masterPosition;
-    private TripleCoord toolFormPosition;
+    private BlockPos masterPosition;
+    private BlockPos toolFormPosition;
 
     private IBlockState[][][] blocks;
     private float[][] collisionBoxes;
@@ -74,9 +77,9 @@ public class StructureDefinition
     }
 
     public StructureDefinition(BitSet sbLayout,
-                               TripleCoord sbLayoutSize,
-                               TripleCoord masterPosition,
-                               TripleCoord toolFormPosition,
+                               BlockPos sbLayoutSize,
+                               BlockPos masterPosition,
+                               BlockPos toolFormPosition,
 
                                IBlockState[][][] blocks,
                                float[][] collisionBoxes)
@@ -90,67 +93,74 @@ public class StructureDefinition
         this.blocks = blocks;
         this.collisionBoxes = collisionBoxes;
 
-        sbLayoutSizeHlf = TripleCoord.of(
-                sbLayoutSize.x/2,
-                sbLayoutSize.y/2,
-                sbLayoutSize.z/2);
+        sbLayoutSizeHlf = BlockPosUtil.of(
+                sbLayoutSize.getX()/2,
+                sbLayoutSize.getY()/2,
+                sbLayoutSize.getZ()/2);
     }
 
-    public boolean hasBlockAt(TripleCoord loc, EnumFacing d) { return hasBlockAt(loc.x + d.getFrontOffsetX(), loc.y + d.getFrontOffsetY(), loc.z + d.getFrontOffsetZ());}
-    public boolean hasBlockAt(TripleCoord loc) { return hasBlockAt(loc.x, loc.y, loc.z);}
+    public boolean hasBlockAt(BlockPos loc, EnumFacing d) { return hasBlockAt(loc.getX() + d.getFrontOffsetX(), loc.getY() + d.getFrontOffsetY(), loc.getZ() + d.getFrontOffsetZ()); }
+    public boolean hasBlockAt(BlockPos loc) { return hasBlockAt(loc.getX(), loc.getY(), loc.getZ()); }
     public boolean hasBlockAt(int x, int y, int z)
     {
-        x += masterPosition.x;
-        y += masterPosition.y;
-        z += masterPosition.z;
+        x += masterPosition.getX();
+        y += masterPosition.getY();
+        z += masterPosition.getZ();
 
-        return  x < sbLayoutSize.x && x > -1 &&
-                y < sbLayoutSize.y && y > -1 &&
-                z < sbLayoutSize.z && z > -1 &&
-                sbLayout.get(y * sbLayoutSize.z * sbLayoutSize.x + z * sbLayoutSize.x + x);
+        return  x < sbLayoutSize.getX() && x > -1 &&
+                y < sbLayoutSize.getY() && y > -1 &&
+                z < sbLayoutSize.getZ() && z > -1 &&
+                sbLayout.get(y * sbLayoutSize.getX() * sbLayoutSize.getY() + z * sbLayoutSize.getZ() + x);
 
     }
 
-    public IBlockState getBlock(TripleCoord loc) { return getBlock(loc.x, loc.y, loc.z);}
+    public IBlockState getBlock(BlockPos loc) { return getBlock(loc.getX(), loc.getY(), loc.getZ()); }
     public IBlockState getBlock(int x, int y, int z)
     {
-        x += masterPosition.x;
-        y += masterPosition.y;
-        z += masterPosition.z;
+        x += masterPosition.getX();
+        y += masterPosition.getY();
+        z += masterPosition.getZ();
 
-        if (blocks.length > x        &&
-                blocks[x].length > y &&
-                blocks[x][y].length > z)
+        if (blocks.length > x        && x > -1 &&
+                blocks[x].length > y && y > -1 &&
+                blocks[x][y].length > z && z > -1)
             return blocks[x][y][z];
 
         return null;
     }
 
-    public TripleCoord getBlockBounds()
+    public BlockPos getBlockBounds()
     {
         return sbLayoutSize;
     }
 
-    public TripleCoord getHalfBlockBounds()
+    public BlockPos getHalfBlockBounds()
     {
         return sbLayoutSizeHlf;
     }
 
-    public TripleCoord getMasterLocation()
+    public BlockPos getMasterLocation()
     {
         return masterPosition;
     }
 
-    public TripleCoord getToolFormLocation()
+    public BlockPos getToolFormLocation()
     {
         return toolFormPosition;
     }
 
-    public TripleIterator getStructureItr()
+    public Iterable<MutableBlockPos> getStructureItr()
     {
-        return new TripleIterator(
-                -masterPosition.x,                -masterPosition.y,                   -masterPosition.z,
-                blocks.length - masterPosition.x, blocks[0].length - masterPosition.y, blocks[0][0].length - masterPosition.z);
+        return new Iterable<MutableBlockPos>()
+        {
+            @Override
+            public Iterator<MutableBlockPos> iterator()
+            {
+                return new StructureIterable(
+                        -masterPosition.getX(),                -masterPosition.getY(),                   -masterPosition.getZ(),
+                        blocks.length - masterPosition.getX(), blocks[0].length - masterPosition.getY(), blocks[0][0].length - masterPosition.getZ());
+            }
+        };
     }
 
     public float[][] getCollisionBoxes()

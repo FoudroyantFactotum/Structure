@@ -20,7 +20,7 @@ import com.google.common.collect.ImmutableMap;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.client.model.opengex.OpenGEXAnimationFrameProperty;
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
+import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.tileentity.structure.FanLargeTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.log.Logger;
@@ -68,7 +68,7 @@ public class FanLargeBlock extends SteamNSteelStructureBlock
     }
 
     @Override
-    public boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, TripleCoord sbID, float sx, float sy, float sz)
+    public boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, BlockPos local, float sx, float sy, float sz)
     {
         if (world.isRemote)
         {
@@ -106,7 +106,7 @@ public class FanLargeBlock extends SteamNSteelStructureBlock
 
     @Override
     @SideOnly(Side.CLIENT)
-    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, TripleCoord coord, float sx, float sy, float sz)
+    public void spawnBreakParticle(World world, SteamNSteelStructureTE te, BlockPos local, float sx, float sy, float sz)
     {
         /*final int x = coord.getX();
         final int y = coord.getY();
@@ -146,9 +146,9 @@ public class FanLargeBlock extends SteamNSteelStructureBlock
                 }
         );
 
-        builder.assignToolFormPosition(TripleCoord.of(1,1,0));
+        builder.assignToolFormPosition(BlockPosUtil.of(1,1,0));
 
-        builder.setConfiguration(TripleCoord.of(0,0,0),
+        builder.setConfiguration(BlockPosUtil.of(0,0,0),
                 new String[]{
                         "---"
                 },

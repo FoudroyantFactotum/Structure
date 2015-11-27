@@ -17,14 +17,14 @@ package mod.steamnsteel.structure;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import mod.steamnsteel.structure.coordinates.TripleCoord;
-import mod.steamnsteel.structure.coordinates.TripleIterator;
+import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.structure.registry.StructureDefinition;
-import mod.steamnsteel.structure.registry.StructureRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockPos.MutableBlockPos;
 
 import java.util.BitSet;
 import java.util.Collection;
@@ -34,10 +34,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public final class StructureDefinitionBuilder
 {
     private BitSet sbLayout;
-    private TripleCoord sbLayoutSize;
+    private BlockPos sbLayoutSize;
 
-    private TripleCoord masterPosition;
-    private TripleCoord toolFormPosition;
+    private BlockPos masterPosition;
+    private BlockPos toolFormPosition;
 
     private IBlockState[][][] states;
     private float[][] collisionBoxes;
@@ -105,27 +105,21 @@ public final class StructureDefinitionBuilder
         final int ysz = states[0].length;
         final int zsz = states[0][0].length;
 
-        final TripleIterator itr = new TripleIterator(xsz, ysz, zsz);
-
-        while (itr.hasNext())
+        for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {
-            final TripleCoord local = itr.next();
-
             states[local.x][local.y][local.z] = getBlockState(local);
         }
 
         //correct collision bounds.
         for (float[] bb: collisionBoxes)
         {
-            bb[0] -= masterPosition.x; bb[3] -= masterPosition.x;
-            bb[1] -= masterPosition.y; bb[4] -= masterPosition.y;
-            bb[2] -= masterPosition.z; bb[5] -= masterPosition.z;
+            bb[0] -= masterPosition.getX(); bb[3] -= masterPosition.getX();
+            bb[1] -= masterPosition.getY(); bb[4] -= masterPosition.getY();
+            bb[2] -= masterPosition.getZ(); bb[5] -= masterPosition.getZ();
         }
 
         //correct tool form location
-        toolFormPosition.x -= masterPosition.x;
-        toolFormPosition.y -= masterPosition.y;
-        toolFormPosition.z -= masterPosition.z;
+        toolFormPosition = toolFormPosition.subtract(masterPosition);
 
         return new StructureDefinition(
                 sbLayout,
@@ -141,7 +135,7 @@ public final class StructureDefinitionBuilder
      * @param local local coords of the block within the map
      * @return block state
      */
-    private IBlockState getBlockState(TripleCoord local)
+    private IBlockState getBlockState(MutableBlockPos local)
     {
         final IBlockState block = states[local.x][local.y][local.z];
 
@@ -239,7 +233,6 @@ public final class StructureDefinitionBuilder
 
         //default
         builder.put(' ', Blocks.air.getDefaultState());
-        builder.put('-', StructureRegistry.generalNull);
 
         repBlock = builder.build();
     }
@@ -260,7 +253,17 @@ public final class StructureDefinitionBuilder
 
         states = new IBlockState[xsz][ysz][zsz];
 
-        assignX(repBlock, layer, new TripleIterator(xsz, ysz, zsz), states);
+        for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
+        {
+            final char c = layer[local.y][local.z].charAt(local.x);
+
+            if (!repBlock.containsKey(c) && c != '-')
+            {
+                throw new StructureDefinitionError("Map missing '" + c + "' @" + local);
+            }
+
+            states[local.x][local.y][local.z] = c == '-' ? null : repBlock.get(c);
+        }
     }
 
     /**
@@ -272,20 +275,17 @@ public final class StructureDefinitionBuilder
      * @param shift translation of S(C).origin to S(F).origin
      * @param layer
      */
-    public void setConfiguration(TripleCoord shift, String[]... layer)
+    public void setConfiguration(BlockPos shift, String[]... layer)
     {
         final int xsz = layer[0][0].length();
         final int ysz = layer.length;
         final int zsz = layer[0].length;
 
-        sbLayoutSize = TripleCoord.of(xsz, ysz, zsz);
+        sbLayoutSize = BlockPosUtil.of(xsz, ysz, zsz);
         sbLayout = new BitSet(xsz * ysz *zsz);
 
-        final TripleIterator itr = new TripleIterator(xsz, ysz, zsz);
-
-        while (itr.hasNext())
+        for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {
-            final TripleCoord local = itr.next();
             final char c = Character.toUpperCase(layer[local.y][local.z].charAt(local.x));
 
             switch (c)
@@ -293,10 +293,10 @@ public final class StructureDefinitionBuilder
                 case 'M': // Master block location
                     if (masterPosition == null)
                     {
-                        masterPosition = TripleCoord.of(
-                                local.x + shift.x,
-                                local.y + shift.y,
-                                local.z + shift.z
+                        masterPosition = BlockPosUtil.of(
+                                local.x + shift.getX(),
+                                local.y + shift.getY(),
+                                local.z + shift.getZ()
                         );
                     } else
                     {
@@ -351,26 +351,20 @@ public final class StructureDefinitionBuilder
 
         state = new String[xsz][ysz][zsz];
 
-        assignX(repState, layer, new TripleIterator(xsz,ysz, zsz), state);
-    }
-
-    private static void assignX(ImmutableMap<Character, ?> map, String[][] layers, TripleIterator itr, Object[][][] res)
-    {
-        while (itr.hasNext())
+        for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {
-            final TripleCoord local = itr.next();
-            final char c = layers[local.y][local.z].charAt(local.x);
+            final char c = layer[local.y][local.z].charAt(local.x);
 
-            if (!map.containsKey(c) && c != ' ')
+            if (!repState.containsKey(c) && c != ' ')
             {
-                throw new StructureDefinitionError("assignX.Map missing '" + c + "' @" + local);
+                throw new StructureDefinitionError("Map missing '" + c + "' @" + local);
             }
 
-            res[local.x][local.y][local.z] = map.get(c);
+            state[local.x][local.y][local.z] = repState.get(c);
         }
     }
 
-    public void assignToolFormPosition(TripleCoord toolFormPosition)
+    public void assignToolFormPosition(BlockPos toolFormPosition)
     {
         this.toolFormPosition = toolFormPosition;
     }

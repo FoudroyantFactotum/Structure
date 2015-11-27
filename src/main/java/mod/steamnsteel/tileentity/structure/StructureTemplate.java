@@ -1,10 +1,10 @@
 package mod.steamnsteel.tileentity.structure;
 
-import mod.steamnsteel.structure.coordinates.TripleCoord;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.IChatComponent;
 import net.minecraftforge.fluids.Fluid;
@@ -107,19 +107,19 @@ public abstract class StructureTemplate extends SteamNSteelStructureTE
     }
 
     @Override
-    public boolean canStructureInsertItem(int slot, ItemStack item, EnumFacing side, TripleCoord blockID)
+    public boolean canStructureInsertItem(int slot, ItemStack item, EnumFacing side, BlockPos local)
     {
         return false;
     }
 
     @Override
-    public boolean canStructureExtractItem(int slot, ItemStack item, EnumFacing side, TripleCoord blockID)
+    public boolean canStructureExtractItem(int slot, ItemStack item, EnumFacing side, BlockPos local)
     {
         return false;
     }
 
     @Override
-    public int[] getSlotsForStructureFace(EnumFacing side, TripleCoord blockID)
+    public int[] getSlotsForStructureFace(EnumFacing side, BlockPos local)
     {
         return new int[0];
     }
@@ -129,37 +129,37 @@ public abstract class StructureTemplate extends SteamNSteelStructureTE
     //================================================================
 
     @Override
-    public boolean canStructureFill(EnumFacing from, Fluid fluid, TripleCoord blockID)
+    public boolean canStructureFill(EnumFacing from, Fluid fluid, BlockPos local)
     {
         return false;
     }
 
     @Override
-    public boolean canStructureDrain(EnumFacing from, Fluid fluid, TripleCoord blockID)
+    public boolean canStructureDrain(EnumFacing from, Fluid fluid, BlockPos local)
     {
         return false;
     }
 
     @Override
-    public int structureFill(EnumFacing from, FluidStack resource, boolean doFill, TripleCoord blockID)
+    public int structureFill(EnumFacing from, FluidStack resource, boolean doFill, BlockPos local)
     {
         return 0;
     }
 
     @Override
-    public FluidStack structureDrain(EnumFacing from, FluidStack resource, boolean doDrain, TripleCoord blockID)
+    public FluidStack structureDrain(EnumFacing from, FluidStack resource, boolean doDrain, BlockPos local)
     {
         return null;
     }
 
     @Override
-    public FluidStack structureDrain(EnumFacing from, int maxDrain, boolean doDrain, TripleCoord blockID)
+    public FluidStack structureDrain(EnumFacing from, int maxDrain, boolean doDrain, BlockPos local)
     {
         return null;
     }
 
     @Override
-    public FluidTankInfo[] getStructureTankInfo(EnumFacing from, TripleCoord blockID)
+    public FluidTankInfo[] getStructureTankInfo(EnumFacing from, BlockPos local)
     {
         return emptyFluidTankInfo;
     }
@@ -168,25 +168,25 @@ public abstract class StructureTemplate extends SteamNSteelStructureTE
     //================================================================
 
     @Override
-    public boolean isStructureSideConnected(EnumFacing opposite, TripleCoord blockID)
+    public boolean isStructureSideConnected(EnumFacing opposite, BlockPos local)
     {
         return false;
     }
 
     @Override
-    public boolean tryStructureConnect(EnumFacing opposite, TripleCoord blockID)
+    public boolean tryStructureConnect(EnumFacing opposite, BlockPos local)
     {
         return false;
     }
 
     @Override
-    public boolean canStructureConnect(EnumFacing opposite, TripleCoord blockID)
+    public boolean canStructureConnect(EnumFacing opposite, BlockPos local)
     {
         return false;
     }
 
     @Override
-    public void disconnectStructure(EnumFacing opposite, TripleCoord blockID)
+    public void disconnectStructure(EnumFacing opposite, BlockPos local)
     {
         //noop
     }
