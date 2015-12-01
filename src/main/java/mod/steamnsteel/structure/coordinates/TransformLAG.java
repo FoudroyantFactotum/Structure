@@ -28,6 +28,7 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.BlockPos.MutableBlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -144,6 +145,27 @@ public final class TransformLAG
                 gy + ly,
                 gz + rz
         );
+    }
+
+    public static void mutLocalToGlobal(MutableBlockPos local,
+                                            BlockPos global,
+                                            EnumFacing orientation, boolean ismirrored,
+                                            BlockPos strucSize)
+    {
+        final int rotIndex = orientation.ordinal()-2;
+
+        if (ismirrored)
+        {
+            local.z *= -1;
+            if (strucSize.getZ() % 2 == 0) ++local.z;
+        }
+
+        final int rx = rotationMatrix[rotIndex][0][0] * local.x + rotationMatrix[rotIndex][0][1] * local.z;
+        final int rz = rotationMatrix[rotIndex][1][0] * local.x + rotationMatrix[rotIndex][1][1] * local.z;
+
+        local.x = global.getX() + rx;
+        local.y += global.getY();
+        local.z = global.getZ() + rz;
     }
 
     public static int localToGlobalDirection(int ld, EnumFacing o, boolean mirror)
