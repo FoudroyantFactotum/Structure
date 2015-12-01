@@ -9,6 +9,7 @@ public final class BlockPosUtil
     public static final int BLOCKPOS_MASK = 0x00FFFFFF;
     public static final int BLOCKPOS_BITLEN = 24;
 
+    public static BlockPos of(BlockPos pos, EnumFacing f) { return new BlockPos(pos.getX() + f.getFrontOffsetX(), pos.getY() + f.getFrontOffsetY(), pos.getZ() + f.getFrontOffsetZ()); }
     public static BlockPos of(int x, int y, int z)
     {
         return new BlockPos(x, y, z);

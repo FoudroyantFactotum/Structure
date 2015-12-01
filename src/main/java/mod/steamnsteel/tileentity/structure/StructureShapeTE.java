@@ -19,6 +19,7 @@ import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import mod.steamnsteel.api.plumbing.IPipeTileEntity;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.block.structure.StructureShapeBlock;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.structure.registry.StructureRegistry;
@@ -42,6 +43,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.getMirror;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE.*;
@@ -133,10 +135,20 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
 
         if (sb != null)
         {
-            IBlockState block = sb.getPattern().getBlock(local);
-            return block == null ?
-                    Blocks.air.getDefaultState() :
-                    block;
+            final IBlockState state = worldObj.getBlockState(pos);
+
+            if (state != null && state.getBlock() instanceof StructureShapeBlock)
+            {
+                final IBlockState block = sb.getPattern().getBlock(local);
+
+                return block == null ?
+                        Blocks.air.getDefaultState() :
+                        localToGlobal(
+                                block,
+                                getOrientation(state),
+                                getMirror(state)
+                        );
+            }
         }
 
         return Blocks.air.getDefaultState();

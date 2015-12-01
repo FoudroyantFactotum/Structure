@@ -45,6 +45,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import static mod.steamnsteel.structure.coordinates.TransformLAG.flagEnumFacing;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
 
 public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, IStructureSidedInventory, IStructureFluidHandler, IStructurePipe
@@ -108,11 +109,22 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
 
         if (sb != null)
         {
-            IBlockState block = sb.getPattern().getBlock(local);
-            return block == null ?
-                    Blocks.air.getDefaultState() :
-                    block;
+            final IBlockState state = worldObj.getBlockState(pos);
+
+            if (state != null && state.getBlock() instanceof SteamNSteelStructureBlock)
+            {
+                final IBlockState block = sb.getPattern().getBlock(local);
+
+                return block == null ?
+                        Blocks.air.getDefaultState() :
+                        localToGlobal(
+                                block,
+                                SteamNSteelStructureBlock.getOrientation(state),
+                                SteamNSteelStructureBlock.getMirror(state)
+                        );
+            }
         }
+
 
         return Blocks.air.getDefaultState();
     }

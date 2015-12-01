@@ -113,7 +113,7 @@ public class BuildFormTool extends SSToolShovel
                     final IBlockState ncwb = world.getBlockState(coord);
                     final IBlockState wb = ncwb.getBlock().getActualState(ncwb, world, coord);
 
-                    if (b.getBlock() != wb.getBlock() || !doBlockStatesMatch(localToGlobal(b, o, false), wb))
+                    if (b != null && (b.getBlock() != wb.getBlock() || !doBlockStatesMatch(localToGlobal(b, o, false), wb)))
                     {
                         continue nextOrientation;
                     }

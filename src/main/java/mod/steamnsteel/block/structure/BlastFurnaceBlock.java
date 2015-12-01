@@ -111,13 +111,6 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock
         stateList.put('y', "facing:north,half:bottom,shape:outer_right");
         stateList.put('r', "facing:west,half:bottom,shape:straight");
 
-        //inverse of above
-        /*stateList.put('l', "facing:west,half:bottom,shape:straight");
-        stateList.put('q', "facing:south,half:bottom,shape:inner_left");
-        stateList.put('s', "facing:south,half:bottom,shape:straight");
-        stateList.put('y', "facing:south,half:bottom,shape:inner_right");
-        stateList.put('r', "facing:east,half:bottom,shape:straight");*/
-
         stateList.put('L', "facing:east,half:top,shape:straight");
         stateList.put('Y', "facing:east,half:top,shape:outer_right");
         stateList.put('S', "facing:north,half:top,shape:straight");

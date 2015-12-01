@@ -27,9 +27,12 @@ import mod.steamnsteel.structure.IStructure.IPatternHolder;
 import mod.steamnsteel.structure.IStructure.IStructureAspects;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.BlockPosUtil;
+import mod.steamnsteel.structure.net.StructurePacket;
+import mod.steamnsteel.structure.net.StructurePacketOption;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
+import mod.steamnsteel.utility.ModNetwork;
 import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.waila.WailaProvider;
 import net.minecraft.block.Block;
@@ -40,6 +43,7 @@ import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
@@ -48,6 +52,7 @@ import net.minecraft.util.BlockPos.MutableBlockPos;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Optional;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
@@ -279,76 +284,61 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
     public static void onSharedNeighbourBlockChange(IBlockAccess world, BlockPos pos, int hash, Block neighbourBlock, IBlockState state)
     {
-        final TileEntity tte = world.getTileEntity(pos);
-        if (!(tte instanceof IStructureTE))
+        final TileEntity ute = world.getTileEntity(pos);
+
+        if (!(ute instanceof IStructureTE))
         {
             return;
         }
 
-        final IStructureTE te = (IStructureTE) tte;
+        final IStructureTE te = (IStructureTE) ute;
         final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
 
         if (sb == null)
         {
-            tte.getWorld().setBlockToAir(pos);
+            ute.getWorld().setBlockToAir(pos);
             return;
         }
 
-        for (final EnumFacing f : EnumFacing.HORIZONTALS)
+        for (final EnumFacing f : EnumFacing.VALUES)
         {
             if (!sb.getPattern().hasBlockAt(te.getLocal(), f))
             {
                 continue;
             }
-        }
 
-        /*final IStructureTE te = (IStructureTE) world.getTileEntity(pos);
-        final int meta = world.getBlockMetadata(x) & maskMeta;
-        final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
+            final boolean mirror = getMirror(state);
+            final EnumFacing orientation = getOrientation(state);
 
-        if (sb == null)
-        {
-            world.setBlock(x, y, z, Blocks.air, 0, 0x3);
-            return;
-        }
+            final BlockPos nPos = BlockPosUtil.of(pos, localToGlobal(f, getOrientation(state), mirror));
+            final IBlockState nState = world.getBlockState(nPos);
 
-        for (ForgeDirection d : ForgeDirection.VALID_DIRECTIONS) //local
-        {
-            if (!sb.getPattern().hasBlockAt(te.getLocal(), d))
+            if ((nState.getBlock() instanceof SteamNSteelStructureBlock || nState.getBlock() instanceof StructureShapeBlock) &&
+                (state.getBlock()  instanceof SteamNSteelStructureBlock || state.getBlock()  instanceof StructureShapeBlock))
             {
-                continue;
+                final boolean nmirror = getMirror(nState);
+                final EnumFacing norientation = getOrientation(nState);
+
+                if (mirror == nmirror && orientation == norientation)
+                {
+                    continue;
+                }
             }
 
-            d = localToGlobal(d, getdecodedOrientation(meta), isMirrored(meta));
+            //break as the above simple condition for structure test failed.
 
-            final int ngx = x + d.offsetX;
-            final int ngy = y + d.offsetY;
-            final int ngz = z + d.offsetZ;
+            ute.getWorld().setBlockState(pos, te.getTransmutedBlock(), 0x3);
 
-            final Block nBlock = world.getBlock(ngx, ngy, ngz);
-            final int nMeta = world.getBlockMetadata(ngx, ngy, ngz) & maskMeta;
-
-            if (neighbourCheck(meta, nMeta, nBlock))
+            if (te.getLocal().equals(BlockPos.ORIGIN))
             {
-                //Break all things!
-                world.setBlock(x, y, z, te.getTransmutedBlock(), te.getTransmutedMeta(), 0x3);
-
-                if (te.getLocal().equals(ORIGIN))
-                {
-                    ModNetwork.network.sendToAllAround(
-                            new StructurePacket(x, y, z, hash, getdecodedOrientation(meta), isMirrored(meta), StructurePacketOption.BOOM_PARTICLE),
-                            new NetworkRegistry.TargetPoint(world.provider.dimensionId, x, y, z, 30)
-                    );
-                }
+                ModNetwork.network.sendToAllAround(
+                        new StructurePacket(pos, hash, orientation, mirror, StructurePacketOption.BOOM_PARTICLE),
+                        new NetworkRegistry.TargetPoint(ute.getWorld().provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(), 30)
+                );
+            }
 
                 return;
-            }
-        }*/
-    }
-
-    private static boolean neighbourCheck(int meta, int nMeta, Block block)
-    {
-        return !(meta == nMeta && (block instanceof StructureShapeBlock || block instanceof SteamNSteelStructureBlock));
+        }
     }
 
     public void formStructure(World world, BlockPos origin, IBlockState state, int flag)
@@ -403,18 +393,12 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
                 if (worldBlock.getBlock() instanceof SteamNSteelStructureBlock || worldBlock.getBlock() instanceof StructureShapeBlock)
                 {
-                    //if (block != null)
-                    {
-                        world.removeTileEntity(blockCoord);
+                    world.removeTileEntity(blockCoord);
 
-                        if (isCreative && !isSneaking)
-                        {
-                            world.setBlockToAir(blockCoord);
-                        } else
-                        {
-                            world.setBlockState(blockCoord, localToGlobal(block, orientation, isMirrored), 0x2);
-                        }
-                    }
+                    world.setBlockState(blockCoord, (isCreative && !isSneaking) ?
+                            Blocks.air.getDefaultState() :
+                            localToGlobal(block, orientation, isMirrored)
+                            , 0x2);
                 }
             }
         }

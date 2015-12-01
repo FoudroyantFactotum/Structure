@@ -20,7 +20,7 @@ import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.structure.StructureShapeTE;
-import mod.steamnsteel.utility.log.Logger;
+import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
@@ -44,7 +44,7 @@ import static net.minecraft.block.BlockDirectional.FACING;
 
 public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITileEntityProvider
 {
-    public static boolean _DEBUG = false;
+    public static boolean _DEBUG = true;
     public static final String NAME = "structureShape";
     public static final AxisAlignedBB EMPTY_BOUNDS = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
 
@@ -240,13 +240,13 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
     }
 
     @Override
-    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbourBlock)
+    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock)
     {
-        /*onSharedNeighbourBlockChange(world, pos,
+        onSharedNeighbourBlockChange(world, pos,
                 ((StructureShapeTE) world.getTileEntity(pos)).getRegHash(),
-                world.getBlockState(neighbourBlock).getBlock(),
-                world.getBlockState(pos)
-        );*/
+                neighborBlock,
+                state
+        );
     }
 
     //======================================

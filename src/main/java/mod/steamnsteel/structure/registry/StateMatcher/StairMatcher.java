@@ -53,16 +53,10 @@ public class StairMatcher implements IStateMatcher
             return false;
         }
 
-        if (b1Facing.rotateYCCW() == b2Facing)
+        if (b1Facing.rotateYCCW() == b2Facing || b1Facing.rotateY() == b2Facing)
         {
             if ((b1Shape == EnumShape.OUTER_RIGHT && b2Shape == EnumShape.OUTER_LEFT) ||
                     (b1Shape == EnumShape.INNER_RIGHT && b2Shape == EnumShape.INNER_LEFT))
-                return true;
-        }
-        else if (b1Facing.rotateY() == b2Facing)
-        {
-            if ((b1Shape == EnumShape.OUTER_LEFT && b2Shape == EnumShape.OUTER_RIGHT) ||
-                 (b1Shape == EnumShape.INNER_LEFT && b2Shape == EnumShape.INNER_RIGHT))
                 return true;
         }
 
