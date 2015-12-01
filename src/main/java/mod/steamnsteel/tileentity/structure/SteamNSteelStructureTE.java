@@ -27,6 +27,7 @@ import mod.steamnsteel.structure.net.StructurePacket;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
+import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -98,7 +99,6 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     public void configureBlock(BlockPos local, int definitionHash)
     {
         this.definitionHash = definitionHash;
-        this.local = local;
     }
 
     @Override
@@ -279,15 +279,23 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         super.readFromNBT(nbt);
 
-        final int blockInfo = nbt.getInteger(BLOCK_INFO);
-        definitionHash = nbt.getInteger(BLOCK_PATTERN_NAME);
+        try
+        {
+            final int blockInfo = nbt.getInteger(BLOCK_INFO);
 
-        local = BlockPosUtil.fromInt(blockInfo);
+            definitionHash = nbt.getInteger(BLOCK_PATTERN_NAME);
 
-        orientation = EnumFacing.VALUES[blockInfo >> BlockPosUtil.BLOCKPOS_BITLEN & 0x7];
-        mirror = (blockInfo >> BlockPosUtil.BLOCKPOS_BITLEN & StructurePacket.flagMirrored) != 0;
+            orientation = EnumFacing.VALUES[blockInfo >> BlockPosUtil.BLOCKPOS_BITLEN & 0x7];
+            mirror = (blockInfo >> BlockPosUtil.BLOCKPOS_BITLEN & StructurePacket.flagMirrored) != 0;
 
-        transformDirectionsOnLoad(getMasterBlockInstance().getPattern());
+            transformDirectionsOnLoad(getMasterBlockInstance().getPattern());
+        } catch (Exception e)
+        {
+            Logger.severe("" + e);
+
+            orientation = EnumFacing.NORTH;
+            mirror = false;
+        }
     }
 
     @Override
@@ -321,7 +329,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
 
             final IBlockState state = getWorld().getBlockState(pos);
             final EnumFacing orientation = SteamNSteelStructureBlock.getOrientation(state);
-            final boolean mirror = SteamNSteelStructureBlock.isMirrored(state);
+            final boolean mirror = SteamNSteelStructureBlock.getMirror(state);
 
             renderBounds = Optional.of(localToGlobalBoundingBox(pos, local, sb.getPattern(), orientation, mirror));
         }

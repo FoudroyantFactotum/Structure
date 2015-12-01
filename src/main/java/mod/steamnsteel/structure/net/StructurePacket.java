@@ -107,7 +107,7 @@ public class StructurePacket implements IMessage
             {
                 final IBlockState state = block.getDefaultState()
                         .withProperty(BlockDirectional.FACING, orientation)
-                        .withProperty(propMirror, mirror);
+                        .withProperty(MIRROR, mirror);
 
                 world.setBlockState(msg.pos, state, 0x2);
                 block.formStructure(world, msg.pos, state, 0x2);

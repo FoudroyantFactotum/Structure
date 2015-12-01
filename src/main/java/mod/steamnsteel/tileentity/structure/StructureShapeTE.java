@@ -42,7 +42,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.isMirrored;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.getMirror;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE.*;
 import static net.minecraft.block.BlockDirectional.FACING;
@@ -119,7 +119,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
             masterLocation = Optional.of(localToGlobal(
                     -local.getX(), -local.getY(), -local.getZ(),
                     pos.getX(), pos.getY(), pos.getZ(),
-                    (EnumFacing) state.getValue(FACING), isMirrored(state),
+                    (EnumFacing) state.getValue(FACING), getMirror(state),
                     sb.getPattern().getBlockBounds()));
         }
 
@@ -455,7 +455,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     {
         super.writeToNBT(nbt);
 
-        nbt.setInteger(BLOCK_INFO, local.hashCode());
+        nbt.setInteger(BLOCK_INFO, BlockPosUtil.toInt(local));
         nbt.setInteger(BLOCK_PATTERN_NAME, definitionHash);
     }
 

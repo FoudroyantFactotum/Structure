@@ -56,7 +56,7 @@ public class FanLargeBlock extends SteamNSteelStructureBlock
                 blockState
                         .getBaseState()
                         .withProperty(FACING, EnumFacing.NORTH)
-                        .withProperty(propMirror, false)
+                        .withProperty(MIRROR, false)
                         .withProperty(RENDER_DYNAMIC, false)
         );
     }
@@ -64,7 +64,7 @@ public class FanLargeBlock extends SteamNSteelStructureBlock
     @Override
     protected BlockState createBlockState()
     {
-        return new ExtendedBlockState(this, new IProperty[]{FACING, propMirror, RENDER_DYNAMIC}, new IUnlistedProperty[]{OpenGEXAnimationFrameProperty.instance});
+        return new ExtendedBlockState(this, new IProperty[]{FACING, MIRROR, RENDER_DYNAMIC}, new IUnlistedProperty[]{OpenGEXAnimationFrameProperty.instance});
     }
 
     @Override
@@ -101,7 +101,7 @@ public class FanLargeBlock extends SteamNSteelStructureBlock
     @Override
     public TileEntity createTileEntity(World world, IBlockState state)
     {
-        return new FanLargeTE(getPattern(), (EnumFacing)state.getValue(BlockDirectional.FACING), (Boolean)state.getValue(propMirror));
+        return new FanLargeTE(getPattern(), (EnumFacing)state.getValue(BlockDirectional.FACING), (Boolean)state.getValue(MIRROR));
     }
 
     @Override

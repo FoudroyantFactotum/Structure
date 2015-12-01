@@ -167,11 +167,11 @@ public final class StructureDefinitionBuilder
                 {
                     boolean hasFoundVal = false;
 
-                    for (final Object val : prop.getAllowedValues())
+                    for (final Comparable val : (Collection<Comparable>) prop.getAllowedValues())
                     {
                         if (val.toString().equalsIgnoreCase(propVal))
                         {
-                            finalBlockState = finalBlockState.withProperty(prop, (Comparable) val);
+                            finalBlockState = finalBlockState.withProperty(prop, val);
 
                             hasFoundVal = true;
                             break;
@@ -282,7 +282,7 @@ public final class StructureDefinitionBuilder
         final int zsz = layer[0].length;
 
         sbLayoutSize = BlockPosUtil.of(xsz, ysz, zsz);
-        sbLayout = new BitSet(xsz * ysz *zsz);
+        sbLayout = new BitSet(xsz * ysz * zsz);
 
         for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {

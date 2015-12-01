@@ -110,8 +110,7 @@ public class StructureDefinition
         return  x < sbLayoutSize.getX() && x > -1 &&
                 y < sbLayoutSize.getY() && y > -1 &&
                 z < sbLayoutSize.getZ() && z > -1 &&
-                sbLayout.get(y * sbLayoutSize.getX() * sbLayoutSize.getY() + z * sbLayoutSize.getZ() + x);
-
+                sbLayout.get(x + y * sbLayoutSize.getX() * sbLayoutSize.getZ() + z * sbLayoutSize.getX());
     }
 
     public IBlockState getBlock(BlockPos loc) { return getBlock(loc.getX(), loc.getY(), loc.getZ()); }
@@ -121,9 +120,9 @@ public class StructureDefinition
         y += masterPosition.getY();
         z += masterPosition.getZ();
 
-        if (blocks.length > x        && x > -1 &&
-                blocks[x].length > y && y > -1 &&
-                blocks[x][y].length > z && z > -1)
+        if (blocks.length > x       && x > -1 &&
+            blocks[x].length > y    && y > -1 &&
+            blocks[x][y].length > z && z > -1)
             return blocks[x][y][z];
 
         return null;

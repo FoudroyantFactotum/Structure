@@ -28,6 +28,7 @@ import mod.steamnsteel.structure.IStructure.IStructureAspects;
 import mod.steamnsteel.structure.IStructure.IStructureTE;
 import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.structure.registry.StructureDefinition;
+import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.log.Logger;
 import mod.steamnsteel.waila.WailaProvider;
@@ -69,25 +70,14 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 this.blockState
                         .getBaseState()
                         .withProperty(FACING, EnumFacing.NORTH)
-                        .withProperty(propMirror, false)
+                        .withProperty(MIRROR, false)
         );
-    }
-
-    @Override
-    public StructureDefinition getPattern()
-    {
-        return structureDefinition;
-    }
-
-    public int getRegHash()
-    {
-        return regHash;
     }
 
     @Override
     protected BlockState createBlockState()
     {
-        return new BlockState(this, FACING, propMirror);
+        return new BlockState(this, FACING, MIRROR);
     }
 
     public IBlockState getStateFromMeta(int meta)
@@ -97,15 +87,39 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
         return getDefaultState()
                 .withProperty(FACING, facing)
-                .withProperty(propMirror, mirror);
+                .withProperty(MIRROR, mirror);
     }
 
     public int getMetaFromState(IBlockState state)
     {
         final EnumFacing facing = getOrientation(state);
-        final boolean mirror = isMirrored(state);
+        final boolean mirror = getMirror(state);
 
         return facing.getHorizontalIndex() | (mirror? 1<<2:0);
+    }
+
+    @Override
+    public boolean isFullCube()
+    {
+        return false;
+    }
+
+    @Override
+    public int quantityDropped(Random rnd)
+    {
+        return 0;
+    }
+
+    @Override
+    public boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos)
+    {
+        return false;
+    }
+
+    @Override
+    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side)
+    {
+        return false;
     }
 
     @Override
@@ -114,11 +128,11 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         super.onBlockPlacedBy(world, pos, state, placer, stack);
 
         final EnumFacing orientation = getOrientation(state);
-        final boolean mirror = isMirrored(state); //todo entity.isSneaking();
+        final boolean mirror = getMirror(state); //todo entity.isSneaking();
 
         if (mirror)
         {
-            world.setBlockState(pos, state.withProperty(propMirror, Boolean.TRUE), 0x2);
+            world.setBlockState(pos, state.withProperty(MIRROR, Boolean.TRUE), 0x2);
         }
 
         formStructure(world, pos, state, 0x2);
@@ -140,7 +154,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
 
         if (te != null)
         {
-            breakStructure(world, pos, getPattern(), te.getOrientation(), te.getMirror(), isPlayerCreative, isPlayerSneaking);
+            breakStructure(world, pos, te.getOrientation(), te.getMirror(), isPlayerCreative, isPlayerSneaking);
             updateExternalNeighbours(world, pos, getPattern(), te.getOrientation(), te.getMirror(), false);
         } else
         {
@@ -158,33 +172,17 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             localToGlobalCollisionBoxes(
                     pos.getX(), pos.getY(), pos.getZ(),
                     mask, list, getPattern().getCollisionBoxes(),
-                    (EnumFacing)state.getValue(FACING), isMirrored(state),
+                    getOrientation(state), getMirror(state),
                     getPattern().getBlockBounds()
             );
         }
     }
 
-    public boolean isFullCube()
-    {
-        return false;
-    }
-
-    @Override
-    public int quantityDropped(Random rnd)
-    {
-        return 0;
-    }
 
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         return onStructureBlockActivated(world, pos, player, pos, side, BlockPos.ORIGIN, hitX, hitY, hitZ);
-    }
-
-    @Override
-    public boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, BlockPos local, float sx, float sy, float sz)
-    {
-        return false;
     }
 
     @Override
@@ -250,11 +248,11 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     //       S t r u c t u r e   B l o c k   C o d e
     //=======================================================
 
-    public static final PropertyBool propMirror = PropertyBool.create("mirror");
+    public static final PropertyBool MIRROR = PropertyBool.create("mirror");
 
-    public static boolean isMirrored(IBlockState state)
+    public static boolean getMirror(IBlockState state)
     {
-        return (Boolean) state.getValue(propMirror);
+        return (Boolean) state.getValue(MIRROR);
     }
 
     public static EnumFacing getOrientation(IBlockState state)
@@ -262,8 +260,48 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         return (EnumFacing) state.getValue(FACING);
     }
 
-    public static void onSharedNeighbourBlockChange(IBlockAccess world, BlockPos pos, int hash, Block neibourBlock, IBlockState state)
-    {//todo complete
+    @Override
+    public StructureDefinition getPattern()
+    {
+        return structureDefinition;
+    }
+
+    public int getRegHash()
+    {
+        return regHash;
+    }
+
+    @Override
+    public boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, BlockPos local, float sx, float sy, float sz)
+    {
+        return false;
+    }
+
+    public static void onSharedNeighbourBlockChange(IBlockAccess world, BlockPos pos, int hash, Block neighbourBlock, IBlockState state)
+    {
+        final TileEntity tte = world.getTileEntity(pos);
+        if (!(tte instanceof IStructureTE))
+        {
+            return;
+        }
+
+        final IStructureTE te = (IStructureTE) tte;
+        final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
+
+        if (sb == null)
+        {
+            tte.getWorld().setBlockToAir(pos);
+            return;
+        }
+
+        for (final EnumFacing f : EnumFacing.HORIZONTALS)
+        {
+            if (!sb.getPattern().hasBlockAt(te.getLocal(), f))
+            {
+                continue;
+            }
+        }
+
         /*final IStructureTE te = (IStructureTE) world.getTileEntity(pos);
         final int meta = world.getBlockMetadata(x) & maskMeta;
         final SteamNSteelStructureBlock sb = StructureRegistry.getStructureBlock(te.getRegHash());
@@ -316,10 +354,10 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     public void formStructure(World world, BlockPos origin, IBlockState state, int flag)
     {
         final EnumFacing orientation = getOrientation(state);
-        final boolean isMirrored = isMirrored(state);
+        final boolean isMirrored = getMirror(state);
         final IBlockState shapeState = ModBlock.structureShape
                 .getDefaultState()
-                .withProperty(propMirror, isMirrored)
+                .withProperty(MIRROR, isMirrored)
                 .withProperty(FACING, orientation);
 
         for (final MutableBlockPos local : getPattern().getStructureItr())
@@ -348,32 +386,34 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 ssBlock.configureBlock(new BlockPos(local), regHash);
             } else
             {
-                Logger.info("formStructure: Error te: " + local + " : " + blockCoord + " : " + world.getBlockState(blockCoord)); //todo sub with proper error fix
+                Logger.info("formStructure: Error te: " + new BlockPos(local) + " : " + blockCoord + " : " + world.getBlockState(blockCoord)); //todo sub with proper error fix
             }
         }
     }
 
-    public static void breakStructure(World world, BlockPos origin, StructureDefinition sd, EnumFacing orientation, boolean isMirrored, boolean isCreative, boolean isSneaking)
+    public void breakStructure(World world, BlockPos origin, EnumFacing orientation, boolean isMirrored, boolean isCreative, boolean isSneaking)
     {
-        for (final MutableBlockPos local : sd.getStructureItr())
+        for (final MutableBlockPos local : getPattern().getStructureItr())
         {
-            if (sd.hasBlockAt(local))
+            if (getPattern().hasBlockAt(local))
             {
-                final BlockPos blockCoord = bindLocalToGlobal(origin, local, orientation, isMirrored, sd.getBlockBounds());
+                final BlockPos blockCoord = bindLocalToGlobal(origin, local, orientation, isMirrored, getPattern().getBlockBounds());
                 final IBlockState worldBlock = world.getBlockState(blockCoord);
-                final IBlockState block = sd.getBlock(local);
+                final IBlockState block = getPattern().getBlock(local);
 
-                if (block != null)
+                if (worldBlock.getBlock() instanceof SteamNSteelStructureBlock || worldBlock.getBlock() instanceof StructureShapeBlock)
                 {
-                    world.removeTileEntity(blockCoord);
+                    //if (block != null)
+                    {
+                        world.removeTileEntity(blockCoord);
 
-                    if (isCreative && !isSneaking)
-                    {
-                        world.setBlockToAir(blockCoord);
-                    }
-                    else
-                    {
-                        world.setBlockState(blockCoord, localToGlobal(block, orientation, isMirrored), 0x2);
+                        if (isCreative && !isSneaking)
+                        {
+                            world.setBlockToAir(blockCoord);
+                        } else
+                        {
+                            world.setBlockState(blockCoord, localToGlobal(block, orientation, isMirrored), 0x2);
+                        }
                     }
                 }
             }
@@ -456,7 +496,6 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     //=======================================================
     //                     C l a s s
     //=======================================================
-
 
     @Override
     public String toString()

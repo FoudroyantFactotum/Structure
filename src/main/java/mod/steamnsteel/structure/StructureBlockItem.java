@@ -27,8 +27,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
 import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.propMirror;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static net.minecraft.block.BlockDirectional.FACING;
 
@@ -42,6 +42,9 @@ public class StructureBlockItem extends ItemBlock
     @Override
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState)
     {
+        /*if (world.isRemote)
+            return false;*/
+
         final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) this.block;
 
         if (player == null)
@@ -53,7 +56,7 @@ public class StructureBlockItem extends ItemBlock
         final EnumFacing horizontal = EnumFacing.getHorizontal(orientation);
         final boolean isMirrored = false; //player.isSneaking(); Disabled until fix :p todo fix structure mirroring
 
-        newState = newState.withProperty(FACING, horizontal).withProperty(propMirror, isMirrored);
+        newState = newState.withProperty(FACING, horizontal).withProperty(MIRROR, isMirrored);
 
         //find master block location
         final BlockPos hSize = block.getPattern().getHalfBlockBounds();
@@ -84,6 +87,10 @@ public class StructureBlockItem extends ItemBlock
         world.setBlockState(mLoc, newState, 0x2);
         block.onBlockPlacedBy(world, mLoc, newState, player, stack);
 
+        /*ModNetwork.network.sendToAllAround(
+                        new StructurePacket(mLoc, block.getRegHash(), horizontal, isMirrored, StructurePacketOption.BUILD),
+                        new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), mLoc.getX(), mLoc.getY(), mLoc.getZ(), 30)
+                );*/
         return true;
     }
 

@@ -56,7 +56,7 @@ public class BuildFormTool extends SSToolShovel
             {
                 final IBlockState state = result.block.getDefaultState()
                         .withProperty(BlockDirectional.FACING, result.orientation)
-                        .withProperty(propMirror, result.isMirrored);
+                        .withProperty(MIRROR, result.isMirrored);
 
 
                 world.setBlockState(result.origin, state, 0x2);

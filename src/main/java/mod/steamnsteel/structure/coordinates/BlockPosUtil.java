@@ -14,6 +14,7 @@ public final class BlockPosUtil
         return new BlockPos(x, y, z);
     }
 
+    public static int toInt(BlockPos pos) { return toInt(pos.getX(), pos.getY(), pos.getZ()); }
     public static int toInt(int x, int y, int z)
     {
         return  (((byte) x) << 16) +

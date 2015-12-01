@@ -19,7 +19,10 @@ public class WailaStructureShapeBlock implements IWailaDataProvider
         {
             final StructureShapeTE te = (StructureShapeTE) accessor.getTileEntity();
 
-            return new ItemStack(te.getMasterBlockInstance());
+            if (te.getMasterBlockInstance() != null)
+            {
+                return new ItemStack(te.getMasterBlockInstance());
+            }
         }
 
         return null;
@@ -32,8 +35,13 @@ public class WailaStructureShapeBlock implements IWailaDataProvider
         {
             final StructureShapeTE te = (StructureShapeTE) accessor.getTileEntity();
 
-            return te.getMasterBlockInstance().getWailaHead(itemStack, currenttip, accessor, config);
+            if (te.getMasterBlockInstance() != null)
+            {
+                return te.getMasterBlockInstance().getWailaHead(itemStack, currenttip, accessor, config);
+            }
         }
+
+        currenttip.clear();
 
         return currenttip;
     }
@@ -45,8 +53,13 @@ public class WailaStructureShapeBlock implements IWailaDataProvider
         {
             final StructureShapeTE te = (StructureShapeTE) accessor.getTileEntity();
 
-            return te.getMasterBlockInstance().getWailaBody(itemStack, currenttip, accessor, config);
+            if (te.getMasterBlockInstance() != null)
+            {
+                return te.getMasterBlockInstance().getWailaBody(itemStack, currenttip, accessor, config);
+            }
         }
+
+        currenttip.clear();
 
         return currenttip;
     }
@@ -58,8 +71,13 @@ public class WailaStructureShapeBlock implements IWailaDataProvider
         {
             final StructureShapeTE te = (StructureShapeTE) accessor.getTileEntity();
 
-            return te.getMasterBlockInstance().getWailaTail(itemStack, currenttip, accessor, config);
+            if (te.getMasterBlockInstance() != null)
+            {
+                return te.getMasterBlockInstance().getWailaTail(itemStack, currenttip, accessor, config);
+            }
         }
+
+        currenttip.clear();
 
         return currenttip;
     }
