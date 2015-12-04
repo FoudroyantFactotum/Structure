@@ -133,12 +133,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         super.onBlockPlacedBy(world, pos, state, placer, stack);
 
         final EnumFacing orientation = getOrientation(state);
-        final boolean mirror = getMirror(state); //todo entity.isSneaking();
-
-        if (mirror)
-        {
-            world.setBlockState(pos, state.withProperty(MIRROR, Boolean.TRUE), 0x2);
-        }
+        final boolean mirror = getMirror(state);
 
         formStructure(world, pos, state, 0x2);
         updateExternalNeighbours(world, pos, getPattern(), orientation, mirror, false);

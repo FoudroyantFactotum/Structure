@@ -23,5 +23,5 @@ import net.minecraft.util.EnumFacing;
  */
 public interface IStructurePatternStateCorrecter
 {
-    IBlockState alterBlockState(IBlockState state, EnumFacing orientation, boolean isMirrored);
+    IBlockState alterBlockState(IBlockState state, EnumFacing orientation, boolean mirror);
 }

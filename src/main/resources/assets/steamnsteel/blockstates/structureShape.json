@@ -2,37 +2,69 @@
   "forge_marker": 1,
   "defaults": {
     "transform": "forge:default-block",
-    "model": "minecraft:cube_all",
-    "textures": {
-        "all": "blocks/glass_blue"
-    }
+    "model": "minecraft:cube_all"
   },
   "variants": {
-    "normal": [{
-    }],
-    "inventory": [{
-      "transform": {
-        "thirdperson": { },
-        "firstperson": { },
-        "gui": { }
+    "normal": [
+      {
       }
-    }],
-    "facing": {
-      "north": {"textures": {"all": "blocks/glass_blue"}
+    ],
+    "inventory": [
+      {
+        "transform": {
+          "thirdperson": {},
+          "firstperson": {},
+          "gui": {}
+        }
+      }
+    ],
+    "facing=north,mirror=false": {
+      "model": "minecraft:cube_all",
+      "textures": {
+        "all": "blocks/glass_red"
+      }
     },
-      "south": { "textures": {"all": "blocks/glass_red"}, "transform": {
-          "rotation": {"y": 180 }
-      }},
-      "east": { "textures": {"all": "blocks/glass_green"},"transform": {
-        "rotation": {"y": 270 }
-      }},
-      "west": { "textures": {"all": "blocks/glass_yellow"},"transform": {
-        "rotation": {"y": 90 }
-      }}
+    "facing=east,mirror=false": {
+      "model": "minecraft:cube_all",
+      "textures": {
+        "all": "blocks/glass_orange"
+      }
     },
-    "mirror": {
-      "false": { },
-      "true": { }
+    "facing=south,mirror=false": {
+      "model": "minecraft:cube_all",
+      "textures": {
+        "all": "blocks/glass_yellow"
+      }
+    },
+    "facing=west,mirror=false": {
+      "model": "minecraft:cube_all",
+      "textures": {
+        "all": "blocks/glass_black"
+      }
+    },
+    "facing=north,mirror=true": {
+      "model": "minecraft:cube_all",
+      "textures": {
+        "all": "blocks/glass_green"
+      }
+    },
+    "facing=east,mirror=true": {
+      "model": "minecraft:cube_all",
+      "textures": {
+        "all": "blocks/glass_blue"
+      }
+    },
+    "facing=south,mirror=true": {
+      "model": "minecraft:cube_all",
+      "textures": {
+        "all": "blocks/glass_purple"
+      }
+    },
+    "facing=west,mirror=true": {
+      "model": "minecraft:cube_all",
+      "textures": {
+        "all": "blocks/glass_white"
+      }
     }
   }
 }

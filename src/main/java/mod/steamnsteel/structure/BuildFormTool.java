@@ -18,6 +18,7 @@ package mod.steamnsteel.structure;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.item.tool.SSToolShovel;
 import mod.steamnsteel.library.Material;
+import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.structure.net.StructurePacket;
 import mod.steamnsteel.structure.net.StructurePacketOption;
 import mod.steamnsteel.structure.registry.StructureDefinition;
@@ -52,6 +53,10 @@ public class BuildFormTool extends SSToolShovel
             {EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.WEST}, //north
             {EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST}, //east
     };
+    private static final boolean[][] mirrorPriority = {
+            {false, true},
+            {true, false},
+    };
 
     public BuildFormTool()
     {
@@ -68,12 +73,13 @@ public class BuildFormTool extends SSToolShovel
         }
 
         final EnumFacing[] orientation = orientationPriority[MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5) & 3];
+        final boolean[] mirror = mirrorPriority[player.isSneaking()?1:0];
         final List<Future<SearchResult>> searchJobFuture = new ArrayList<Future<SearchResult>>(StructureRegistry.getStructureList().size());
 
         //search currently ignores multiple matches and take the first match available.
         for (final SteamNSteelStructureBlock sb : StructureRegistry.getStructureList())
         {
-            searchJobFuture.add(pool.submit(new SearchJob(sb, world, pos, orientation)));
+            searchJobFuture.add(pool.submit(new SearchJob(sb, world, pos, orientation, mirror)));
         }
 
         SearchResult result = null;
@@ -105,16 +111,16 @@ public class BuildFormTool extends SSToolShovel
         {
             final IBlockState state = result.block.getDefaultState()
                     .withProperty(BlockDirectional.FACING, result.orientation)
-                    .withProperty(MIRROR, result.isMirrored);
+                    .withProperty(MIRROR, result.mirror);
 
 
             world.setBlockState(result.origin, state, 0x2);
             result.block.formStructure(world, result.origin, state, 0x2);
 
-            updateExternalNeighbours(world, result.origin, result.block.getPattern(), result.orientation, result.isMirrored, true);
+            updateExternalNeighbours(world, result.origin, result.block.getPattern(), result.orientation, result.mirror, true);
 
             ModNetwork.network.sendToAllAround(
-                    new StructurePacket(result.origin, result.block.getRegHash(), result.orientation, result.isMirrored, StructurePacketOption.BUILD),
+                    new StructurePacket(result.origin, result.block.getRegHash(), result.orientation, result.mirror, StructurePacketOption.BUILD),
                     new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), result.origin.getX(), result.origin.getY(), result.origin.getZ(), 30)
             );
 
@@ -134,13 +140,15 @@ public class BuildFormTool extends SSToolShovel
         final BlockPos pos;
 
         final EnumFacing[] orientationOrder;
+        final boolean[] mirrorOrder;
 
-        SearchJob(SteamNSteelStructureBlock ssBlock, World world, BlockPos pos, EnumFacing[] orientationOrder)
+        SearchJob(SteamNSteelStructureBlock ssBlock, World world, BlockPos pos, EnumFacing[] orientationOrder, boolean[] mirrorOrder)
         {
             this.ssBlock = ssBlock;
             this.world = world;
             this.pos = pos;
             this.orientationOrder = orientationOrder;
+            this.mirrorOrder = mirrorOrder;
         }
 
         @Override
@@ -152,38 +160,57 @@ public class BuildFormTool extends SSToolShovel
             nextOrientation:
             for (final EnumFacing o: orientationOrder)
             {
-                final BlockPos origin =
-                        localToGlobal(
-                                -tl.getX(), -tl.getY(), -tl.getZ(),
-                                pos.getX(), pos.getY(), pos.getZ(),
-                                o, false, sd.getBlockBounds()
-                        );
-
-                for (final MutableBlockPos local : sd.getStructureItr())
+                nextMirror:
+                for (final boolean mirror : mirrorOrder)
                 {
-                    final IBlockState b = sd.getBlock(local);
+                    final BlockPos origin =
+                            localToGlobal(
+                                    -tl.getX(), -tl.getY(), -tl.getZ(),
+                                    pos.getX(), pos.getY(), pos.getZ(),
+                                    o, mirror, sd.getBlockBounds()
+                            );
 
-                    //alter local coord var and changes it to world coord.
-                    mutLocalToGlobal(local, origin, o, false, sd.getBlockBounds());
-
-                    final IBlockState ncwb = world.getBlockState(local);
-                    final IBlockState wb = ncwb.getBlock().getActualState(ncwb, world, local);
-
-                    if (b != null && (b.getBlock() != wb.getBlock() || !doBlockStatesMatch(localToGlobal(b, o, false), wb)))
+                    for (final MutableBlockPos local : sd.getStructureItr())
                     {
-                        continue nextOrientation;
+                        final IBlockState b = sd.getBlock(local);
+                        final BlockPos tmp = new BlockPos(local);
+
+                        //alter local coord var and changes it to world coord.
+                        mutLocalToGlobal(local, origin, o, mirror, sd.getBlockBounds());
+
+                        final IBlockState ncwb = world.getBlockState(local);
+                        final IBlockState wb = ncwb.getBlock().getActualState(ncwb, world, local);
+
+                        if (ssBlock == ModBlock.blastFurnace)
+                        {
+                            Logger.info("" + o +':'+mirror + " l: " + tmp + "\tg: " + local + "\twb: " + wb + "\ttb: " + localToGlobal(b, o, mirror) + "\tb: " + b);
+
+                        }
+
+
+                        if (b != null && (b.getBlock() != wb.getBlock() || !doBlockStatesMatch(localToGlobal(b, o, mirror), wb)))
+                        {
+                            if (mirror == mirrorOrder[1]) //is last mirror
+                            {
+                                continue nextOrientation;
+                            }
+                            else
+                            {
+                                continue nextMirror;
+                            }
+                        }
                     }
+
+                    //found match, eeek!
+                    final SearchResult result = new SearchResult();
+
+                    result.block = ssBlock;
+                    result.origin = origin;
+                    result.orientation = o;
+                    result.mirror = mirror;
+
+                    return result;
                 }
-
-                //found match, eeek!
-                final SearchResult result = new SearchResult();
-
-                result.block = ssBlock;
-                result.origin = origin;
-                result.orientation = o;
-                result.isMirrored = false; //todo fix mirror state.
-
-                return result;
             }
 
             //no matches for this structure
@@ -198,7 +225,7 @@ public class BuildFormTool extends SSToolShovel
     {
         public SteamNSteelStructureBlock block;
         public EnumFacing orientation;
-        public boolean isMirrored;
+        public boolean mirror;
         public BlockPos origin;
     }
 }

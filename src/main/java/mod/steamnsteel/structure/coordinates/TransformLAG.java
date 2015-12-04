@@ -17,8 +17,8 @@ package mod.steamnsteel.structure.coordinates;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import mod.steamnsteel.structure.registry.MetaCorrecter.DefaultMinecraftRotation;
 import mod.steamnsteel.structure.registry.MetaCorrecter.IStructurePatternStateCorrecter;
+import mod.steamnsteel.structure.registry.MetaCorrecter.StairsMinecraftRotation;
 import mod.steamnsteel.structure.registry.StateMatcher.IStateMatcher;
 import mod.steamnsteel.structure.registry.StateMatcher.StairMatcher;
 import mod.steamnsteel.structure.registry.StructureDefinition;
@@ -65,18 +65,18 @@ public final class TransformLAG
         final Builder<Block, IStructurePatternStateCorrecter> builderS = ImmutableMap.builder();
         final Builder<Block, IStateMatcher> builderM = ImmutableMap.builder();
 
-        final IStructurePatternStateCorrecter defaultRotation = new DefaultMinecraftRotation();
+        final IStructurePatternStateCorrecter stairRotation = new StairsMinecraftRotation();
         final IStateMatcher stairMatcher = new StairMatcher();
 
         for (final ItemStack itemSk: OreDictionary.getOres("stairWood"))//all oreDic stairWood
         {
-            builderS.put(Block.getBlockFromItem(itemSk.getItem()), defaultRotation);
+            builderS.put(Block.getBlockFromItem(itemSk.getItem()), stairRotation);
             builderM.put(Block.getBlockFromItem(itemSk.getItem()), stairMatcher);
         }
 
         for (final String s: minecraftStairs)
         {
-            registerStateCorrector(builderS, s, defaultRotation);
+            registerStateCorrector(builderS, s, stairRotation);
             registerStateMatcher(builderM,   s, stairMatcher);
         }
 
@@ -133,8 +133,8 @@ public final class TransformLAG
 
         if (ismirrored)
         {
-            lz *= -1;
-            if (strucSize.getZ() % 2 == 0) ++lz;
+            lx *= -1;
+            if (strucSize.getX() % 2 == 0) ++lx;
         }
 
         final int rx = rotationMatrix[rotIndex][0][0] * lx + rotationMatrix[rotIndex][0][1] * lz;
@@ -156,8 +156,8 @@ public final class TransformLAG
 
         if (ismirrored)
         {
-            local.z *= -1;
-            if (strucSize.getZ() % 2 == 0) ++local.z;
+            local.x *= -1;
+            if (strucSize.getX() % 2 == 0) ++local.x;
         }
 
         final int rx = rotationMatrix[rotIndex][0][0] * local.x + rotationMatrix[rotIndex][0][1] * local.z;
@@ -189,17 +189,17 @@ public final class TransformLAG
     }
 
     //direction - rotate
-    public static EnumFacing localToGlobal(EnumFacing direction, EnumFacing orientation, boolean ismirrored)
+    public static EnumFacing localToGlobal(EnumFacing direction, EnumFacing orientation, boolean mirror)
     {
         //switch from local direction to global
-        if (ismirrored && (direction == EnumFacing.NORTH || direction == EnumFacing.SOUTH))
-        {
-            direction = direction.getOpposite();
-        }
-
         if (direction == EnumFacing.DOWN || direction == EnumFacing.UP)
         {
             return direction;
+        }
+
+        if (mirror && (direction == EnumFacing.EAST || direction == EnumFacing.WEST))
+        {
+            direction = direction.getOpposite();
         }
 
         switch (orientation)
@@ -220,11 +220,11 @@ public final class TransformLAG
     }
 
     //state modification on direction change.
-    public static IBlockState localToGlobal(IBlockState state, EnumFacing orientation, boolean ismirrored)
+    public static IBlockState localToGlobal(IBlockState state, EnumFacing orientation, boolean mirror)
     {
         if (META_CORRECTOR.containsKey(state.getBlock()))
         {
-            return META_CORRECTOR.get(state.getBlock()).alterBlockState(state, orientation, ismirrored);
+            return META_CORRECTOR.get(state.getBlock()).alterBlockState(state, orientation, mirror);
         }
 
         return state;
@@ -266,7 +266,7 @@ public final class TransformLAG
     public static void localToGlobalCollisionBoxes(
             int x, int y, int z,
             AxisAlignedBB aabb, List<AxisAlignedBB> boundingBoxList, float[][] collB,
-            EnumFacing orientation, boolean isMirrored, BlockPos size)
+            EnumFacing orientation, boolean mirror, BlockPos size)
     {
         final int[][] matrix = rotationMatrix[orientation.ordinal()-2];
 
@@ -279,11 +279,30 @@ public final class TransformLAG
 
         for (final float[] f: collB)
         {
-            final float c1x = matrix[0][0] * f[0] + matrix[0][1] * f[2];
-            final float c1z = matrix[1][0] * f[0] + matrix[1][1] * f[2];
+            final float c1x;
+            final float c1z;
 
-            final float c2x = matrix[0][0] * f[3] + matrix[0][1] * f[5];
-            final float c2z = matrix[1][0] * f[3] + matrix[1][1] * f[5];
+            final float c2x;
+            final float c2z;
+
+            if (mirror)
+            {
+                final float xs = 1.0f;
+                c1x = matrix[0][0] * (f[0] * -1 + xs) + matrix[0][1] * f[2];
+                c1z = matrix[1][0] * (f[0] * -1 + xs) + matrix[1][1] * f[2];
+
+                c2x = matrix[0][0] * (f[3] * -1 + xs) + matrix[0][1] * f[5];
+                c2z = matrix[1][0] * (f[3] * -1 + xs) + matrix[1][1] * f[5];
+            }
+            else
+            {
+                c1x = matrix[0][0] * f[0] + matrix[0][1] * f[2];
+                c1z = matrix[1][0] * f[0] + matrix[1][1] * f[2];
+
+                c2x = matrix[0][0] * f[3] + matrix[0][1] * f[5];
+                c2z = matrix[1][0] * f[3] + matrix[1][1] * f[5];
+            }
+
 
             bb.minX = x + min(c1x, c2x) + tx;
             bb.minY = y + f[1];
@@ -304,25 +323,24 @@ public final class TransformLAG
     public static AxisAlignedBB localToGlobalBoundingBox(
             BlockPos pos,
             BlockPos local,
-            StructureDefinition sd, EnumFacing orientation, boolean ismirrored)
+            StructureDefinition sd, EnumFacing orientation, boolean mirror)
     {
-        final int l_lbx = local.getX() - sd.getMasterLocation().getX();
+        final int l_lbx = local.getX() - sd.getMasterLocation().getX() - (mirror?1:0);
         final int l_lby = local.getY() - sd.getMasterLocation().getY();
         final int l_lbz = local.getZ() - sd.getMasterLocation().getZ();
 
-        final int l_ubx = local.getX() + sd.getBlockBounds().getX() - sd.getMasterLocation().getX();
+        final int l_ubx = local.getX() + sd.getBlockBounds().getX() - sd.getMasterLocation().getX() - (mirror?1:0);
         final int l_uby = local.getY() + sd.getBlockBounds().getY() - sd.getMasterLocation().getY();
         final int l_ubz = local.getZ() + sd.getBlockBounds().getZ() - sd.getMasterLocation().getZ();
 
         final BlockPos lb
-                = localToGlobal(l_lbx, l_lby, l_lbz, pos.getX(), pos.getY(), pos.getZ(), orientation, ismirrored, sd.getBlockBounds());
+                = localToGlobal(l_lbx, l_lby, l_lbz, pos.getX(), pos.getY(), pos.getZ(), orientation, mirror, sd.getBlockBounds());
 
         final BlockPos ub
-                = localToGlobal(l_ubx, l_uby, l_ubz, pos.getX(), pos.getY(), pos.getZ(), orientation, ismirrored, sd.getBlockBounds());
+                = localToGlobal(l_ubx, l_uby, l_ubz, pos.getX(), pos.getY(), pos.getZ(), orientation, mirror, sd.getBlockBounds());
 
         final int[][] matrix = rotationMatrix[orientation.ordinal()-2];
 
-        //todo fix fish-e if statement
         final int ntx = orientation == EnumFacing.SOUTH || orientation == EnumFacing.WEST? -1:0;
         final int ntz = orientation == EnumFacing.SOUTH || orientation == EnumFacing.EAST? -1:0;
         final int tx = matrix[0][0] * ntx + matrix[0][1] * ntz;

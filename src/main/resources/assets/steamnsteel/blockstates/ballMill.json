@@ -34,8 +34,9 @@
     }],
     "facing": {
       "north": { "transform": {
-        "translation": [1.5, 1, 1]
-      }},
+        "translation": [-1.5, 1, 1],
+        "scale": [-1,1,1]
+    }},
       "south": { "transform": {
           "rotation": {"y": 180 },
         "translation": [-1.5, 1, -1]
@@ -51,7 +52,9 @@
     },
     "mirror":{
       "false": { },
-      "true": { }
+      "true": { "transform": {
+        "scale": [-1,1,1]
+      }}
     }
   }
 }

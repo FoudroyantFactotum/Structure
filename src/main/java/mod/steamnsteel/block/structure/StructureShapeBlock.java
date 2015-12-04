@@ -44,7 +44,7 @@ import static net.minecraft.block.BlockDirectional.FACING;
 
 public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITileEntityProvider
 {
-    public static boolean _DEBUG = true;
+    public static boolean _DEBUG = false;
     public static final String NAME = "structureShape";
     public static final AxisAlignedBB EMPTY_BOUNDS = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
 
@@ -148,7 +148,7 @@ public class StructureShapeBlock extends SteamNSteelMachineBlock implements ITil
 
             localToGlobalCollisionBoxes(mloc.getX(), mloc.getY(), mloc.getZ(),
                     mask, list, sb.getPattern().getCollisionBoxes(),
-                    (EnumFacing) state.getValue(FACING), getMirror(state),
+                    getOrientation(state), getMirror(state),
                     sb.getPattern().getBlockBounds()
             );
         }

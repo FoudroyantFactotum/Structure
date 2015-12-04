@@ -41,7 +41,10 @@ public class StairMatcher implements IStateMatcher
         final EnumShape b1Shape = (EnumShape) b1.getValue(SHAPE);
         final EnumShape b2Shape = (EnumShape) b2.getValue(SHAPE);
 
-        if (b1Half != b2Half) return false;
+        if (b1Half != b2Half)
+        {
+            return false;
+        }
 
         if (b1Facing == b2Facing)
         {
@@ -53,11 +56,12 @@ public class StairMatcher implements IStateMatcher
             return false;
         }
 
-        if (b1Facing.rotateYCCW() == b2Facing || b1Facing.rotateY() == b2Facing)
+        if ((b1Shape == EnumShape.OUTER_RIGHT && b2Shape == EnumShape.OUTER_LEFT) ||
+                (b1Shape == EnumShape.INNER_RIGHT && b2Shape == EnumShape.INNER_LEFT) ||
+                (b1Shape == EnumShape.OUTER_LEFT && b2Shape == EnumShape.OUTER_RIGHT) ||
+                (b1Shape == EnumShape.INNER_LEFT && b2Shape == EnumShape.INNER_RIGHT))
         {
-            if ((b1Shape == EnumShape.OUTER_RIGHT && b2Shape == EnumShape.OUTER_LEFT) ||
-                    (b1Shape == EnumShape.INNER_RIGHT && b2Shape == EnumShape.INNER_LEFT))
-                return true;
+            return true;
         }
 
         return false;

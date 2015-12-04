@@ -24,10 +24,10 @@ import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 public class DefaultMinecraftRotation implements IStructurePatternStateCorrecter
 {
     @Override
-    public IBlockState alterBlockState(IBlockState state, EnumFacing o, boolean isMirrored)
+    public IBlockState alterBlockState(IBlockState state, EnumFacing orientation, boolean mirror)
     {
         final EnumFacing facing = (EnumFacing) state.getValue(BlockDirectional.FACING);
 
-        return state.withProperty(BlockDirectional.FACING, localToGlobal(facing, o, isMirrored));
+        return state.withProperty(BlockDirectional.FACING, localToGlobal(facing, orientation, mirror));
     }
 }

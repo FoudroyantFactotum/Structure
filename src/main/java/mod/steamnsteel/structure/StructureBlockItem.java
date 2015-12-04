@@ -27,9 +27,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.*;
-import static mod.steamnsteel.block.SteamNSteelStructureBlock.bindLocalToGlobal;
+import static mod.steamnsteel.block.SteamNSteelStructureBlock.MIRROR;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.mutLocalToGlobal;
 import static net.minecraft.block.BlockDirectional.FACING;
 
 public class StructureBlockItem extends ItemBlock
@@ -42,9 +42,6 @@ public class StructureBlockItem extends ItemBlock
     @Override
     public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState)
     {
-        /*if (world.isRemote)
-            return false;*/
-
         final SteamNSteelStructureBlock block = (SteamNSteelStructureBlock) this.block;
 
         if (player == null)
@@ -52,45 +49,40 @@ public class StructureBlockItem extends ItemBlock
             return false;
         }
 
-        final int orientation = (MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5)) & 3;
-        final EnumFacing horizontal = EnumFacing.getHorizontal(orientation);
-        final boolean isMirrored = false; //player.isSneaking(); Disabled until fix :p todo fix structure mirroring
+        final EnumFacing orientation = EnumFacing.getHorizontal(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5) & 3);
+        final boolean mirror = player.isSneaking();
 
-        newState = newState.withProperty(FACING, horizontal).withProperty(MIRROR, isMirrored);
+        newState = newState.withProperty(FACING, orientation).withProperty(MIRROR, mirror);
 
         //find master block location
         final BlockPos hSize = block.getPattern().getHalfBlockBounds();
         final BlockPos ml = block.getPattern().getMasterLocation();
 
-        BlockPos mLoc
+        BlockPos origin
                 = localToGlobal(
                 -hSize.getX() + ml.getX(), ml.getY(), -hSize.getZ() + ml.getZ(),
                 pos.getX(), pos.getY(), pos.getZ(),
-                horizontal, isMirrored, block.getPattern().getBlockBounds());
+                orientation, mirror, block.getPattern().getBlockBounds());
 
         //check block locations
         for (final MutableBlockPos local : block.getPattern().getStructureItr())
         {
-            final BlockPos coord = bindLocalToGlobal(mLoc, local, horizontal, isMirrored, block.getPattern().getBlockBounds());
-
             if (!block.getPattern().hasBlockAt(local))
             {
                 continue;
             }
 
-            if (!world.getBlockState(coord).getBlock().isReplaceable(world, coord))
+            mutLocalToGlobal(local, origin, orientation, mirror, block.getPattern().getBlockBounds());
+
+            if (!world.getBlockState(local).getBlock().isReplaceable(world, local))
             {
                 return false;
             }
         }
 
-        world.setBlockState(mLoc, newState, 0x2);
-        block.onBlockPlacedBy(world, mLoc, newState, player, stack);
+        world.setBlockState(origin, newState, 0x2);
+        block.onBlockPlacedBy(world, origin, newState, player, stack);
 
-        /*ModNetwork.network.sendToAllAround(
-                        new StructurePacket(mLoc, block.getRegHash(), horizontal, isMirrored, StructurePacketOption.BUILD),
-                        new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), mLoc.getX(), mLoc.getY(), mLoc.getZ(), 30)
-                );*/
         return true;
     }
 

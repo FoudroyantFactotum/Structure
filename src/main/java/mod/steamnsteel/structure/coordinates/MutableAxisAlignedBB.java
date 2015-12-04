@@ -33,4 +33,10 @@ public class MutableAxisAlignedBB
     {
         return AxisAlignedBB.fromBounds(minX, minY, minZ, maxX, maxY, maxZ);
     }
+
+    @Override
+    public String toString()
+    {
+        return "(" + minX +','+minY+','+minZ+"->"+maxX+','+maxY+','+maxZ+')';
+    }
 }
