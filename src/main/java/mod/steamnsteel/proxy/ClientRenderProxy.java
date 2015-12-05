@@ -18,9 +18,13 @@ package mod.steamnsteel.proxy;
 
 import mod.steamnsteel.TheMod;
 import mod.steamnsteel.client.model.opengex.OpenGEXModelLoader;
+import mod.steamnsteel.client.renderer.tileentity.StructureTESR;
 import mod.steamnsteel.client.renderer.tileentity.LargeFanTESR;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.library.ModItem;
+import mod.steamnsteel.tileentity.structure.BallMillTE;
+import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
+import mod.steamnsteel.tileentity.structure.BoilerTE;
 import mod.steamnsteel.tileentity.structure.FanLargeTE;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -159,12 +163,13 @@ public class ClientRenderProxy extends RenderProxy
 
     private void registerTESRs()
     {
-        ClientRegistry.bindTileEntitySpecialRenderer(FanLargeTE.class, new LargeFanTESR());
-        //ClientRegistry.bindTileEntitySpecialRenderer(BoilerTE.class, new BoilerTESR());
-        /*
-        ClientRegistry.bindTileEntitySpecialRenderer(BallMillTE.class, new BallMillTESR());
-        ClientRegistry.bindTileEntitySpecialRenderer(BlastFurnaceTE.class, new BlastFurnaceTESR());
+        final StructureTESR STESR = new StructureTESR();
 
+        ClientRegistry.bindTileEntitySpecialRenderer(FanLargeTE.class, new LargeFanTESR());
+        ClientRegistry.bindTileEntitySpecialRenderer(BoilerTE.class, STESR);
+        ClientRegistry.bindTileEntitySpecialRenderer(BallMillTE.class, STESR);
+        ClientRegistry.bindTileEntitySpecialRenderer(BlastFurnaceTE.class, STESR);
+        /*
         PipeBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
         PipeValveBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
         PipeRedstoneValveBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
@@ -172,7 +177,6 @@ public class ClientRenderProxy extends RenderProxy
 
         RenderingRegistry.registerBlockHandler(SteamNSteelPaneRenderer.INSTANCE);
 
-        ClientRegistry.bindTileEntitySpecialRenderer(CupolaTE.class, new CupolaTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(PipeTE.class, new PipeTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(PipeValveTE.class, new PipeValveTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(PipeRedstoneValveTE.class, new PipeRedstoneValveTESR());

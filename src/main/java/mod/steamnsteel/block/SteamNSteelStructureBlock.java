@@ -110,6 +110,19 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     }
 
     @Override
+    public int getRenderType()
+    {
+        return -1;
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public EnumWorldBlockLayer getBlockLayer()
+    {
+        return EnumWorldBlockLayer.TRANSLUCENT;
+    }
+
+    @Override
     public int quantityDropped(Random rnd)
     {
         return 0;

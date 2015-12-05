@@ -32,29 +32,51 @@
         }
       }
     }],
-    "facing": {
-      "north": { "transform": {
-        "translation": [-1.5, 1, 1],
-        "scale": [-1,1,1]
+    "facing=north,mirror=false": {
+      "model": "steamnsteel:ballMill.obj", "transform": {
+        "translation": [1.5, 1, 1]
     }},
-      "south": { "transform": {
-          "rotation": {"y": 180 },
-        "translation": [-1.5, 1, -1]
-      }},
-      "east": { "transform": {
+    "facing=east,mirror=false": {
+      "model": "steamnsteel:ballMill.obj", "transform": {
         "rotation": {"y": 270 },
         "translation": [-1, 1, 1.5]
-      }},
-      "west": { "transform": {
+    }},
+    "facing=south,mirror=false": {
+      "model": "steamnsteel:ballMill.obj", "transform": {
+          "rotation": {"y": 180 },
+        "translation": [-1.5, 1, -1]
+    }},
+    "facing=west,mirror=false": {
+      "model": "steamnsteel:ballMill.obj", "transform": {
         "rotation": {"y": 90 },
         "translation": [1, 1, -1.5]
-      }}
+    }},
+    "facing=north,mirror=true": {
+      "model": "steamnsteel:ballMill.obj", "transform": {
+        "scale": [-1,1,1],
+        "translation": [-1.5, 1, 1]
+      }
     },
-    "mirror":{
-      "false": { },
-      "true": { "transform": {
-        "scale": [-1,1,1]
-      }}
+    "facing=east,mirror=true": {
+      "model": "steamnsteel:ballMill.obj", "transform": {
+        "scale": [-1,1,1],
+        "rotation": {"y": 270 },
+        "translation": [-1, 1, -1.5]
+      }
+    },
+    "facing=south,mirror=true": {
+      "model": "steamnsteel:ballMill.obj", "transform": {
+        "scale": [-1,1,1],
+        "rotation": {"y": 180 },
+        "translation": [1.5, 1, -1]
+      }
+    },
+    "facing=west,mirror=true": {
+      "model": "steamnsteel:ballMill.obj", "transform": {
+        "scale": [-1,1,1],
+        "rotation": {"y": 90 },
+        "translation": [1, 1, 1.5]
+      }
     }
   }
 }
