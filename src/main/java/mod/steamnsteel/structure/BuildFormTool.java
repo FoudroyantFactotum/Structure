@@ -18,7 +18,6 @@ package mod.steamnsteel.structure;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.item.tool.SSToolShovel;
 import mod.steamnsteel.library.Material;
-import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.structure.net.StructurePacket;
 import mod.steamnsteel.structure.net.StructurePacketOption;
 import mod.steamnsteel.structure.registry.StructureDefinition;
@@ -69,7 +68,7 @@ public class BuildFormTool extends SSToolShovel
     {
         if (world.isRemote || player == null)
         {
-            return false;
+            return true;
         }
 
         final EnumFacing[] orientation = orientationPriority[MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5) & 3];
@@ -123,11 +122,9 @@ public class BuildFormTool extends SSToolShovel
                     new StructurePacket(result.origin, result.block.getRegHash(), result.orientation, result.mirror, StructurePacketOption.BUILD),
                     new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), result.origin.getX(), result.origin.getY(), result.origin.getZ(), 30)
             );
-
-            return true;
         }
 
-        return false;
+        return true;
     }
 
     /**
@@ -180,13 +177,6 @@ public class BuildFormTool extends SSToolShovel
 
                         final IBlockState ncwb = world.getBlockState(local);
                         final IBlockState wb = ncwb.getBlock().getActualState(ncwb, world, local);
-
-                        if (ssBlock == ModBlock.blastFurnace)
-                        {
-                            Logger.info("" + o +':'+mirror + " l: " + tmp + "\tg: " + local + "\twb: " + wb + "\ttb: " + localToGlobal(b, o, mirror) + "\tb: " + b);
-
-                        }
-
 
                         if (b != null && (b.getBlock() != wb.getBlock() || !doBlockStatesMatch(localToGlobal(b, o, mirror), wb)))
                         {

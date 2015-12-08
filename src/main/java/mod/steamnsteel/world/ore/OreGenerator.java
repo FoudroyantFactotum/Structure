@@ -61,11 +61,6 @@ public class OreGenerator extends WorldGenMinable
         return false;
     }
 
-    /*public void generate(World world, Random rng, ChunkCoord coord)
-    {
-        generate(world, rng, coord.getX() << 4, 0, coord.getZ() << 4);
-    }*/
-
     @Override
     public boolean generate(World world, Random rand, BlockPos pos)
     {
@@ -79,7 +74,7 @@ public class OreGenerator extends WorldGenMinable
                 final int x = worldX + rand.nextInt(16);
                 final int y = rand.nextInt(maxHeight - minHeight) + minHeight;
                 final int z = worldZ + rand.nextInt(16);
-                super.generate(world, rand, pos);
+                super.generate(world, rand, new BlockPos(x,y,z));
             }
 
             RetroGenHandler.markChunk(ChunkCoord.of(worldX >> 4, worldZ >> 4));

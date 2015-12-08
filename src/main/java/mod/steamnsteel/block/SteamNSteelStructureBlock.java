@@ -61,6 +61,7 @@ import java.util.Random;
 
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
 import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalCollisionBoxes;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.mutLocalToGlobal;
 import static net.minecraft.block.BlockDirectional.FACING;
 
 @Optional.Interface(modid = WailaProvider.WAILA, iface = "mcp.mobius.waila.api.IWailaDataProvider", striprefs = true)
@@ -226,12 +227,9 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                     }
                 }
 
-                final BlockPos global = localToGlobal(
-                        local.x, local.y, local.z,
-                        pos.getX(), pos.getY(), pos.getZ(),
-                        te.getOrientation(), te.getMirror(), getPattern().getBlockBounds());
+                mutLocalToGlobal(local, pos, te.getOrientation(), te.getMirror(), getPattern().getBlockBounds());
 
-                spawnBreakParticle(world, te, global, xSpeed * scaleVec, ySpeed * scaleVec, zSpeed * scaleVec);
+                spawnBreakParticle(world, te, local, xSpeed * scaleVec, ySpeed * scaleVec, zSpeed * scaleVec);
             }
         }
 
@@ -345,7 +343,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
                 );
             }
 
-                return;
+            return;
         }
     }
 
@@ -395,15 +393,15 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         {
             if (getPattern().hasBlockAt(local))
             {
-                final BlockPos blockCoord = bindLocalToGlobal(origin, local, orientation, isMirrored, getPattern().getBlockBounds());
-                final IBlockState worldBlock = world.getBlockState(blockCoord);
                 final IBlockState block = getPattern().getBlock(local);
+                mutLocalToGlobal(local, origin, orientation, isMirrored, getPattern().getBlockBounds());
+                final IBlockState worldBlock = world.getBlockState(local);
 
                 if (worldBlock.getBlock() instanceof SteamNSteelStructureBlock || worldBlock.getBlock() instanceof StructureShapeBlock)
                 {
-                    world.removeTileEntity(blockCoord);
+                    world.removeTileEntity(local);
 
-                    world.setBlockState(blockCoord, (isCreative && !isSneaking) ?
+                    world.setBlockState(new BlockPos(local), (isCreative && !isSneaking) ?
                             Blocks.air.getDefaultState() :
                             localToGlobal(block, orientation, isMirrored)
                             , 0x2);

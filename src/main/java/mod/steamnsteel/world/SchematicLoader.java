@@ -414,7 +414,7 @@ public class SchematicLoader
             Set<String> names = mapping.getKeySet();
             for (String name : names)
             {
-                if (GameData.getBlockRegistry().containsKey(name))
+                if (GameData.getBlockRegistry().containsKey(new ResourceLocation(name)))
                 {
                     final short id1 = (short) GameData.getBlockRegistry().getId(name);
                     oldToNew.put(mapping.getShort(name), id1);
@@ -571,11 +571,14 @@ public class SchematicLoader
             int metadata = this.metadata[index];
             final short blockId = this.blocks[index];
 
-            if (!BLOCK_REGISTRY.containsKey(blockId))
+            final Block b = BLOCK_REGISTRY.getObjectById(blockId);
+
+            if (b == null)
             {
                 return null;
             }
-            return BLOCK_REGISTRY.getObjectById(blockId).getStateFromMeta(metadata);
+
+            return b.getStateFromMeta(metadata);
         }
 
         public boolean isAirBlock(BlockPos pos)

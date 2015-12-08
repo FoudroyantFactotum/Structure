@@ -38,7 +38,7 @@ public class LoadSchematicFromResourceCommand extends CommandBase
 
             loader.loadSchematic(schematicLocation);
             loader.renderSchematicInOneShot(schematicLocation, player.getEntityWorld(), sender.getPosition(), EnumFacing.NORTH, false);
-            sender.addChatMessage(new ChatComponentText("Potato Spawned."));
+            sender.addChatMessage(new ChatComponentText(String.format("%s Spawned.", filename)));
         }
     }
 }

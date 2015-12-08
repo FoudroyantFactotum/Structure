@@ -26,6 +26,7 @@ import mod.steamnsteel.world.ore.SulfurOreGenerator;
 import mod.steamnsteel.world.structure.RemnantRuinsGenerator;
 import mod.steamnsteel.world.structure.StructureChunkGenerator;
 import mod.steamnsteel.world.structure.StructureGenerator;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.OreGenEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.terraingen.TerrainGen;
@@ -53,8 +54,8 @@ public enum WorldGen
     }
 
     private static void register() {
-        //MinecraftForge.ORE_GEN_BUS.register(INSTANCE);
-        //MinecraftForge.EVENT_BUS.register(INSTANCE);
+        MinecraftForge.ORE_GEN_BUS.register(INSTANCE);
+        MinecraftForge.EVENT_BUS.register(INSTANCE);
     }
 
     private static void createOreGenerators()
