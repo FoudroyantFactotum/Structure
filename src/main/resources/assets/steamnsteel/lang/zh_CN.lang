@@ -34,6 +34,9 @@ container.steamnsteel:cupola=冲天炉
 # Creative Tabs
 itemGroup.steamnsteel=蒸汽和钢铁
 
+# World Type
+generator.steamnsteel=蒸汽和钢铁
+
 # Items
 item.steamnsteel:anachDoodad.name=历史琐事
 item.steamnsteel:axeBronze.name=青铜斧

@@ -34,6 +34,9 @@ container.steamnsteel:cupola=Kuppel
 # Creative Tabs
 itemGroup.steamnsteel=Steam and Steel
 
+# World Type
+generator.steamnsteel=Steam and Steel
+
 # Items
 item.steamnsteel:anachDoodad.name=Anachronistisches Dingbums
 item.steamnsteel:axeBronze.name=Bronzeaxt

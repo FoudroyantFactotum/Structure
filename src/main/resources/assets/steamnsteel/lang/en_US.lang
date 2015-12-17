@@ -52,6 +52,9 @@ container.steamnsteel:remnantRuinChest=Remnant Ruin Chest
 # Creative Tabs
 itemGroup.steamnsteel=Steam and Steel
 
+# World Type
+generator.steamnsteel=Steam and Steel
+
 # Items
 item.steamnsteel:anachDoodad.name=Anachronistic Doodad
 item.steamnsteel:axeBronze.name=Bronze Axe

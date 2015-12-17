@@ -34,6 +34,9 @@ container.steamnsteel:cupola=Купол
 # Creative Tabs
 itemGroup.steamnsteel=Steam and Steel
 
+# World Type
+generator.steamnsteel=Steam and Steel
+
 # Items
 item.steamnsteel:anachDoodad.name=Анахроническая штуковина
 item.steamnsteel:axeBronze.name=Бронзовый топор

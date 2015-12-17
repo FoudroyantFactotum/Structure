@@ -34,6 +34,9 @@ container.steamnsteel:cupola=Cupola
 # Creative Tabs
 itemGroup.steamnsteel=Vapore e Acciaio
 
+# World Type
+generator.steamnsteel=Vapore e Acciaio
+
 # Items
 item.steamnsteel:anachDoodad.name=Aggegio Anacronistico
 item.steamnsteel:axeBronze.name=Ascia di Bronzo

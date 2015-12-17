@@ -35,8 +35,6 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
 import java.util.List;
 
-import static net.minecraftforge.event.terraingen.OreGenEvent.GenerateMinable.EventType.CUSTOM;
-
 public enum WorldGen
 {
     INSTANCE;
@@ -95,12 +93,11 @@ public enum WorldGen
     }
 
 
-    @SuppressWarnings("MethodMayBeStatic")
     @SubscribeEvent
     public void OnPostOreGenerated(OreGenEvent.Post event)
     {
         for (final OreGenerator oreGen : oreGens)
-            if (TerrainGen.generateOre(event.world, event.rand, oreGen, event.pos, CUSTOM))
+            if (TerrainGen.generateOre(event.world, event.rand, oreGen, event.pos, OreGenEvent.GenerateMinable.EventType.CUSTOM))
                 oreGen.generate(event.world, event.rand, event.pos);
     }
 
