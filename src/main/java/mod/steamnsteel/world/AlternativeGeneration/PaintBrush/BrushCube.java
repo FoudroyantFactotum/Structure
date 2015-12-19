@@ -1,33 +1,32 @@
 package mod.steamnsteel.world.AlternativeGeneration.PaintBrush;
 
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 
+import java.util.Random;
 import java.util.Set;
 
 public class BrushCube implements IBrush
 {
-    final float width;
-    final float depth;
-    final float height;
+    private final Random r;
+    private final float chance;
 
-    public BrushCube(float width, float height, float depth)
+    public BrushCube(Random r, float chance)
     {
-        this.width = width;
-        this.depth = depth;
-        this.height = height;
+        this.r = r;
+        this.chance = chance;
     }
 
     @Override
-    public void intersectBrushWithWorld(BlockPos center, Set<BlockPos> path)
+    public void intersectBrushWithWorld(BlockPos corner, Set<BlockPos> path)
     {
-        for (int x=0; x<Math.ceil(width); ++x)
+        path.add(corner);
+
+        for (final EnumFacing f : EnumFacing.VALUES)
         {
-            for (int y=0; y<Math.ceil(height); ++y)
+            if (r.nextDouble() < chance)
             {
-                for (int z=0; z<Math.ceil(depth); ++z)
-                {
-                    path.add(center.add(x,y,z));
-                }
+                path.add(corner.add(f.getDirectionVec()));
             }
         }
     }

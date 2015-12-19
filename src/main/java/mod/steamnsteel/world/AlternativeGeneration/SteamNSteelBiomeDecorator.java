@@ -1,6 +1,7 @@
 package mod.steamnsteel.world.AlternativeGeneration;
 
 import mod.steamnsteel.utility.log.Logger;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.biome.BiomeDecorator;
 import net.minecraft.world.gen.feature.WorldGenMinable;
@@ -29,50 +30,26 @@ public class SteamNSteelBiomeDecorator extends BiomeDecorator
     @Override
     protected void genStandardOre1(int blockCount, WorldGenerator generator, int minHeight, int maxHeight)
     {
-        super.genStandardOre1(blockCount, generator, minHeight, maxHeight);
-        return;
 
-        /*if (generator instanceof WorldGenMinable)
+        if (generator instanceof WorldGenMinable)
         {
-            final IBrush brush = new BrushCube(1, 2, 1);
-            final IDrawWithBrush line = new Line(
-                    Math.toRadians(180) * randomGenerator.nextDouble(),
-                    Math.toRadians(180) * randomGenerator.nextDouble(),
-                    (int) (1000*randomGenerator.nextDouble())
-            );
-
             try
             {
                 final IBlockState oreBlock = (IBlockState) fOreBlock.get(generator);
 
-                if (oreBlock.getBlock() != Blocks.iron_ore)
+                for (final String sOre : WorldGen.ores)
                 {
-                    super.genStandardOre1(blockCount, generator, minHeight, maxHeight);
-                    return;
-                }
-
-                final Set<BlockPos> blocks = new HashSet<BlockPos>(100);
-                final BlockPos blockpos = field_180294_c.add(
-                        randomGenerator.nextInt(16),
-                        randomGenerator.nextInt(maxHeight - minHeight) + minHeight,
-                        randomGenerator.nextInt(16)
-                );
-
-                line.drawWithBrush(brush, blocks, blockpos);
-
-                for (final BlockPos pos : blocks)
-                {
-                    if (blockpos.getX() >> 4 == pos.getX() >> 4 && blockpos.getZ() >> 4 == pos.getZ() >> 4)
+                    if (oreBlock.getBlock().getUnlocalizedName().toLowerCase().contains(sOre))
                     {
-                        if (currentWorld.getBlockState(pos).getBlock().isReplaceableOreGen(currentWorld, pos, BlockHelper.forBlock(Blocks.stone)))
-                            currentWorld.setBlockState(pos, oreBlock, 0x2);
+                        return;
                     }
                 }
 
+                super.genStandardOre1(blockCount, generator, minHeight, maxHeight);
             } catch (IllegalAccessException e)
             {
-                e.printStackTrace();
+                Logger.severe(e.getLocalizedMessage());
             }
-        }*/
+        }
     }
 }
