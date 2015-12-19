@@ -39,7 +39,7 @@ public enum WorldGen
     private static final List<StructureGenerator> structureGens = Lists.newArrayList();
     public static final SchematicLoader schematicLoader = new SchematicLoader();
 
-    private static final WorldType worldType = new SteamNSteelWorldType();
+    public static final WorldType worldType = new SteamNSteelWorldType();
 
     public static final String[] ores = {"iron", "coal", "gold", "diamond"};
 
@@ -90,15 +90,16 @@ public enum WorldGen
     @SubscribeEvent
     public void genSnSOres(PopulateChunkEvent.Post event)
     {
-        //only generate ore every 3 chunks. so 3x3 chunks the ore will generate.
+        //only generate ore every 3 chunks. So 3x3 chunks the ore will generate.(also called a swatch)
         //also checks if chunks exist on each side, and allows a seam across the board if it exists.
-        final float overGen = 1.1f;
+        final float overGen = 1.2f;
 
+        if (event.world.getWorldType() != worldType) return;
         if (event.chunkX % 3 != 0 || event.chunkZ % 3 != 0) return;
 
         final Random randomGenerator = event.rand;
 
-        final IBrush brush = new BrushCube(randomGenerator, 0.1f);
+        final IBrush brush = new BrushCube(randomGenerator, 0.25f);
         final Set<BlockPos> blocks = new HashSet<BlockPos>(2000);
 
         for (final OreRequirements ore : getChunkProviderOreRates(event.world.getWorldInfo().getGeneratorOptions()))
@@ -205,7 +206,7 @@ public enum WorldGen
         public final int oreCount;
         public final int oreSize;
 
-        public OreRequirements(Block block, int maxHeight, int minHeight, int oreCount, int oreSize)
+        OreRequirements(Block block, int maxHeight, int minHeight, int oreCount, int oreSize)
         {
             this.block = block;
             this.maxHeight = maxHeight;

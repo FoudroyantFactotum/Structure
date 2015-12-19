@@ -30,6 +30,13 @@ public class SteamNSteelBiomeDecorator extends BiomeDecorator
     @Override
     protected void genStandardOre1(int blockCount, WorldGenerator generator, int minHeight, int maxHeight)
     {
+        //don't gen ores that are being generated through alternative means e.g. ore seams
+
+        if (currentWorld.getWorldType() != WorldGen.worldType)
+        {
+            super.genStandardOre1(blockCount, generator, minHeight, maxHeight);
+            return;
+        }
 
         if (generator instanceof WorldGenMinable)
         {
