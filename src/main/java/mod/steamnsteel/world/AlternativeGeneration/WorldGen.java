@@ -104,27 +104,40 @@ public enum WorldGen
 
         for (final OreRequirements ore : getChunkProviderOreRates(event.world.getWorldInfo().getGeneratorOptions()))
         {
-            while (blocks.size() < ore.oreCount*ore.oreSize*9*overGen/2)
+            final int oreGenTotal = (int) (ore.oreCount * ore.oreSize * 9 * overGen / 2);
+            int genOreCount = 0;
+
+
+            while (genOreCount < oreGenTotal*0.05f)
             {
-                final IDrawWithBrush line = new Line(
-                    Math.toRadians(180) * randomGenerator.nextDouble(),
-                    Math.toRadians(180) * randomGenerator.nextDouble(),
-                    (int) ((ore.oreCount-2) * randomGenerator.nextDouble()) + 2
-                );
+                while (blocks.size() < oreGenTotal-genOreCount)
+                {
+                    final IDrawWithBrush line = new Line(
+                            Math.toRadians(180) * randomGenerator.nextDouble(),
+                            Math.toRadians(180) * randomGenerator.nextDouble(),
+                            (int) ((ore.oreCount - 2) * randomGenerator.nextDouble()) + 2
+                    );
 
-                final BlockPos blockpos = new BlockPos(
-                        randomGenerator.nextInt(48) + (event.chunkX << 4),
-                        randomGenerator.nextInt(ore.maxHeight - ore.minHeight) + ore.minHeight,
-                        randomGenerator.nextInt(48) + (event.chunkZ << 4)
-                );
+                    final BlockPos blockpos = new BlockPos(
+                            randomGenerator.nextInt(48) + (event.chunkX << 4),
+                            randomGenerator.nextInt(ore.maxHeight - ore.minHeight) + ore.minHeight,
+                            randomGenerator.nextInt(48) + (event.chunkZ << 4)
+                    );
 
-                line.drawWithBrush(brush, blocks, blockpos);
+                    line.drawWithBrush(brush, blocks, blockpos);
+                }
+
+                genOreCount +=
+                        genGenericSnSOreSeam(
+                                ore.block.getDefaultState(),
+                                blocks,
+                                event.chunkProvider,
+                                oreGenTotal - genOreCount,
+                                event.chunkX, event.chunkZ,
+                                randomGenerator);
+                blocks.clear();
             }
-
-            genGenericSnSOreSeam(ore.block.getDefaultState(), blocks, event.chunkProvider, ore.oreCount*ore.oreSize*9/2, event.chunkX, event.chunkZ, randomGenerator);
-            blocks.clear();
         }
-
     }
 
     private static ImmutableList<OreRequirements> getChunkProviderOreRates(String genOptions)
@@ -155,10 +168,10 @@ public enum WorldGen
                     break;
                 }
 
-                final int oreCount      = ChunkProviderSettings.Factory.class.getField(ore + "Count").getInt(cps);
-                final int oreSize       = ChunkProviderSettings.Factory.class.getField(ore + "Size").getInt(cps);
-                final int oreMaxHeight  = ChunkProviderSettings.Factory.class.getField(ore + "MaxHeight").getInt(cps);
-                final int oreMinHeight  = ChunkProviderSettings.Factory.class.getField(ore + "MinHeight").getInt(cps);
+                final int oreCount = ChunkProviderSettings.Factory.class.getField(ore + "Count").getInt(cps);
+                final int oreSize = ChunkProviderSettings.Factory.class.getField(ore + "Size").getInt(cps);
+                final int oreMaxHeight = ChunkProviderSettings.Factory.class.getField(ore + "MaxHeight").getInt(cps);
+                final int oreMinHeight = ChunkProviderSettings.Factory.class.getField(ore + "MinHeight").getInt(cps);
 
                 builder.add(new OreRequirements(oreBlock, oreMaxHeight, oreMinHeight, oreCount, oreSize));
             } catch (NoSuchFieldException e)
@@ -173,12 +186,10 @@ public enum WorldGen
         return builder.build();
     }
 
-    private static void genGenericSnSOreSeam(IBlockState ore, Set<BlockPos> blocks, IChunkProvider provider,int orePerSwatch, int originChunkX, int originChunkZ, Random rnd)
+    private static int genGenericSnSOreSeam(IBlockState ore, Set<BlockPos> blocks, IChunkProvider provider, int orePerSwatch, int originChunkX, int originChunkZ, Random rnd)
     {
         final double count = orePerSwatch / (double) blocks.size();
-
-        //Logger.info(String.format(
-        //        "Swatch (%s,%s) keeping %s/%s=%.4f of %s", originChunkX, originChunkZ, orePerSwatch, blocks.size(), count, ore.getBlock().getLocalizedName()));
+        int genOreCount = 0;
 
         for (final BlockPos pos : blocks)
         {
@@ -192,10 +203,13 @@ public enum WorldGen
                     if (provider.provideChunk(pos).getBlock(pos) == Blocks.stone)
                     {
                         provider.provideChunk(pos).setBlockState(pos, ore);
+                        ++genOreCount;
                     }
                 }
             }
         }
+
+        return genOreCount;
     }
 
     private static class OreRequirements
