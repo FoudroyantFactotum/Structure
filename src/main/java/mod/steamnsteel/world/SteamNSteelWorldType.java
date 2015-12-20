@@ -1,4 +1,4 @@
-package mod.steamnsteel.world.AlternativeGeneration;
+package mod.steamnsteel.world;
 
 import mod.steamnsteel.TheMod;
 import net.minecraft.world.WorldType;

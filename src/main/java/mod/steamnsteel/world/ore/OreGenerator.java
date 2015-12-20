@@ -83,6 +83,26 @@ public class OreGenerator extends WorldGenMinable
         return true;
     }
 
+    public SteamNSteelOreBlock getBlock()
+    {
+        return block;
+    }
+
+    public int getClusterCount()
+    {
+        return clusterCount;
+    }
+
+    public int getMinHeight()
+    {
+        return minHeight;
+    }
+
+    public int getMaxHeight()
+    {
+        return maxHeight;
+    }
+
     @Override
     public String toString()
     {

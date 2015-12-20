@@ -35,7 +35,7 @@ import mod.steamnsteel.utility.ModNetwork;
 import mod.steamnsteel.waila.WailaProvider;
 import mod.steamnsteel.world.LoadSchematicFromFileCommand;
 import mod.steamnsteel.world.LoadSchematicFromResourceCommand;
-import mod.steamnsteel.world.AlternativeGeneration.WorldGen;
+import mod.steamnsteel.world.WorldGen;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.Item;
 import net.minecraftforge.common.MinecraftForge;

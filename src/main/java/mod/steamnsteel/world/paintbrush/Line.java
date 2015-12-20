@@ -1,4 +1,4 @@
-package mod.steamnsteel.world.AlternativeGeneration.PaintBrush;
+package mod.steamnsteel.world.paintbrush;
 
 import net.minecraft.util.BlockPos;
 

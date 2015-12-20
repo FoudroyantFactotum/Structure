@@ -1,4 +1,4 @@
-package mod.steamnsteel.world.AlternativeGeneration;
+package mod.steamnsteel.world;
 
 import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.state.IBlockState;
@@ -44,7 +44,7 @@ public class SteamNSteelBiomeDecorator extends BiomeDecorator
             {
                 final IBlockState oreBlock = (IBlockState) fOreBlock.get(generator);
 
-                for (final String sOre : WorldGen.ores)
+                for (final String sOre : WorldGen.minecraftOres)
                 {
                     if (oreBlock.getBlock().getUnlocalizedName().toLowerCase().contains(sOre))
                     {
