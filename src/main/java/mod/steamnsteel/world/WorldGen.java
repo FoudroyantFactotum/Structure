@@ -1,19 +1,20 @@
 package mod.steamnsteel.world;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.Lists;
 import mod.steamnsteel.configuration.Settings;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.utility.log.Logger;
-import mod.steamnsteel.world.paintbrush.BrushCube;
-import mod.steamnsteel.world.paintbrush.IBrush;
-import mod.steamnsteel.world.paintbrush.IDrawWithBrush;
-import mod.steamnsteel.world.paintbrush.Line;
 import mod.steamnsteel.world.ore.NiterOreGenerator;
 import mod.steamnsteel.world.ore.OreGenerator;
 import mod.steamnsteel.world.ore.RetroGenHandler;
 import mod.steamnsteel.world.ore.SulfurOreGenerator;
+import mod.steamnsteel.world.paintbrush.BrushCube;
+import mod.steamnsteel.world.paintbrush.IBrush;
+import mod.steamnsteel.world.paintbrush.IDrawWithBrush;
+import mod.steamnsteel.world.paintbrush.Line;
 import mod.steamnsteel.world.structure.RemnantRuinsGenerator;
 import mod.steamnsteel.world.structure.StructureChunkGenerator;
 import mod.steamnsteel.world.structure.StructureGenerator;
@@ -52,6 +53,7 @@ public enum WorldGen
     public static final WorldType worldType = new SteamNSteelWorldType();
 
     public static final String[] minecraftOres = {"iron", "coal", "gold", "diamond"};
+    private static Optional<ImmutableList<Block>> minecraftSeamOres = Optional.absent();
 
     public static void init()
     {
@@ -163,7 +165,7 @@ public enum WorldGen
             final int oreGenTotal = (int) (ore.oreCount * ore.oreSize * 9 * overGen / 2);
             int genOreCount = 0;
 
-            while (genOreCount < oreGenTotal * 0.1f)
+            while (genOreCount < oreGenTotal * 0.9f)
             {
                 while (blocks.size() < oreGenTotal - genOreCount)
                 {
@@ -210,7 +212,7 @@ public enum WorldGen
                     builder.add(new OreRequirements(g.getBlock(), g.getMaxHeight(), g.getMinHeight(), g.getClusterCount(), fNoOfBlocks.getInt(g)));
                 } catch (IllegalAccessException e)
                 {
-                   Logger.severe(String.format("%s does not contain field 'numberOfBlocks'", g.getBlock().getUnlocalizedName()));
+                    Logger.severe(String.format("%s does not contain field 'numberOfBlocks'", g.getBlock().getUnlocalizedName()));
                 }
             }
         } catch (NoSuchFieldException e)
@@ -219,6 +221,43 @@ public enum WorldGen
         }
 
         return builder.build();
+    }
+
+    public static ImmutableList<Block> getMinecraftSeamOre()
+    {
+        if (!minecraftSeamOres.isPresent())
+        {
+            final Builder<Block> builder = new Builder<Block>();
+
+            for (final String ore : minecraftOres)
+            {
+
+                for (final Field f : Blocks.class.getFields())
+                {
+                    try
+                    {
+                        final String fName = f.getName();
+
+                        if (fName.contains("ore") && fName.contains(ore))
+                        {
+                            final Block oreBlock = (Block) f.get(null);
+
+                            if (oreBlock != null)
+                            {
+                                builder.add(oreBlock);
+                            }
+                        }
+                    } catch (IllegalAccessException e)
+                    {
+                        Logger.severe(e.toString());
+                    }
+                }
+            }
+
+            minecraftSeamOres = Optional.of(builder.build());
+        }
+
+        return minecraftSeamOres.get();
     }
 
     private static ImmutableList<OreRequirements> getChunkProviderOreRates(String genOptions)

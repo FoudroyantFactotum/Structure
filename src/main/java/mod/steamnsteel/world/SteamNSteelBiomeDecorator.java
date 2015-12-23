@@ -1,6 +1,7 @@
 package mod.steamnsteel.world;
 
 import mod.steamnsteel.utility.log.Logger;
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.biome.BiomeDecorator;
@@ -44,9 +45,9 @@ public class SteamNSteelBiomeDecorator extends BiomeDecorator
             {
                 final IBlockState oreBlock = (IBlockState) fOreBlock.get(generator);
 
-                for (final String sOre : WorldGen.minecraftOres)
+                for (final Block sOre : WorldGen.getMinecraftSeamOre())
                 {
-                    if (oreBlock.getBlock().getUnlocalizedName().toLowerCase().contains(sOre))
+                    if (sOre == oreBlock.getBlock())
                     {
                         return;
                     }
@@ -55,7 +56,7 @@ public class SteamNSteelBiomeDecorator extends BiomeDecorator
                 super.genStandardOre1(blockCount, generator, minHeight, maxHeight);
             } catch (IllegalAccessException e)
             {
-                Logger.severe(e.getLocalizedMessage());
+                Logger.severe(e.toString());
             }
         }
     }
