@@ -26,6 +26,7 @@ import mod.steamnsteel.block.machine.*;
 import mod.steamnsteel.block.resource.ore.*;
 import mod.steamnsteel.block.resource.structure.RemnantRuinPillarBlock;
 import mod.steamnsteel.block.structure.*;
+import mod.steamnsteel.client.codemodel.PipeModel;
 import mod.steamnsteel.structure.StructureBlockItem;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.*;
@@ -33,7 +34,10 @@ import mod.steamnsteel.tileentity.structure.*;
 import net.minecraft.block.Block;
 import net.minecraft.item.Item;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraftforge.client.event.ModelBakeEvent;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.event.FMLMissingMappingsEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -92,6 +96,8 @@ public final class ModBlock
 
     public static void registerTileEntities()
     {
+        registerCustomModels();
+
         GameRegistry.registerTileEntity(BallMillTE.class, getTEName(BallMillBlock.NAME));
         GameRegistry.registerTileEntity(BlastFurnaceTE.class, getTEName(BlastFurnaceBlock.NAME));
         GameRegistry.registerTileEntity(BoilerTE.class, getTEName(BoilerBlock.NAME));
@@ -106,7 +112,10 @@ public final class ModBlock
         GameRegistry.registerTileEntity(RemnantRuinPillarTE.class, getTEName(RemnantRuinPillarBlock.NAME));
     }
 
-    private static String getTEName(String name) { return "tile." + name;}
+    private static String getTEName(String name)
+    {
+        return "tile." + name;
+    }
 
     public static void init()
     {
@@ -190,8 +199,23 @@ public final class ModBlock
         if (missingMapping.type == GameRegistry.Type.BLOCK)
         {
             missingMapping.remap(block);
-        } else {
+        } else
+        {
             missingMapping.remap(Item.getItemFromBlock(block));
+        }
+    }
+
+    public static void registerCustomModels()
+    {
+        MinecraftForge.EVENT_BUS.register(new CustomModelHandle());
+    }
+
+    private static class CustomModelHandle
+    {
+        @SubscribeEvent
+        public void onModelLoad(ModelBakeEvent event)
+        {
+            new PipeModel().loadModel(event);
         }
     }
 }

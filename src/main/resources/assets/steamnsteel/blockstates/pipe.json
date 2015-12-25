@@ -2,8 +2,9 @@
   "forge_marker": 1,
   "defaults": {
     "transform": "forge:default-block",
-    "model": "steamnsteel:SSPipes.obj"
-    /*"flip-v": "true"*/
+    "custom": {
+      "flip-v": true
+    }
   },
   "variants": {
     "normal": [{
@@ -22,6 +23,104 @@
           "scale": 1.1
         }
       }
-    }]
+    }],
+    "pipe": {
+      "nu": {
+        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "rotation": {"y":180},
+        "translation": [-0.5, 0, -0.5]
+        }
+      },
+      "eu": {
+        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "rotation": {"y":90},
+        "translation": [0.5, 0, -0.5]
+        }
+      },
+      "su": {
+        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "translation": [0.5, 0, 0.5]
+        }
+      },
+      "uw": {
+        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "rotation": {"y":270},
+        "translation": [-0.5, 0, 0.5]
+        }
+      },
+      "dn": {
+        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "rotation": {"x":180},
+        "translation": [0.5, 0, -0.5]
+        }
+      },
+      "de": {
+        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "rotation": [{"x":90},{"z":270}],
+        "translation": [0, -0.5, -0.5]
+        }
+      },
+      "ds": {
+        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "rotation": {"x":90},
+        "translation": [0.5, -0.5, 0]
+        }
+      },
+      "dw": {
+        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "rotation": [{"y":90}, {"x":180}],
+        "translation": [-0.5, 0, -0.5]
+        }
+      },
+      "en": {
+        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "rotation": [{"z":90}, {"x":180}],
+        "translation": [0, 0.5, -0.5]
+        }
+      },
+      "es": {
+        "model": "steamnsteel:SSPipesBendSE.obj","transform": {
+        "rotation": [{"z":90}, {"x":90}],
+        "translation": [0.5, 0.5, 0.0]
+        }
+      },
+      "sw": {
+        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "rotation": {"z":90},
+        "translation": [0.0, 0.5, 0.5]
+        }
+      },
+      "nw": {
+        "model": "steamnsteel:SSPipesBendNW.obj","transform": {
+        "rotation": [{"z":90},{"x":270}],
+        "translation": [-0.5, 0.5, 0.0]
+        }
+      },
+      "du": {
+        "model": "steamnsteel:SSPipesStraight.obj","transform": {
+        "translation": [0.5, 0.0, 0.5]
+        }
+      },
+      "ns": {
+        "model": "steamnsteel:SSPipesStraight.obj","transform": {
+        "rotation": [{"x": 90 },{"y":90}],
+        "translation": [0.5, 0.5, 0.0]
+        }
+      },
+      "ew": {
+        "model": "steamnsteel:SSPipesStraight.obj","transform": {
+        "rotation": {"z": 90},
+        "translation": [0.0, 0.5, 0.5]
+        }
+      }
+    },
+    "endacap": {
+      "true": {},
+      "false": {}
+    },
+    "endbcap": {
+      "true": {},
+      "false": {}
+    }
   }
 }
