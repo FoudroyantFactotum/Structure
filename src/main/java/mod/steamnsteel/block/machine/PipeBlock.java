@@ -189,7 +189,7 @@ public class PipeBlock extends SteamNSteelBlock
         NU(UP, NORTH), EU(UP, EAST), SU(UP, SOUTH), UW(WEST, UP), //up->horizontal
         DN(NORTH, DOWN), DE(EAST, DOWN), DS(SOUTH, DOWN), DW(WEST, DOWN), //down->horizontal
         EN(NORTH, EAST), ES(SOUTH, EAST), SW(WEST, SOUTH), NW(WEST, NORTH), //horizontal->horizontal
-        DU(DOWN, UP), NS(NORTH, SOUTH), EW (WEST, EAST);     //straight
+        DU(DOWN, UP), NS(NORTH, SOUTH), EW(WEST, EAST);     //straight
 
         private EnumFacing enda;
         private EnumFacing endb;
@@ -205,12 +205,12 @@ public class PipeBlock extends SteamNSteelBlock
             final char ca = Character.toUpperCase(a.getName().charAt(0));
             final char cb = Character.toUpperCase(b.getName().charAt(0));
 
-            return valueOf(ca < cb? ""+ca+cb: ""+cb+ca);
+            return valueOf(ca < cb ? "" + ca + cb : "" + cb + ca);
         }
 
         public EnumFacing getEndA()
         {
-           return enda;
+            return enda;
         }
 
         public EnumFacing getEndB()

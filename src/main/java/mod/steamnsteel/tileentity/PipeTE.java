@@ -243,6 +243,8 @@ public class PipeTE extends BasePlumbingTE implements ITileEntityWithParts
                 }
             }
         }
+
+        worldObj.markBlockForUpdate(pos);
     }
 
     /**
