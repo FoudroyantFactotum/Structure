@@ -2,6 +2,7 @@
   "forge_marker": 1,
   "defaults": {
     "transform": "forge:default-block",
+    "model": "steamnsteel:SSPipes.obj",
     "custom": {
       "flip-v": true
     }
@@ -12,13 +13,17 @@
     "inventory": [{
       "transform": {
         "thirdperson": {
-          "translation": [0, 0.0, -0.15],
+          "translation": [-0.1, 0, 0],
           "rotation": [{"y": 180}, {"x": 125 }],
           "scale": 0.50
         },
-        "firstperson": {"rotation": {"y": 180 }, "scale": 0.66},
+        "firstperson": {
+          "translation": [-0.2, 0.02, -0.2],
+          "rotation": {"y": 180 },
+          "scale": 0.9
+        },
         "gui": {
-          "translation": [-0.55, -0.2, 0.0],
+          "translation": [-0.55, -0.24, 0.0],
           "rotation": {"y": 180 },
           "scale": 1.1
         }

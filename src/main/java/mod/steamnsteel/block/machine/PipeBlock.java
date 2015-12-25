@@ -102,6 +102,11 @@ public class PipeBlock extends SteamNSteelBlock
         return new PipeTE();
     }
 
+    public boolean isFullCube()
+    {
+        return false;
+    }
+
     @Override
     public boolean isOpaqueCube()
     {

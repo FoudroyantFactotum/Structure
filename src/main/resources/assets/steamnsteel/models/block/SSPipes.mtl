@@ -1,5 +1,13 @@
-# 3ds Max Wavefront OBJ Exporter v0.97b - (c)2007 guruware
-# File Created: 30.10.2015 01:18:11
+# Blender MTL File: 'None'
+# Material Count: 1
 
 newmtl Pipes
+Ns 96.078431
+Ka 1.000000 1.000000 1.000000
+Kd 0.640000 0.640000 0.640000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.000000
+d 1.000000
+illum 2
 map_Ka steamnsteel:models/SSPipes
