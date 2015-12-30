@@ -204,10 +204,12 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     public boolean addDestroyEffects(World world, BlockPos pos, EffectRenderer effectRenderer)
     {
         final float scaleVec = 0.05f;
-        final SteamNSteelStructureTE te = (SteamNSteelStructureTE) world.getTileEntity(pos);
+        final TileEntity ute = world.getTileEntity(pos);
 
-        if (te != null)
+        if (ute instanceof SteamNSteelStructureTE)
         {
+            final SteamNSteelStructureTE te = (SteamNSteelStructureTE) ute;
+
             for (MutableBlockPos local : getPattern().getStructureItr())
             {
                 //outward Vector

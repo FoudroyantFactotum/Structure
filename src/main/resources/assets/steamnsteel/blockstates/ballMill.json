@@ -2,9 +2,9 @@
   "forge_marker": 1,
   "defaults": {
     "transform": "forge:default-block",
-    "model": "steamnsteel:ballMill.obj",
+    "model": "steamnsteel:SSBallMill.OGEX",
     "textures": {
-      "ballMill": "steamnsteel:models/ballMill"
+      "#//D/The Forge/Minecraft/SteamNSteel/Models/SSBallMill": "steamnsteel:models/SSBallMill"
     },
     "custom": {
       "flip-v": true
@@ -33,46 +33,47 @@
       }
     }],
     "facing=north,mirror=false": {
-      "model": "steamnsteel:ballMill.obj", "transform": {
+      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
+        "rotation": {"y": 90},
         "translation": [1.5, 1, 1]
     }},
     "facing=east,mirror=false": {
-      "model": "steamnsteel:ballMill.obj", "transform": {
+      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
         "rotation": {"y": 270 },
         "translation": [-1, 1, 1.5]
     }},
     "facing=south,mirror=false": {
-      "model": "steamnsteel:ballMill.obj", "transform": {
+      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
           "rotation": {"y": 180 },
         "translation": [-1.5, 1, -1]
     }},
     "facing=west,mirror=false": {
-      "model": "steamnsteel:ballMill.obj", "transform": {
+      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
         "rotation": {"y": 90 },
         "translation": [1, 1, -1.5]
     }},
     "facing=north,mirror=true": {
-      "model": "steamnsteel:ballMill.obj", "transform": {
+      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
         "scale": [-1,1,1],
         "translation": [-1.5, 1, 1]
       }
     },
     "facing=east,mirror=true": {
-      "model": "steamnsteel:ballMill.obj", "transform": {
+      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
         "scale": [-1,1,1],
         "rotation": {"y": 270 },
         "translation": [-1, 1, -1.5]
       }
     },
     "facing=south,mirror=true": {
-      "model": "steamnsteel:ballMill.obj", "transform": {
+      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
         "scale": [-1,1,1],
         "rotation": {"y": 180 },
         "translation": [1.5, 1, -1]
       }
     },
     "facing=west,mirror=true": {
-      "model": "steamnsteel:ballMill.obj", "transform": {
+      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
         "scale": [-1,1,1],
         "rotation": {"y": 90 },
         "translation": [1, 1, 1.5]
