@@ -1,7 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "textures": { "all": "steamnsteel:blocks/blockPlotonium" },
+    "textures": { "all": "steamnsteel:blocks/BlockPlotoniumSheet" },
     "model": "cube_all",
     "transform": "forge:default-block"
   },

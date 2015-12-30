@@ -1,7 +1,7 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "textures": { "all": "steamnsteel:blocks/blockTin" },
+    "textures": { "all": "steamnsteel:blocks/BlockTinSheet" },
     "model": "cube_all",
     "transform": "forge:default-block"
   },
