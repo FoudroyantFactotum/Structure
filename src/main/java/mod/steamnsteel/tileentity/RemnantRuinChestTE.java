@@ -24,11 +24,11 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.gui.IUpdatePlayerListBox;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IChatComponent;
+import net.minecraft.util.ITickable;
 
-public class RemnantRuinChestTE extends SteamNSteelTE implements IInventory, IUpdatePlayerListBox
+public class RemnantRuinChestTE extends SteamNSteelTE implements IInventory, ITickable
 {
     private static final int INVENTORY_SIZE = 27;
     private final Inventory inventory = new Inventory(INVENTORY_SIZE);
@@ -68,9 +68,8 @@ public class RemnantRuinChestTE extends SteamNSteelTE implements IInventory, IUp
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slotIndex)
-    {
-        return inventory.getStackOnClosing(slotIndex);
+    public ItemStack removeStackFromSlot(int index) {
+        return inventory.getStackOnClosing(index);
     }
 
     @Override
@@ -80,7 +79,7 @@ public class RemnantRuinChestTE extends SteamNSteelTE implements IInventory, IUp
     }
 
     @Override
-    public String getCommandSenderName()
+    public String getName()
     {
         return containerName(RemnantRuinChestBlock.NAME);
     }
@@ -88,12 +87,12 @@ public class RemnantRuinChestTE extends SteamNSteelTE implements IInventory, IUp
     @Override
     public boolean hasCustomName()
     {
-        return getCommandSenderName().length() > 0;
+        return getName().length() > 0;
     }
 
     @Override
     public IChatComponent getDisplayName() {
-        return new ChatComponentText(getCommandSenderName());
+        return new ChatComponentText(getName());
     }
 
     @Override

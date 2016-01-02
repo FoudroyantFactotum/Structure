@@ -96,7 +96,7 @@ public class TheMod
     public void onFMLInitialization(FMLInitializationEvent event)
     {
         NetworkRegistry.INSTANCE.registerGuiHandler(instance, GuiHandler.INSTANCE);
-        FMLCommonHandler.instance().bus().register(ConfigurationHandler.INSTANCE);
+        MinecraftForge.EVENT_BUS.register(ConfigurationHandler.INSTANCE);
 
         Recipes.init();
         WorldGen.init();
