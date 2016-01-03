@@ -146,7 +146,7 @@ public final class StructureRegistry
         }
 
         @Override
-        public int compareTo(Object o)
+        public int compareTo(ICommand iCommand)
         {
             return 0;
         }

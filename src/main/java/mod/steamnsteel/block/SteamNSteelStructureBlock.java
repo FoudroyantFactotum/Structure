@@ -16,11 +16,6 @@
 package mod.steamnsteel.block;
 
 import com.google.common.base.Objects;
-import mcp.mobius.waila.api.ITaggedList.ITipList;
-import mcp.mobius.waila.api.IWailaConfigHandler;
-import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaDataAccessorServer;
-import mcp.mobius.waila.api.IWailaDataProvider;
 import mod.steamnsteel.block.structure.StructureShapeBlock;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.structure.IStructure.IPatternHolder;
@@ -45,7 +40,6 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.BlockPos.MutableBlockPos;
@@ -65,7 +59,7 @@ import static mod.steamnsteel.structure.coordinates.TransformLAG.mutLocalToGloba
 import static net.minecraft.block.BlockDirectional.FACING;
 
 @Optional.Interface(modid = WailaProvider.WAILA, iface = "mcp.mobius.waila.api.IWailaDataProvider", striprefs = true)
-public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock implements IPatternHolder, IStructureAspects, IWailaDataProvider
+public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock implements IPatternHolder, IStructureAspects//, IWailaDataProvider
 {
     private int regHash = 0;
     private StructureDefinition structureDefinition = null;
@@ -455,7 +449,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     //        W a i l a   D a t a   P r o v i d e r
     //=======================================================
 
-    public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config)
+/*    public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config)
     {
         //no op
         return null;
@@ -483,7 +477,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     public NBTTagCompound getNBTData(TileEntity te, NBTTagCompound tag, IWailaDataAccessorServer accessor)
     {
         return null;
-    }
+    }*/
 
     //=======================================================
     //                     C l a s s

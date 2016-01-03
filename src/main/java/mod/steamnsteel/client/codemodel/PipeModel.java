@@ -1,20 +1,22 @@
 package mod.steamnsteel.client.codemodel;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
 import mod.steamnsteel.block.machine.PipeBlock;
 import mod.steamnsteel.block.machine.PipeBlock.PipeStates;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.utility.log.Logger;
-import net.minecraft.block.state.BlockState.StateImplementation;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.client.resources.model.ModelRotation;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.ModelBakeEvent;
-import net.minecraftforge.client.model.*;
+import net.minecraftforge.client.model.IModel;
+import net.minecraftforge.client.model.IModelState;
+import net.minecraftforge.client.model.MultiModel;
+import net.minecraftforge.client.model.TRSRTransformation;
 import net.minecraftforge.client.model.obj.OBJModel;
 import net.minecraftforge.client.model.obj.OBJModel.OBJBakedModel;
 import org.apache.commons.lang3.tuple.Pair;
@@ -47,10 +49,10 @@ public class PipeModel extends BaseCodeModel
     {
         if (fobjModel == null) return;
 
-        for (final StateImplementation si : (ImmutableList<StateImplementation>) ModBlock.pipe.getBlockState().getValidStates())
+        for (final IBlockState si : ModBlock.pipe.getBlockState().getValidStates())
         {
-            final boolean capA = (Boolean) si.getValue(PipeBlock.END_A_CAP);
-            final boolean capB = (Boolean) si.getValue(PipeBlock.END_B_CAP);
+            final boolean capA = si.getValue(PipeBlock.END_A_CAP);
+            final boolean capB = si.getValue(PipeBlock.END_B_CAP);
 
             if (capA || capB)
             {

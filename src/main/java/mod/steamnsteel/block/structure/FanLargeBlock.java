@@ -21,10 +21,9 @@ import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.client.model.opengex.OpenGEXAnimationFrameProperty;
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.structure.coordinates.BlockPosUtil;
-import mod.steamnsteel.tileentity.structure.FanLargeTE;
+import mod.steamnsteel.tileentity.structure.LargeFanTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import mod.steamnsteel.utility.log.Logger;
-import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockState;
@@ -101,7 +100,7 @@ public class FanLargeBlock extends SteamNSteelStructureBlock
     @Override
     public TileEntity createTileEntity(World world, IBlockState state)
     {
-        return new FanLargeTE(getPattern(), (EnumFacing)state.getValue(BlockDirectional.FACING), (Boolean)state.getValue(MIRROR));
+        return new LargeFanTE(getPattern(), state.getValue(FACING), state.getValue(MIRROR));
     }
 
     @Override
@@ -166,6 +165,5 @@ public class FanLargeBlock extends SteamNSteelStructureBlock
 
         return builder;
     }
-
 }
 

@@ -105,9 +105,9 @@ public final class StructureDefinitionBuilder
         final int ysz = states[0].length;
         final int zsz = states[0][0].length;
 
-        for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
+        for (final MutableBlockPos local : BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {
-            states[local.x][local.y][local.z] = getBlockState(local);
+            states[local.getX()][local.getY()][local.getZ()] = getBlockState(local);
         }
 
         //correct collision bounds.
@@ -137,12 +137,12 @@ public final class StructureDefinitionBuilder
      */
     private IBlockState getBlockState(MutableBlockPos local)
     {
-        final IBlockState block = states[local.x][local.y][local.z];
+        final IBlockState block = states[local.getX()][local.getY()][local.getZ()];
 
         if (block == null) return null;
         if (state == null) return block;
 
-        final String strBlockState = state[local.x][local.y][local.z];
+        final String strBlockState = state[local.getX()][local.getY()][local.getZ()];
 
         if (strBlockState == null) return block;
 
@@ -214,7 +214,7 @@ public final class StructureDefinitionBuilder
 
     /**
      * Define what each character represents within the block map
-     * @param representation char to unlocalized block name map
+     * @param representation char to unlocal.getZ()ed block name map
      * @exception NullPointerException thrown if block doesn't exist.
      */
     public void assignBlockDefinitions(ImmutableMap<Character, String> representation)
@@ -255,14 +255,14 @@ public final class StructureDefinitionBuilder
 
         for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {
-            final char c = layer[local.y][local.z].charAt(local.x);
+            final char c = layer[local.getY()][local.getZ()].charAt(local.getX());
 
             if (!repBlock.containsKey(c) && c != '-')
             {
                 throw new StructureDefinitionError("Map missing '" + c + "' @" + local);
             }
 
-            states[local.x][local.y][local.z] = c == '-' ? null : repBlock.get(c);
+            states[local.getX()][local.getY()][local.getZ()] = c == '-' ? null : repBlock.get(c);
         }
     }
 
@@ -286,7 +286,7 @@ public final class StructureDefinitionBuilder
 
         for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {
-            final char c = Character.toUpperCase(layer[local.y][local.z].charAt(local.x));
+            final char c = Character.toUpperCase(layer[local.getY()][local.getZ()].charAt(local.getX()));
 
             switch (c)
             {
@@ -294,9 +294,9 @@ public final class StructureDefinitionBuilder
                     if (masterPosition == null)
                     {
                         masterPosition = BlockPosUtil.of(
-                                local.x + shift.getX(),
-                                local.y + shift.getY(),
-                                local.z + shift.getZ()
+                                local.getX() + shift.getX(),
+                                local.getY() + shift.getY(),
+                                local.getZ() + shift.getZ()
                         );
                     } else
                     {
@@ -306,7 +306,7 @@ public final class StructureDefinitionBuilder
                 case ' ':
                 case '-':
                     sbLayout.set(
-                            local.x + local.z * xsz + local.y *zsz*xsz,
+                            local.getX() + local.getZ() * xsz + local.getY() *zsz*xsz,
                             c != ' ');
                     break;
                 default:
@@ -353,14 +353,14 @@ public final class StructureDefinitionBuilder
 
         for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {
-            final char c = layer[local.y][local.z].charAt(local.x);
+            final char c = layer[local.getY()][local.getZ()].charAt(local.getX());
 
             if (!repState.containsKey(c) && c != ' ')
             {
                 throw new StructureDefinitionError("Map missing '" + c + "' @" + local);
             }
 
-            state[local.x][local.y][local.z] = repState.get(c);
+            state[local.getX()][local.getY()][local.getZ()] = repState.get(c);
         }
     }
 

@@ -228,11 +228,11 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slotIndex)
+    public ItemStack removeStackFromSlot(int slotIndex)
     {
         if (hasOriginTE())
         {
-            return getOriginTE().getStackInSlotOnClosing(slotIndex);
+            return getOriginTE().removeStackFromSlot(slotIndex);
         }
 
         return null;
@@ -259,7 +259,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
     }
 
     @Override
-    public String getCommandSenderName()
+    public String getName()
     {
         return null;
     }

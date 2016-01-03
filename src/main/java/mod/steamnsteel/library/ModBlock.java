@@ -108,7 +108,7 @@ public final class ModBlock
         GameRegistry.registerTileEntity(CupolaTE.class, getTEName(CupolaBlock.NAME));
         GameRegistry.registerTileEntity(StructureShapeTE.class, getTEName(StructureShapeBlock.NAME));
         GameRegistry.registerTileEntity(RemnantRuinChestTE.class, getTEName(RemnantRuinChestBlock.NAME));
-        GameRegistry.registerTileEntity(FanLargeTE.class, getTEName(FanLargeBlock.NAME));
+        GameRegistry.registerTileEntity(LargeFanTE.class, getTEName(FanLargeBlock.NAME));
         GameRegistry.registerTileEntity(PipeTE.class, getTEName(PipeBlock.NAME));
         GameRegistry.registerTileEntity(PipeValveTE.class, getTEName(PipeValveBlock.NAME));
         GameRegistry.registerTileEntity(PipeRedstoneValveTE.class, getTEName(PipeRedstoneValveBlock.NAME));

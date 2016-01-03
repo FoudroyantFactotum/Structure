@@ -37,6 +37,7 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static mod.steamnsteel.structure.coordinates.BlockPosUtil.*;
 
 /**
  * This class is used as a utility class holding onto the function implementations that involve a basic transform.
@@ -140,7 +141,7 @@ public final class TransformLAG
         final int rx = rotationMatrix[rotIndex][0][0] * lx + rotationMatrix[rotIndex][0][1] * lz;
         final int rz = rotationMatrix[rotIndex][1][0] * lx + rotationMatrix[rotIndex][1][1] * lz;
 
-        return BlockPosUtil.of(
+        return of(
                 gx + rx,
                 gy + ly,
                 gz + rz
@@ -156,16 +157,18 @@ public final class TransformLAG
 
         if (ismirrored)
         {
-            local.x *= -1;
-            if (strucSize.getX() % 2 == 0) ++local.x;
+            mutSetX(local, local.getX() * -1);
+            if (strucSize.getX() % 2 == 0) mutSetX(local, 1 + local.getX());
         }
 
-        final int rx = rotationMatrix[rotIndex][0][0] * local.x + rotationMatrix[rotIndex][0][1] * local.z;
-        final int rz = rotationMatrix[rotIndex][1][0] * local.x + rotationMatrix[rotIndex][1][1] * local.z;
+        final int rx = rotationMatrix[rotIndex][0][0] * local.getX() + rotationMatrix[rotIndex][0][1] * local.getZ();
+        final int rz = rotationMatrix[rotIndex][1][0] * local.getX() + rotationMatrix[rotIndex][1][1] * local.getZ();
 
-        local.x = global.getX() + rx;
-        local.y += global.getY();
-        local.z = global.getZ() + rz;
+        local.set(
+                global.getX() + rx,
+                global.getY() + local.getY(),
+                global.getZ() + rz
+        );
     }
 
     public static int localToGlobalDirection(int ld, EnumFacing o, boolean mirror)

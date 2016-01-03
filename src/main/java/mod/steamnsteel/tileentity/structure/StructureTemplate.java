@@ -47,7 +47,7 @@ public abstract class StructureTemplate extends SteamNSteelStructureTE
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slotIndex)
+    public ItemStack removeStackFromSlot(int slotIndex)
     {
         return null;
     }
@@ -59,7 +59,7 @@ public abstract class StructureTemplate extends SteamNSteelStructureTE
     }
 
     @Override
-    public String getCommandSenderName()
+    public String getName()
     {
         return null;
     }

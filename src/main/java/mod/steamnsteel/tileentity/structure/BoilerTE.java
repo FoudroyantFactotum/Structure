@@ -89,7 +89,7 @@ public class BoilerTE extends SteamNSteelStructureTE
     }
 
     @Override
-    public ItemStack getStackInSlotOnClosing(int slotIndex)
+    public ItemStack removeStackFromSlot(int slotIndex)
     {
         return inventory.getStackOnClosing(slotIndex);
     }
@@ -101,7 +101,7 @@ public class BoilerTE extends SteamNSteelStructureTE
     }
 
     @Override
-    public String getCommandSenderName()
+    public String getName()
     {
         return null;
     }

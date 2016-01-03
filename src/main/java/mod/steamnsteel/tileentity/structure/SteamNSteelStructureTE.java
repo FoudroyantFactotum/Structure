@@ -27,7 +27,6 @@ import mod.steamnsteel.structure.net.StructurePacket;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.structure.registry.StructureRegistry;
 import mod.steamnsteel.tileentity.SteamNSteelTE;
-import mod.steamnsteel.utility.log.Logger;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -44,9 +43,7 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import static mod.steamnsteel.structure.coordinates.TransformLAG.flagEnumFacing;
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobal;
-import static mod.steamnsteel.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
+import static mod.steamnsteel.structure.coordinates.TransformLAG.*;
 
 public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IStructureTE, IStructureSidedInventory, IStructureFluidHandler, IStructurePipe
 {
@@ -56,8 +53,8 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     private BlockPos local = BlockPos.ORIGIN;
     private int definitionHash = -1;
 
-    protected EnumFacing orientation;
-    protected boolean mirror;
+    protected EnumFacing orientation = EnumFacing.NORTH;
+    protected boolean mirror = false;
 
     private Optional<AxisAlignedBB> renderBounds = Optional.absent();
 
@@ -291,23 +288,14 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
     {
         super.readFromNBT(nbt);
 
-        try
-        {
-            final int blockInfo = nbt.getInteger(BLOCK_INFO);
+        final int blockInfo = nbt.getInteger(BLOCK_INFO);
 
-            definitionHash = nbt.getInteger(BLOCK_PATTERN_NAME);
+        definitionHash = nbt.getInteger(BLOCK_PATTERN_NAME);
 
-            orientation = EnumFacing.VALUES[blockInfo >> BlockPosUtil.BLOCKPOS_BITLEN & 0x7];
-            mirror = (blockInfo >> BlockPosUtil.BLOCKPOS_BITLEN & StructurePacket.flagMirrored) != 0;
+        orientation = EnumFacing.VALUES[blockInfo >> BlockPosUtil.BLOCKPOS_BITLEN & 0x7];
+        mirror = (blockInfo >> BlockPosUtil.BLOCKPOS_BITLEN & StructurePacket.flagMirrored) != 0;
 
-            transformDirectionsOnLoad(getMasterBlockInstance().getPattern());
-        } catch (Exception e)
-        {
-            Logger.severe("" + e);
-
-            orientation = EnumFacing.NORTH;
-            mirror = false;
-        }
+        transformDirectionsOnLoad(getMasterBlockInstance().getPattern());
     }
 
     @Override

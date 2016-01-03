@@ -1,16 +1,6 @@
 package mod.steamnsteel.waila.structure;
 
-import mcp.mobius.waila.api.ITaggedList.ITipList;
-import mcp.mobius.waila.api.IWailaConfigHandler;
-import mcp.mobius.waila.api.IWailaDataAccessor;
-import mcp.mobius.waila.api.IWailaDataAccessorServer;
-import mcp.mobius.waila.api.IWailaDataProvider;
-import mod.steamnsteel.tileentity.structure.StructureShapeTE;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-
-public class WailaStructureShapeBlock implements IWailaDataProvider
+/*public class WailaStructureShapeBlock implements IWailaDataProvider
 {
     @Override
     public ItemStack getWailaStack(IWailaDataAccessor accessor, IWailaConfigHandler config)
@@ -87,4 +77,4 @@ public class WailaStructureShapeBlock implements IWailaDataProvider
     {
         return tag;
     }
-}
+}*/

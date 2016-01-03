@@ -10,6 +10,7 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.model.IBakedModel;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import org.lwjgl.opengl.GL11;
 
 public class StructureTESR extends TileEntitySpecialRenderer
 {
@@ -33,16 +34,14 @@ public class StructureTESR extends TileEntitySpecialRenderer
         GlStateManager.disableCull();
         GlStateManager.shadeModel(Minecraft.isAmbientOcclusionEnabled()? 7425 : 7424);
 
-        worldRenderer.startDrawingQuads();
-        worldRenderer.setVertexFormat(DefaultVertexFormats.BLOCK);
+        worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 
         worldRenderer.setTranslation(x - pos.getX(), y - pos.getY(), z - pos.getZ());
-        worldRenderer.setColorOpaque_F(1.0F, 1.0F, 1.0F);
+        worldRenderer.color(255, 255, 255, 255);
 
         blockRenderer.getBlockModelRenderer().renderModelStandard(te.getWorld(), model, te.getBlockType(), pos, worldRenderer, true);
 
         worldRenderer.setTranslation(0.0D, 0.0D, 0.0D);
-
         tessellator.draw();
         RenderHelper.enableStandardItemLighting();
     }

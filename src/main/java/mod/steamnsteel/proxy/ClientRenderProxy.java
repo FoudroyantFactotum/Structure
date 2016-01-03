@@ -25,7 +25,7 @@ import mod.steamnsteel.library.ModItem;
 import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
-import mod.steamnsteel.tileentity.structure.FanLargeTE;
+import mod.steamnsteel.tileentity.structure.LargeFanTE;
 import net.minecraft.block.Block;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.item.Item;
@@ -172,7 +172,7 @@ public class ClientRenderProxy extends RenderProxy
     {
         final StructureTESR STESR = new StructureTESR();
 
-        ClientRegistry.bindTileEntitySpecialRenderer(FanLargeTE.class, new LargeFanTESR());
+        ClientRegistry.bindTileEntitySpecialRenderer(LargeFanTE.class, new LargeFanTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(BoilerTE.class, STESR);
         ClientRegistry.bindTileEntitySpecialRenderer(BallMillTE.class, STESR);
         ClientRegistry.bindTileEntitySpecialRenderer(BlastFurnaceTE.class, STESR);

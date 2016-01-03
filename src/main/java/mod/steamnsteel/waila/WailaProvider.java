@@ -1,25 +1,16 @@
 package mod.steamnsteel.waila;
 
-import mcp.mobius.waila.api.IWailaDataProvider;
-import mcp.mobius.waila.api.IWailaRegistrar;
-import mod.steamnsteel.block.SteamNSteelStructureBlock;
-import mod.steamnsteel.block.structure.StructureShapeBlock;
-import mod.steamnsteel.waila.structure.WailaStructureBlock;
-import mod.steamnsteel.waila.structure.WailaStructureShapeBlock;
-import net.minecraftforge.fml.common.Optional;
-import net.minecraftforge.fml.common.event.FMLInterModComms;
-
 public final class WailaProvider
 {
     public static final String WAILA = "Waila";
 
     public static void init()
     {
-        FMLInterModComms.sendMessage(WAILA, "register", WailaProvider.class.getCanonicalName() + ".callbackRegister");
+        //FMLInterModComms.sendMessage(WAILA, "register", WailaProvider.class.getCanonicalName() + ".callbackRegister");
     }
 
 
-    @Optional.Method(modid = WAILA)
+    /*@Optional.Method(modid = WAILA)
     public static void callbackRegister(IWailaRegistrar registrar)
     {
         final IWailaDataProvider structureShapeBlock = new WailaStructureShapeBlock();
@@ -33,5 +24,5 @@ public final class WailaProvider
         registrar.registerHeadProvider(structureBlock, SteamNSteelStructureBlock.class);
         registrar.registerBodyProvider(structureBlock, SteamNSteelStructureBlock.class);
         registrar.registerTailProvider(structureBlock, SteamNSteelStructureBlock.class);
-    }
+    }*/
 }
