@@ -60,7 +60,7 @@
         }
       },
       "de": {
-        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "model": "steamnsteel:SSPipesBendNW.obj","transform": {
         "rotation": [{"x":90},{"z":270}],
         "translation": [0, -0.5, -0.5]
         }
@@ -78,19 +78,19 @@
         }
       },
       "en": {
-        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "model": "steamnsteel:SSPipesBendNW.obj","transform": {
         "rotation": [{"z":90}, {"x":180}],
         "translation": [0, 0.5, -0.5]
         }
       },
       "es": {
-        "model": "steamnsteel:SSPipesBendSE.obj","transform": {
+        "model": "steamnsteel:SSPipesBendNW.obj","transform": {
         "rotation": [{"z":90}, {"x":90}],
         "translation": [0.5, 0.5, 0.0]
         }
       },
       "sw": {
-        "model": "steamnsteel:SSPipesBendNE.obj","transform": {
+        "model": "steamnsteel:SSPipesBendNW.obj","transform": {
         "rotation": {"z":90},
         "translation": [0.0, 0.5, 0.5]
         }
@@ -103,7 +103,8 @@
       },
       "du": {
         "model": "steamnsteel:SSPipesStraight.obj","transform": {
-        "translation": [0.5, 0.0, 0.5]
+        "translation": [0.5, 0.0, -0.5],
+        "rotation": {"y":90}
         }
       },
       "ns": {

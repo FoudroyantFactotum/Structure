@@ -47,12 +47,17 @@ public final class BlockPosUtil
         pos.set(pos.getX(), pos.getY(), z);
     }
 
+    public static MutableBlockPos newMutBlockPos(BlockPos pos)
+    {
+        return new MutableBlockPos().set(pos.getX(), pos.getY(), pos.getZ());
+    }
+
     public static MutableBlockPos mutOffset(MutableBlockPos pos, EnumFacing facing)
     {
         return pos.set(
-                facing.getFrontOffsetX(),
-                facing.getFrontOffsetY(),
-                facing.getFrontOffsetZ()
+                facing.getFrontOffsetX() + pos.getX(),
+                facing.getFrontOffsetY() + pos.getY(),
+                facing.getFrontOffsetZ() + pos.getZ()
         );
     }
 }

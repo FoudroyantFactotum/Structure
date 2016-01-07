@@ -17,13 +17,17 @@ package mod.steamnsteel.structure.coordinates;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
-import mod.steamnsteel.structure.registry.MetaCorrecter.IStructurePatternStateCorrecter;
-import mod.steamnsteel.structure.registry.MetaCorrecter.StairsMinecraftRotation;
+import mod.steamnsteel.library.ModBlock;
+import mod.steamnsteel.structure.IStructure.IPartBlockState;
+import mod.steamnsteel.structure.registry.StateCorrecter.IStructurePatternStateCorrecter;
+import mod.steamnsteel.structure.registry.StateCorrecter.PipeRotation;
+import mod.steamnsteel.structure.registry.StateCorrecter.StairsMinecraftRotation;
 import mod.steamnsteel.structure.registry.StateMatcher.IStateMatcher;
 import mod.steamnsteel.structure.registry.StateMatcher.StairMatcher;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
 import net.minecraft.block.Block;
+import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.AxisAlignedBB;
@@ -37,7 +41,8 @@ import java.util.List;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.lang.Math.max;
 import static java.lang.Math.min;
-import static mod.steamnsteel.structure.coordinates.BlockPosUtil.*;
+import static mod.steamnsteel.structure.coordinates.BlockPosUtil.mutSetX;
+import static mod.steamnsteel.structure.coordinates.BlockPosUtil.of;
 
 /**
  * This class is used as a utility class holding onto the function implementations that involve a basic transform.
@@ -74,6 +79,8 @@ public final class TransformLAG
             builderS.put(Block.getBlockFromItem(itemSk.getItem()), stairRotation);
             builderM.put(Block.getBlockFromItem(itemSk.getItem()), stairMatcher);
         }
+
+        builderS.put(ModBlock.pipe, new PipeRotation());
 
         for (final String s: minecraftStairs)
         {
@@ -234,7 +241,7 @@ public final class TransformLAG
     }
 
     //state matcher. FIXME Prob doesn't belong here.
-    public static boolean doBlockStatesMatch(IBlockState b1, IBlockState b2)
+    public static boolean doBlockStatesMatch(IPartBlockState pb, IBlockState b1, IBlockState b2)
     {
         if (STATE_MATCHER.containsKey(b1.getBlock()))
         {
@@ -242,6 +249,14 @@ public final class TransformLAG
         }
         else
         {
+            for (IProperty key : pb.getDefinitive().keySet())
+            {
+                if (b1.getValue(key).compareTo(b2.getValue(key)) != 0)
+                {
+                    return false;
+                }
+            }
+
             //complete check against all properties
             /*
             final ImmutableMap<String, IProperty> b2Props = b2.getProperties();

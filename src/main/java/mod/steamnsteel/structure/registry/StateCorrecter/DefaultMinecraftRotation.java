@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.structure.registry.MetaCorrecter;
+package mod.steamnsteel.structure.registry.StateCorrecter;
 
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
@@ -26,7 +26,7 @@ public class DefaultMinecraftRotation implements IStructurePatternStateCorrecter
     @Override
     public IBlockState alterBlockState(IBlockState state, EnumFacing orientation, boolean mirror)
     {
-        final EnumFacing facing = (EnumFacing) state.getValue(BlockDirectional.FACING);
+        final EnumFacing facing = state.getValue(BlockDirectional.FACING);
 
         return state.withProperty(BlockDirectional.FACING, localToGlobal(facing, orientation, mirror));
     }

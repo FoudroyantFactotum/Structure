@@ -110,7 +110,7 @@ public abstract class SteamNSteelStructureTE extends SteamNSteelTE implements IS
 
             if (state != null && state.getBlock() instanceof SteamNSteelStructureBlock)
             {
-                final IBlockState block = sb.getPattern().getBlock(local);
+                final IBlockState block = sb.getPattern().getBlock(local).getBlockState();
 
                 return block == null ?
                         Blocks.air.getDefaultState() :

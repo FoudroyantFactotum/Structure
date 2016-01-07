@@ -17,17 +17,16 @@ package mod.steamnsteel.structure;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import mod.steamnsteel.structure.IStructure.IPartBlockState;
 import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.structure.registry.StructureDefinition;
 import net.minecraft.block.Block;
-import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.BlockPos.MutableBlockPos;
 
 import java.util.BitSet;
-import java.util.Collection;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -39,20 +38,20 @@ public final class StructureDefinitionBuilder
     private BlockPos masterPosition;
     private BlockPos toolFormPosition;
 
-    private IBlockState[][][] states;
+    private IPartBlockState[][][] states;
     private float[][] collisionBoxes;
 
     public StructureDefinition build()
     {
-        if(states == null)
+        if(conBlocks == null)
         {
             throw new StructureDefinitionError("Missing block states");
         }
 
         //blocks jagged map test
-        for (final IBlockState[][] b: states)
+        for (final IBlockState[][] b: conBlocks)
         {
-            if (b.length != states[0].length)
+            if (b.length != conBlocks[0].length)
             {
                 throw new StructureDefinitionError("Construction map jagged");
             }
@@ -86,9 +85,9 @@ public final class StructureDefinitionBuilder
             }
 
             if (!(
-                    states.length == state.length &&
-                            states[0].length == state[0].length &&
-                            states[0][0].length == state[0][0].length
+                    conBlocks.length == state.length &&
+                            conBlocks[0].length == state[0].length &&
+                            conBlocks[0][0].length == state[0][0].length
             ))
                 throw new StructureDefinitionError("block/state sizing mismatch");
         }
@@ -101,9 +100,11 @@ public final class StructureDefinitionBuilder
         //-------------------------------------------------------
         //Correct data and align it to the inner data structures.
         //-------------------------------------------------------
-        final int xsz = states.length;
-        final int ysz = states[0].length;
-        final int zsz = states[0][0].length;
+        final int xsz = conBlocks.length;
+        final int ysz = conBlocks[0].length;
+        final int zsz = conBlocks[0][0].length;
+
+        states = new IPartBlockState[xsz][ysz][zsz];
 
         for (final MutableBlockPos local : BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {
@@ -135,89 +136,29 @@ public final class StructureDefinitionBuilder
      * @param local local coords of the block within the map
      * @return block state
      */
-    private IBlockState getBlockState(MutableBlockPos local)
+    private IPartBlockState getBlockState(MutableBlockPos local)
     {
-        final IBlockState block = states[local.getX()][local.getY()][local.getZ()];
+        final IBlockState block = conBlocks[local.getX()][local.getY()][local.getZ()];
 
-        if (block == null) return null;
-        if (state == null) return block;
+        if (block == null) return PartBlockState.of();
+        if (state == null) return PartBlockState.of(block);
 
-        final String strBlockState = state[local.getX()][local.getY()][local.getZ()];
+        final String blockState = state[local.getX()][local.getY()][local.getZ()];
 
-        if (strBlockState == null) return block;
+        if (blockState == null) return PartBlockState.of(block);
 
-        IBlockState finalBlockState = block;
-
-        for (final String singleFullState : strBlockState.split(","))
-        {
-            if (!singleFullState.contains(":"))
-            {
-                throw new StructureDefinitionError("Missing property divider @" + local);
-            }
-
-            final String propName = singleFullState.split(":")[0];
-            final String propVal  = singleFullState.split(":")[1];
-            final Collection<IProperty> defaultProp = block.getPropertyNames();
-
-            boolean hasFoundProp = false;
-
-            for (final IProperty prop: defaultProp)
-            {
-                if (prop.getName().equalsIgnoreCase(propName))
-                {
-                    boolean hasFoundVal = false;
-
-                    for (final Comparable val : (Collection<Comparable>) prop.getAllowedValues())
-                    {
-                        if (val.toString().equalsIgnoreCase(propVal))
-                        {
-                            finalBlockState = finalBlockState.withProperty(prop, val);
-
-                            hasFoundVal = true;
-                            break;
-                        }
-                    }
-
-                    if (!hasFoundVal)
-                    {
-                        throw new StructureDefinitionError(
-                                "Property value missing: '" + prop.getName() +
-                                        "' value missing: '" + propVal +
-                                        "' in '" + prop.getAllowedValues() +
-                                        "' on '" + block.getBlock().getUnlocalizedName() +
-                                        "' with property: '" + block.getPropertyNames() +
-                                        "' @" + local
-                        );
-                    }
-
-                    hasFoundProp = true;
-                    break;
-                }
-            }
-
-            if (!hasFoundProp)
-            {
-                throw new StructureDefinitionError(
-                        "Missing property: '" + propName +
-                        "' value: '" + propVal +
-                        "' on block: '" + block.getBlock().getUnlocalizedName() +
-                        "' with property: '" + block.getPropertyNames() +
-                        "' @" + local
-                );
-            }
-        }
-
-        return finalBlockState;
+        return PartBlockState.of(block, blockState);
     }
 
-    private ImmutableMap<Character, IBlockState> repBlock = ImmutableMap.of();
+    private ImmutableMap<Character, IBlockState> conDef = ImmutableMap.of();
+    private IBlockState[][][] conBlocks;
 
     /**
      * Define what each character represents within the block map
      * @param representation char to unlocal.getZ()ed block name map
      * @exception NullPointerException thrown if block doesn't exist.
      */
-    public void assignBlockDefinitions(ImmutableMap<Character, String> representation)
+    public void assignConstructionDef(ImmutableMap<Character, String> representation)
     {
         Builder<Character, IBlockState> builder = ImmutableMap.builder();
 
@@ -226,7 +167,7 @@ public final class StructureDefinitionBuilder
             final String blockName = representation.get(c);
             final Block block = Block.getBlockFromName(blockName);
 
-            checkNotNull(block, "assignBlockDefinitions.Block does not exist " + blockName);
+            checkNotNull(block, "assignConstructionDef.Block does not exist " + blockName);
 
             builder.put(c, block.getDefaultState());
         }
@@ -234,7 +175,7 @@ public final class StructureDefinitionBuilder
         //default
         builder.put(' ', Blocks.air.getDefaultState());
 
-        repBlock = builder.build();
+        conDef = builder.build();
     }
 
     /**
@@ -251,18 +192,18 @@ public final class StructureDefinitionBuilder
         final int ysz = layer.length;
         final int zsz = layer[0].length;
 
-        states = new IBlockState[xsz][ysz][zsz];
+        conBlocks = new IBlockState[xsz][ysz][zsz];
 
-        for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
+        for (final MutableBlockPos local : BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {
             final char c = layer[local.getY()][local.getZ()].charAt(local.getX());
 
-            if (!repBlock.containsKey(c) && c != '-')
+            if (!conDef.containsKey(c) && c != '-')
             {
                 throw new StructureDefinitionError("Map missing '" + c + "' @" + local);
             }
 
-            states[local.getX()][local.getY()][local.getZ()] = c == '-' ? null : repBlock.get(c);
+            conBlocks[local.getX()][local.getY()][local.getZ()] = c == '-' ? null : conDef.get(c);
         }
     }
 
@@ -284,7 +225,7 @@ public final class StructureDefinitionBuilder
         sbLayoutSize = BlockPosUtil.of(xsz, ysz, zsz);
         sbLayout = new BitSet(xsz * ysz * zsz);
 
-        for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
+        for (final MutableBlockPos local : BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {
             final char c = Character.toUpperCase(layer[local.getY()][local.getZ()].charAt(local.getX()));
 
@@ -330,7 +271,7 @@ public final class StructureDefinitionBuilder
      * @param representation char to "equivelent json" state map
      * @exception NullPointerException thrown if block doesn't exist.
      */
-    public void assignStateDefinitions(ImmutableMap<Character, String> representation)
+    public void assignConstructionStateDef(ImmutableMap<Character, String> representation)
     {
         repState = representation;
     }
@@ -343,7 +284,7 @@ public final class StructureDefinitionBuilder
      * @param layer the layout of the states.
      * @exception NullPointerException the layout is missing a map
      */
-    public void assignConstructionStates(String[]... layer)
+    public void assignConstructionStateBlocks(String[]... layer)
     {
         final int xsz = layer[0][0].length();
         final int ysz = layer.length;
@@ -351,7 +292,7 @@ public final class StructureDefinitionBuilder
 
         state = new String[xsz][ysz][zsz];
 
-        for (final MutableBlockPos local : (Iterable<MutableBlockPos>) BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
+        for (final MutableBlockPos local : BlockPos.getAllInBoxMutable(BlockPos.ORIGIN, new BlockPos(xsz-1, ysz-1, zsz-1)))
         {
             final char c = layer[local.getY()][local.getZ()].charAt(local.getX());
 

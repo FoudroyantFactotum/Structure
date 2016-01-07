@@ -78,7 +78,7 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock
     {
         final StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
 
-        builder.assignBlockDefinitions(ImmutableMap.of(
+        builder.assignConstructionDef(ImmutableMap.of(
                 'b', "steamnsteel:blockBrass",
                 'T', "minecraft:stone_stairs",
                 'l', "minecraft:lava",
@@ -117,8 +117,8 @@ public class BlastFurnaceBlock extends SteamNSteelStructureBlock
         stateList.put('Q', "facing:north,half:top,shape:outer_right");
         stateList.put('R', "facing:west,half:top,shape:straight");
 
-        builder.assignStateDefinitions(stateList.build());
-        builder.assignConstructionStates(
+        builder.assignConstructionStateDef(stateList.build());
+        builder.assignConstructionStateBlocks(
                 new String[]{
                         "   ",
                         "L R",

@@ -69,7 +69,7 @@ public class BoilerBlock extends SteamNSteelStructureBlock
     {
         StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
 
-        builder.assignBlockDefinitions(ImmutableMap.of(
+        builder.assignConstructionDef(ImmutableMap.of(
                 'p', "steamnsteel:blockPlotonium",
                 's', "steamnsteel:blockSteel",
                 'g', "minecraft:glass_pane",

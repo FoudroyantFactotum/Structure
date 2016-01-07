@@ -16,9 +16,9 @@
 package mod.steamnsteel.structure.registry;
 
 import com.google.common.base.Objects;
+import mod.steamnsteel.structure.IStructure.IPartBlockState;
 import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.structure.coordinates.StructureIterable;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.BlockPos.MutableBlockPos;
 import net.minecraft.util.EnumFacing;
@@ -68,7 +68,7 @@ public class StructureDefinition
     private BlockPos masterPosition;
     private BlockPos toolFormPosition;
 
-    private IBlockState[][][] blocks;
+    private IPartBlockState[][][] blocks;
     private float[][] collisionBoxes;
 
     private StructureDefinition()
@@ -81,7 +81,7 @@ public class StructureDefinition
                                BlockPos masterPosition,
                                BlockPos toolFormPosition,
 
-                               IBlockState[][][] blocks,
+                               IPartBlockState[][][] blocks,
                                float[][] collisionBoxes)
     {
         this.sbLayout = sbLayout;
@@ -113,8 +113,8 @@ public class StructureDefinition
                 sbLayout.get(x + y * sbLayoutSize.getX() * sbLayoutSize.getZ() + z * sbLayoutSize.getX());
     }
 
-    public IBlockState getBlock(BlockPos loc) { return getBlock(loc.getX(), loc.getY(), loc.getZ()); }
-    public IBlockState getBlock(int x, int y, int z)
+    public IPartBlockState getBlock(BlockPos loc) { return getBlock(loc.getX(), loc.getY(), loc.getZ()); }
+    public IPartBlockState getBlock(int x, int y, int z)
     {
         x += masterPosition.getX();
         y += masterPosition.getY();

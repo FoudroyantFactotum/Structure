@@ -42,7 +42,7 @@ public class PipeBlock extends SteamNSteelBlock
 {
     public static final String NAME = "pipe";
 
-    public static final PropertyEnum PIPE_STATE = PropertyEnum.create("pipe", PipeStates.class);
+    public static final PropertyEnum<PipeStates> PIPE_STATE = PropertyEnum.create("pipe", PipeStates.class);
     public static final PropertyBool END_A_CAP = PropertyBool.create("endacap");
     public static final PropertyBool END_B_CAP = PropertyBool.create("endbcap");
 
@@ -223,6 +223,21 @@ public class PipeBlock extends SteamNSteelBlock
             return endb;
         }
 
+        public PipeStates rotateClockwise()
+        {
+            final EnumFacing tea = enda != UP || enda != DOWN ? enda.rotateY() : enda;
+            final EnumFacing teb = endb != UP || endb != DOWN ? endb.rotateY() : endb;
+
+            return getMatchingState(tea, teb);
+        }
+
+        public PipeStates rotateAnticlockwise()
+        {
+            final EnumFacing tea = enda != UP || enda != DOWN ? enda.rotateYCCW() : enda;
+            final EnumFacing teb = endb != UP || endb != DOWN ? endb.rotateYCCW() : endb;
+
+            return getMatchingState(tea, teb);
+        }
 
         public String getName()
         {

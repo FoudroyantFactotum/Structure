@@ -22,11 +22,9 @@ import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
-import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -70,7 +68,7 @@ public class BallMillBlock extends SteamNSteelStructureBlock
     @Override
     public TileEntity createTileEntity(World world, IBlockState state)
     {
-        return new BallMillTE(getPattern(), (EnumFacing)state.getValue(BlockDirectional.FACING), (Boolean)state.getValue(MIRROR));
+        return new BallMillTE(getPattern(), getOrientation(state), getMirror(state));
     }
 
     @Override
@@ -78,19 +76,34 @@ public class BallMillBlock extends SteamNSteelStructureBlock
     {
         final StructureDefinitionBuilder builder = new StructureDefinitionBuilder();
 
-        builder.assignBlockDefinitions(ImmutableMap.of(
+        builder.assignConstructionDef(ImmutableMap.of(
                 'b', "steamnsteel:blockBrass",
-                'S', "steamnsteel:blockSteel"
+                'S', "steamnsteel:blockSteel",
+                'p', "steamnsteel:pipe"
         ));
 
         builder.assignConstructionBlocks(
                 new String[]{
-                        "S S S",
-                        "    -"
+                        "SSSSS",
+                        "  b -"
                 },
                 new String[]{
                         "     ",
-                        "  b  "
+                        "  b p"
+                }
+        );
+
+        builder.assignConstructionStateDef(ImmutableMap.of(
+                'p', "pipe:ew,endacap:true"
+        ));
+        builder.assignConstructionStateBlocks(
+                new String[]{
+                        "     ",
+                        "     "
+                },
+                new String[]{
+                        "     ",
+                        "    p"
                 }
         );
 

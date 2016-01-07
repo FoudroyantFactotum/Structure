@@ -18,7 +18,7 @@ public abstract class BasePlumbingTE extends SteamNSteelTE implements IPipeTileE
     {
         Logger.info("%s - Notifying Block Change - %s", worldObj.isRemote ? "client" : "server", toString());
         markDirty();
-        worldObj.notifyNeighborsOfStateChange(getPos(), getBlockType());
+        //worldObj.notifyNeighborsOfStateChange(getPos(), getBlockType());
         worldObj.markBlockForUpdate(getPos());
     }
 

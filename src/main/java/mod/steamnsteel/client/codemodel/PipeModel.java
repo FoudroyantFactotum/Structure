@@ -2,6 +2,7 @@ package mod.steamnsteel.client.codemodel;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableMap.Builder;
+import com.google.common.collect.ImmutableSet;
 import mod.steamnsteel.block.machine.PipeBlock;
 import mod.steamnsteel.block.machine.PipeBlock.PipeStates;
 import mod.steamnsteel.library.ModBlock;
@@ -24,11 +25,14 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.vecmath.Vector3f;
 import java.lang.reflect.Field;
 
+import static mod.steamnsteel.block.machine.PipeBlock.PipeStates.*;
+
 /*
 * Generates the pipe caps on the models. Saves having to copy and paste a ton of json
 */
 public class PipeModel extends BaseCodeModel
 {
+    private final ImmutableSet<PipeStates> capFlip = ImmutableSet.copyOf(new PipeStates[]{DS, DE, SW});
     private static final ImmutableMap<String, String> flipData = ImmutableMap.of("flip-v", String.valueOf(true));
     private Field fobjModel = null;
 
@@ -56,9 +60,9 @@ public class PipeModel extends BaseCodeModel
 
             if (capA || capB)
             {
-                final Builder builder = new Builder<String, Pair<IModel, IModelState>>();
+                final Builder<String, Pair<IModel, IModelState>> builder = new Builder<>();
                 final ModelResourceLocation mrl = sdm.getModelResourceLocation(si);
-                final PipeStates pipeState = (PipeStates) si.getValue(PipeBlock.PIPE_STATE);
+                final PipeStates pipeState = si.getValue(PipeBlock.PIPE_STATE);
 
                 final IModel modelCap = procsessModel(loadModel(event.modelLoader, new ResourceLocation("steamnsteel", "block/SSPipesCap.obj")), flipData);
                 final OBJBakedModel bakedModel = (OBJBakedModel) event.modelRegistry.getObject(mrl);
@@ -69,13 +73,13 @@ public class PipeModel extends BaseCodeModel
                     model = (IModel) fobjModel.get(bakedModel);
                 } catch (IllegalAccessException e) {}
 
-                if (capA) builder.put("capa", Pair.of(modelCap, getTransformForCap(pipeState.getEndA())));
-                if (capB) builder.put("capb", Pair.of(modelCap, getTransformForCap(pipeState.getEndB())));
+                if (capA) builder.put("capa", Pair.of(modelCap, getTransformForCap(getCorrrectCapA(pipeState))));
+                if (capB) builder.put("capb", Pair.of(modelCap, getTransformForCap(getCorrrectCapB(pipeState))));
 
 
                 event.modelRegistry.putObject(mrl,
                         new MultiModel(mrl, model, bakedModel.getState(), builder.build())
-                                .bake(bakedModel.getState(), DefaultVertexFormats.BLOCK, textureGetter)
+                                .bake(bakedModel.getState(), DefaultVertexFormats.ITEM, textureGetter)
                 );
             }
         }
@@ -91,7 +95,21 @@ public class PipeModel extends BaseCodeModel
         return model;
     }
 
-    private TRSRTransformation getTransformForCap(EnumFacing e)
+    private EnumFacing getCorrrectCapA(PipeStates states)
+    {
+        return capFlip.contains(states) ?
+                states.getEndB() :
+                states.getEndA();
+    }
+
+    private EnumFacing getCorrrectCapB(PipeStates states)
+    {
+        return capFlip.contains(states) ?
+                states.getEndA() :
+                states.getEndB();
+    }
+
+    private IModelState getTransformForCap(EnumFacing e)
     {
         final float sz = 0.185f;
         switch (e)

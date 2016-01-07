@@ -1,4 +1,4 @@
-package mod.steamnsteel.structure.registry.MetaCorrecter;
+package mod.steamnsteel.structure.registry.StateCorrecter;
 
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.BlockStairs.EnumShape;
@@ -22,8 +22,8 @@ public class StairsMinecraftRotation implements IStructurePatternStateCorrecter
     @Override
     public IBlockState alterBlockState(IBlockState state, EnumFacing orientation, boolean mirror)
     {
-        final EnumFacing facing = (EnumFacing) state.getValue(BlockDirectional.FACING);
-        final EnumShape shape = (EnumShape) state.getValue(SHAPE);
+        final EnumFacing facing = state.getValue(BlockDirectional.FACING);
+        final EnumShape shape = state.getValue(SHAPE);
 
         return state
                 .withProperty(BlockDirectional.FACING, localToGlobal(facing, orientation, mirror))

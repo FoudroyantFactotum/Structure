@@ -139,7 +139,7 @@ public final class StructureShapeTE extends SteamNSteelTE implements IStructureT
 
             if (state != null && state.getBlock() instanceof StructureShapeBlock)
             {
-                final IBlockState block = sb.getPattern().getBlock(local);
+                final IBlockState block = sb.getPattern().getBlock(local).getBlockState();
 
                 return block == null ?
                         Blocks.air.getDefaultState() :

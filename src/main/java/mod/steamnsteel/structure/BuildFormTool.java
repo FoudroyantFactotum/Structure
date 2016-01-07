@@ -18,6 +18,7 @@ package mod.steamnsteel.structure;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
 import mod.steamnsteel.item.tool.SSToolShovel;
 import mod.steamnsteel.library.Material;
+import mod.steamnsteel.structure.IStructure.IPartBlockState;
 import mod.steamnsteel.structure.net.StructurePacket;
 import mod.steamnsteel.structure.net.StructurePacketOption;
 import mod.steamnsteel.structure.registry.StructureDefinition;
@@ -169,8 +170,8 @@ public class BuildFormTool extends SSToolShovel
 
                     for (final MutableBlockPos local : sd.getStructureItr())
                     {
-                        final IBlockState b = sd.getBlock(local);
-                        final BlockPos tmp = new BlockPos(local);
+                        final IPartBlockState pb = sd.getBlock(local);
+                        final IBlockState b = pb.getBlockState();
 
                         //alter local coord var and changes it to world coord.
                         mutLocalToGlobal(local, origin, o, mirror, sd.getBlockBounds());
@@ -178,7 +179,7 @@ public class BuildFormTool extends SSToolShovel
                         final IBlockState ncwb = world.getBlockState(local);
                         final IBlockState wb = ncwb.getBlock().getActualState(ncwb, world, local);
 
-                        if (b != null && (b.getBlock() != wb.getBlock() || !doBlockStatesMatch(localToGlobal(b, o, mirror), wb)))
+                        if (b != null && (b.getBlock() != wb.getBlock() || !doBlockStatesMatch(pb, localToGlobal(b, o, mirror), wb)))
                         {
                             if (mirror == mirrorOrder[1]) //is last mirror
                             {

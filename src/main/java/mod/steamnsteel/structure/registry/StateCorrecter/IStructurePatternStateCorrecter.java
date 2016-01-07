@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package mod.steamnsteel.structure.registry.MetaCorrecter;
+package mod.steamnsteel.structure.registry.StateCorrecter;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;

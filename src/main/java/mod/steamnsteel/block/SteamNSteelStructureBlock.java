@@ -389,7 +389,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
         {
             if (getPattern().hasBlockAt(local))
             {
-                final IBlockState block = getPattern().getBlock(local);
+                final IBlockState block = getPattern().getBlock(local).getBlockState();
                 mutLocalToGlobal(local, origin, orientation, isMirrored, getPattern().getBlockBounds());
                 final IBlockState worldBlock = world.getBlockState(local);
 
@@ -414,18 +414,24 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
             {
                 if (!sd.hasBlockAt(local, d))
                 {
-                    final BlockPos blockCoord = bindLocalToGlobal(
-                            origin, BlockPosUtil.mutOffset(local, d),
-                            orientation, mirror, sd.getBlockBounds()
-                    );
+                    final IBlockState updatedBlock = sd.getBlock(local).getBlockState();
 
-                    if (sd.getBlock(local) == null)
+                    if (updatedBlock == null)
                     {
                         continue;
                     }
 
-                    world.notifyNeighborsOfStateChange(blockCoord, sd.getBlock(local).getBlock());
-                    BlockPosUtil.mutOffset(local, d.getOpposite());
+                    final MutableBlockPos mutLocal = BlockPosUtil.newMutBlockPos(local);
+                    BlockPosUtil.mutOffset(mutLocal, d);
+
+                    mutLocalToGlobal(
+                            mutLocal,
+                            origin,
+                            orientation, mirror,
+                            sd.getBlockBounds()
+                    );
+
+                    world.notifyNeighborsOfStateChange(mutLocal, updatedBlock.getBlock());
                 }
             }
         }
