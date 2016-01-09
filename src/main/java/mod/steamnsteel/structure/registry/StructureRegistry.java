@@ -23,14 +23,17 @@ import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
+import net.minecraftforge.fml.common.ProgressManager;
 
 import java.lang.reflect.Field;
 import java.util.*;
 
+import static net.minecraftforge.fml.common.ProgressManager.ProgressBar;
+
 public final class StructureRegistry
 {
+    private static ProgressBar blockBar = null;
     private static Map<Integer, SteamNSteelStructureBlock> structures = new HashMap<Integer, SteamNSteelStructureBlock>();
-
     private static List<SteamNSteelStructureBlock> registeredStructures = new LinkedList<SteamNSteelStructureBlock>();
 
     /***
@@ -49,6 +52,8 @@ public final class StructureRegistry
      */
     public static void loadRegisteredPatterns()
     {
+        blockBar = ProgressManager.push("Structure", registeredStructures.size());
+
         try
         {
             final Field structurePattern = SteamNSteelStructureBlock.class.getDeclaredField("structureDefinition");
@@ -57,8 +62,10 @@ public final class StructureRegistry
             final Field regHash = SteamNSteelStructureBlock.class.getDeclaredField("regHash");
             regHash.setAccessible(true);
 
-            for (SteamNSteelStructureBlock block : registeredStructures)
+            for (final SteamNSteelStructureBlock block : registeredStructures)
             {
+                blockBar.step(block.getLocalizedName());
+
                 try
                 {
                     structurePattern.set(block, block.getStructureBuild().build());
@@ -70,6 +77,9 @@ public final class StructureRegistry
                     throw new StructureDefinitionError(e.getMessage() + " on '" + block.getUnlocalizedName() + '\'');
                 }
             }
+
+            ProgressManager.pop(blockBar);
+            blockBar = null;
 
             Logger.info("Analytical Engine constructed " + structures.size() + " noteworthy contraptions");
 
