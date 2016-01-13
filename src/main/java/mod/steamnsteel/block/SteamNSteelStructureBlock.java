@@ -107,7 +107,7 @@ public abstract class SteamNSteelStructureBlock extends SteamNSteelMachineBlock 
     @Override
     public int getRenderType()
     {
-        return -1;
+        return 3;
     }
 
     @Override

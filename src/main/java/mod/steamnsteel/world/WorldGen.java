@@ -22,9 +22,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
-import net.minecraft.world.WorldType;
 import net.minecraft.world.chunk.IChunkProvider;
-import net.minecraft.world.gen.ChunkProviderSettings;
 import net.minecraft.world.gen.feature.WorldGenMinable;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.BiomeEvent;
@@ -45,14 +43,9 @@ public enum WorldGen
     INSTANCE;
 
     private static final List<OreGenerator> oreGens = Lists.newArrayList();
-    private static final List<OreGenerator> oreGenSeam = Lists.newArrayList();
-    private static final List<OreGenerator> oreGenAll = Lists.newArrayList();
     private static final List<StructureGenerator> structureGens = Lists.newArrayList();
     public static final SchematicLoader schematicLoader = new SchematicLoader();
 
-    public static final WorldType worldType = new SteamNSteelWorldType();
-
-    public static final String[] minecraftOres = {"iron", "coal", "gold", "diamond"};
     private static Optional<ImmutableList<Block>> minecraftSeamOres = Optional.absent();
 
     public static void init()
@@ -74,7 +67,7 @@ public enum WorldGen
         //For reference:
         //       ironConfiguration = new OreConfiguration(Blocks.Iron, 20, 8, 0, 64);
         final OreGenerator copperGen = new OreGenerator(ModBlock.oreCopper, 20, 6, 64);
-        oreGenSeam.add(copperGen);
+        oreGens.add(copperGen);
 
         final NiterOreGenerator niterGen = new NiterOreGenerator();
         oreGens.add(niterGen);
@@ -83,13 +76,10 @@ public enum WorldGen
         oreGens.add(sulfurGen);
 
         final OreGenerator tinGen = new OreGenerator(ModBlock.oreTin, 20, 3, 64);
-        oreGenSeam.add(tinGen);
+        oreGens.add(tinGen);
 
         final OreGenerator zincGen = new OreGenerator(ModBlock.oreZinc, 20, 6, 64);
-        oreGenSeam.add(zincGen);
-
-        oreGenAll.addAll(oreGens);
-        oreGenAll.addAll(oreGenSeam);
+        oreGens.add(zincGen);
 
         if (Settings.World.doRetroOreGen())
         {
@@ -118,7 +108,7 @@ public enum WorldGen
     @SubscribeEvent
     public void OnPostOreGenerated(OreGenEvent.Post event)
     {
-        for (final OreGenerator oreGen : event.world.getWorldType() == worldType ? oreGens : oreGenAll)
+        for (final OreGenerator oreGen : oreGens)
             if (TerrainGen.generateOre(event.world, event.rand, oreGen, event.pos, OreGenEvent.GenerateMinable.EventType.CUSTOM))
                 oreGen.generate(event.world, event.rand, event.pos);
     }
@@ -140,14 +130,13 @@ public enum WorldGen
         }
     }
 
-    @SubscribeEvent
     public void genSnSOres(PopulateChunkEvent.Post event)
     {
         //only generate ore every 3 chunks. So 3x3 chunks the ore will generate.(also called a swatch)
         //also checks if chunks exist on each side, and allows a seam across the board if it exists.
         final float overGen = 1.2f;
 
-        if (event.world.getWorldType() != worldType) return;
+        //if (event.world.getWorldType() != worldType) return;
         if (event.chunkX % 3 != 0 || event.chunkZ % 3 != 0) return;
 
         final Random randomGenerator = event.rand;
@@ -157,7 +146,7 @@ public enum WorldGen
 
         final Builder<OreRequirements> oreReq = new Builder<OreRequirements>();
 
-        oreReq.addAll(getChunkProviderOreRates(event.world.getWorldInfo().getGeneratorOptions()));
+        //oreReq.addAll(getChunkProviderOreRates(event.world.getWorldInfo().getGeneratorOptions()));
         oreReq.addAll(getSnsOreRates());
 
         for (final OreRequirements ore : oreReq.build())
@@ -205,7 +194,7 @@ public enum WorldGen
             final Field fNoOfBlocks = WorldGenMinable.class.getDeclaredField("numberOfBlocks");
             fNoOfBlocks.setAccessible(true);
 
-            for (final OreGenerator g : oreGenSeam)
+            for (final OreGenerator g : oreGens)
             {
                 try
                 {
@@ -223,7 +212,7 @@ public enum WorldGen
         return builder.build();
     }
 
-    public static ImmutableList<Block> getMinecraftSeamOre()
+    /*public static ImmutableList<Block> getMinecraftSeamOre()
     {
         if (!minecraftSeamOres.isPresent())
         {
@@ -258,9 +247,9 @@ public enum WorldGen
         }
 
         return minecraftSeamOres.get();
-    }
+    }*/
 
-    private static ImmutableList<OreRequirements> getChunkProviderOreRates(String genOptions)
+    /*private static ImmutableList<OreRequirements> getChunkProviderOreRates(String genOptions)
     {
         final ChunkProviderSettings.Factory cps = ChunkProviderSettings.Factory.jsonToFactory(genOptions == null ? "" : genOptions);
         final Builder<OreRequirements> builder = ImmutableList.builder();
@@ -304,7 +293,7 @@ public enum WorldGen
         }
 
         return builder.build();
-    }
+    }*/
 
     private static int genGenericSnSOreSeam(IBlockState ore, Set<BlockPos> blocks, IChunkProvider provider, int orePerSwatch, int originChunkX, int originChunkZ, Random rnd)
     {

@@ -32,7 +32,7 @@ import static mod.steamnsteel.block.machine.PipeBlock.PipeStates.*;
 */
 public class PipeModel extends BaseCodeModel
 {
-    private final ImmutableSet<PipeStates> capFlip = ImmutableSet.copyOf(new PipeStates[]{DS, DE, SW});
+    private final ImmutableSet<PipeStates> capFlip = ImmutableSet.copyOf(new PipeStates[]{DS, DE, SW, DW, UW});
     private static final ImmutableMap<String, String> flipData = ImmutableMap.of("flip-v", String.valueOf(true));
     private Field fobjModel = null;
 

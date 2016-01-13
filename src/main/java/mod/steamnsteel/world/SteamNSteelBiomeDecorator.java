@@ -1,8 +1,6 @@
 package mod.steamnsteel.world;
 
 import mod.steamnsteel.utility.log.Logger;
-import net.minecraft.block.Block;
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.biome.BiomeDecorator;
 import net.minecraft.world.gen.feature.WorldGenMinable;
@@ -33,7 +31,7 @@ public class SteamNSteelBiomeDecorator extends BiomeDecorator
     {
         //don't gen ores that are being generated through alternative means e.g. ore seams
 
-        if (currentWorld.getWorldType() != WorldGen.worldType)
+        /*if (currentWorld.getWorldType() != WorldGen.worldType)
         {
             super.genStandardOre1(blockCount, generator, minHeight, maxHeight);
             return;
@@ -58,6 +56,6 @@ public class SteamNSteelBiomeDecorator extends BiomeDecorator
             {
                 Logger.severe(e.toString());
             }
-        }
+        }*/
     }
 }
