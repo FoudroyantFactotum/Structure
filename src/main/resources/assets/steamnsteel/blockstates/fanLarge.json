@@ -4,7 +4,6 @@
     "textures": {
       "#//D/The Forge/Minecraft/SteamNSteel/Models/SSFanLarge": "steamnsteel:models/SSFanLarge"
     },
-    "transform": "forge:default-block",
     "model": "steamnsteel:SSFanLarge.ogex"
   },
   "variants": {
@@ -24,19 +23,18 @@
           "scale": 0.39
         }
       }
-
     }],
     "facing": {
-        "north": { },
-        "south": { "transform": {
-          "rotation": {"y": 180 }
-        }},
-        "east": { "transform": {
-          "rotation": {"y": 270 }
-        }},
-        "west": { "transform": {
-          "rotation": {"y": 90 }
-        }}
+      "north": { "transform": {
+        "rotation": {"y": 90 }
+      }},
+      "east": { },
+      "south": { "transform": {
+        "rotation": {"y": 270 }
+      }},
+      "west": { "transform": {
+        "rotation": {"y": 180 }
+      }}
       },
     "mirror": {
       "false": { },

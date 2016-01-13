@@ -17,11 +17,17 @@
 package mod.steamnsteel.proxy;
 
 import mod.steamnsteel.TheMod;
+import mod.steamnsteel.block.resource.structure.RemnantRuinIronBarsBlock;
+import mod.steamnsteel.block.resource.structure.RemnantRuinIronBarsBlock.IronBarsTextures;
 import mod.steamnsteel.client.model.opengex.OpenGEXModelLoader;
+import mod.steamnsteel.client.model.pct.PCTModelLoader;
 import mod.steamnsteel.client.renderer.tileentity.StructureTESR;
 import mod.steamnsteel.client.renderer.tileentity.LargeFanTESR;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.library.ModItem;
+import mod.steamnsteel.texturing.wall.RemnantRuinFloorSideTexture;
+import mod.steamnsteel.texturing.wall.RemnantRuinWallTexture;
+import mod.steamnsteel.tileentity.LargeFanTE;
 import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
@@ -33,6 +39,7 @@ import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.client.model.ModelLoaderRegistry;
 import net.minecraftforge.client.model.b3d.B3DLoader;
 import net.minecraftforge.client.model.obj.OBJLoader;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 
 @SuppressWarnings({"MethodMayBeStatic", "WeakerAccess"})
@@ -44,12 +51,21 @@ public class ClientRenderProxy extends RenderProxy
         registerBlocksItemModels();
         registerItemRenderers();
 
+        registerConnectedTextures();
+
         registerEventHandlers();
 
         OpenGEXModelLoader.instance.addDomain(TheMod.MOD_ID);
         OBJLoader.instance.addDomain(TheMod.MOD_ID);
         B3DLoader.instance.addDomain(TheMod.MOD_ID);
         ModelLoaderRegistry.registerLoader(OpenGEXModelLoader.instance);
+        ModelLoaderRegistry.registerLoader(PCTModelLoader.instance);
+    }
+
+    private void registerConnectedTextures()
+    {
+        PCTModelLoader.instance.registerTexture("ruinWall", new RemnantRuinWallTexture());
+        PCTModelLoader.instance.registerTexture("ruinFloor", new RemnantRuinFloorSideTexture());
     }
 
     @Override
@@ -95,6 +111,23 @@ public class ClientRenderProxy extends RenderProxy
         registerBlockItemModel(ModBlock.boiler);
         registerBlockItemModel(ModBlock.ballMill);
         registerBlockItemModel(ModBlock.blastFurnace);
+
+        registerBlockItemModel(ModBlock.remnantRuinWall);
+        registerBlockItemModel(ModBlock.remnantRuinFloor);
+
+        registerIronBarsModel(ModBlock.remnantRuinIronBars);
+    }
+
+    private void registerIronBarsModel(Block block) {
+        final String resourceName = block.getUnlocalizedName().substring(5);
+        for (int i = 0; i < IronBarsTextures.VALUES.length; ++i)
+        {
+            ModelLoader.setCustomModelResourceLocation(
+                    Item.getItemFromBlock(block),
+                    i,
+                    new ModelResourceLocation(resourceName, "inventory,type=" + IronBarsTextures.VALUES[i].getName())
+            );
+        }
     }
 
     private void registerBlockItemModel(Block block) {
@@ -156,16 +189,6 @@ public class ClientRenderProxy extends RenderProxy
 
         //tmp
         registerItemModel(ModItem.buildToolForm);
-
-        //TODO: reenable these once I have them working
-        /*
-        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.pipe), new PipeItemRenderer());
-        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.pipeValve), new PipeValveItemRenderer());
-        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.pipeValveRedstone), new PipeRedstoneValveItemRenderer());
-        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.pipeJunction), new PipeJunctionItemRenderer());
-        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.remnantRuinChest), new PlotoniumChestItemRenderer());
-        MinecraftForgeClient.registerItemRenderer(Item.getItemFromBlock(ModBlock.remnantRuinPillar), new RemnantRuinPillarItemRenderer());
-        */
     }
 
     private void registerTESRs()
@@ -176,25 +199,11 @@ public class ClientRenderProxy extends RenderProxy
         ClientRegistry.bindTileEntitySpecialRenderer(BoilerTE.class, STESR);
         ClientRegistry.bindTileEntitySpecialRenderer(BallMillTE.class, STESR);
         ClientRegistry.bindTileEntitySpecialRenderer(BlastFurnaceTE.class, STESR);
-        /*
-        PipeBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
-        PipeValveBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
-        PipeRedstoneValveBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
-        PipeJunctionBlock.setRenderType(RenderingRegistry.getNextAvailableRenderId());
-
-        RenderingRegistry.registerBlockHandler(SteamNSteelPaneRenderer.INSTANCE);
-
-        ClientRegistry.bindTileEntitySpecialRenderer(PipeTE.class, new PipeTESR());
-        ClientRegistry.bindTileEntitySpecialRenderer(PipeValveTE.class, new PipeValveTESR());
-        ClientRegistry.bindTileEntitySpecialRenderer(PipeRedstoneValveTE.class, new PipeRedstoneValveTESR());
-        ClientRegistry.bindTileEntitySpecialRenderer(PipeJunctionTE.class, new PipeJunctionTESR());
-        ClientRegistry.bindTileEntitySpecialRenderer(RemnantRuinChestTE.class, new PlotoniumChestTESR());
-        ClientRegistry.bindTileEntitySpecialRenderer(RemnantRuinPillarTE.class, new RemnantRuinPillarTESR());
-        */
     }
 
     private void registerEventHandlers() {
         //FIXME: The Block Parts are not currently working.
         //MinecraftForge.EVENT_BUS.register(BlockHighlightEventListener.getInstance());
+        MinecraftForge.EVENT_BUS.register(PCTModelLoader.instance);
     }
 }
