@@ -11,8 +11,7 @@
     }
   },
   "variants": {
-    "normal": [{
-    }],
+    "normal": [{}],
     "inventory": [{
       "transform": {
         "thirdperson": {
@@ -32,51 +31,41 @@
         }
       }
     }],
-    "facing=north,mirror=false": {
-      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
-        "rotation": {"y": 90},
-        "translation": [1.5, 1, 1]
-    }},
-    "facing=east,mirror=false": {
-      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
-        "rotation": {"y": 270 },
-        "translation": [-1, 1, 1.5]
-    }},
-    "facing=south,mirror=false": {
-      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
-          "rotation": {"y": 180 },
-        "translation": [-1.5, 1, -1]
-    }},
-    "facing=west,mirror=false": {
-      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
+    "facing": {
+      "north": { "transform": {
         "rotation": {"y": 90 },
-        "translation": [1, 1, -1.5]
-    }},
-    "facing=north,mirror=true": {
-      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
-        "scale": [-1,1,1],
-        "translation": [-1.5, 1, 1]
-      }
-    },
-    "facing=east,mirror=true": {
-      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
-        "scale": [-1,1,1],
+        "translation": [1.5,1,0]
+      }},
+      "east": { "transform": {
+        "translation": [0,1,1.5]
+      }},
+      "south": { "transform": {
         "rotation": {"y": 270 },
-        "translation": [-1, 1, -1.5]
-      }
-    },
-    "facing=south,mirror=true": {
-      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
-        "scale": [-1,1,1],
+        "translation": [-1.5,1,0]
+      }},
+      "west": { "transform": {
         "rotation": {"y": 180 },
-        "translation": [1.5, 1, -1]
-      }
+        "translation": [0,1,-1.5]
+      }}
     },
-    "facing=west,mirror=true": {
-      "model": "steamnsteel:SSBallMill.OGEX", "transform": {
-        "scale": [-1,1,1],
-        "rotation": {"y": 90 },
-        "translation": [1, 1, 1.5]
+    "mirror": {
+      "false": { },
+      "true": { "transform": {"scale": [-1,1,1]}}
+    },
+    "render-dynamic": {
+      "false": {
+        "custom": {
+          "enabled-nodes": [
+            "SSBallMill_Machine"
+          ]
+        }
+      },
+      "true": {
+        "custom": {
+          "enabled-nodes": [
+            "SSBallMill_Barrel"
+          ]
+        }
       }
     }
   }

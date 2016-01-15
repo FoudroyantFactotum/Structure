@@ -18,16 +18,25 @@ package mod.steamnsteel.block.structure;
 
 import com.google.common.collect.ImmutableMap;
 import mod.steamnsteel.block.SteamNSteelStructureBlock;
+import mod.steamnsteel.client.model.opengex.OpenGEXAnimationFrameProperty;
 import mod.steamnsteel.structure.StructureDefinitionBuilder;
 import mod.steamnsteel.structure.coordinates.BlockPosUtil;
 import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.SteamNSteelStructureTE;
+import net.minecraft.block.properties.IProperty;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.world.World;
+import net.minecraftforge.common.property.ExtendedBlockState;
+import net.minecraftforge.common.property.IUnlistedProperty;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import static mod.steamnsteel.block.structure.FanLargeBlock.RENDER_DYNAMIC;
+import static net.minecraft.block.BlockDirectional.FACING;
 
 public class BallMillBlock extends SteamNSteelStructureBlock
 {
@@ -36,6 +45,19 @@ public class BallMillBlock extends SteamNSteelStructureBlock
     public BallMillBlock()
     {
         setUnlocalizedName(NAME);
+        setDefaultState(
+                this.blockState
+                        .getBaseState()
+                        .withProperty(FACING, EnumFacing.NORTH)
+                        .withProperty(MIRROR, false)
+                        .withProperty(RENDER_DYNAMIC, false)
+        );
+    }
+
+    @Override
+    protected BlockState createBlockState()
+    {
+        return new ExtendedBlockState(this, new IProperty[]{FACING, MIRROR, RENDER_DYNAMIC}, new IUnlistedProperty[]{OpenGEXAnimationFrameProperty.instance});
     }
 
     private static float rndRC()

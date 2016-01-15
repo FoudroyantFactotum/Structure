@@ -17,17 +17,16 @@
 package mod.steamnsteel.proxy;
 
 import mod.steamnsteel.TheMod;
-import mod.steamnsteel.block.resource.structure.RemnantRuinIronBarsBlock;
 import mod.steamnsteel.block.resource.structure.RemnantRuinIronBarsBlock.IronBarsTextures;
 import mod.steamnsteel.client.model.opengex.OpenGEXModelLoader;
 import mod.steamnsteel.client.model.pct.PCTModelLoader;
-import mod.steamnsteel.client.renderer.tileentity.StructureTESR;
 import mod.steamnsteel.client.renderer.tileentity.LargeFanTESR;
+import mod.steamnsteel.client.renderer.tileentity.OgexStructureTESR;
+import mod.steamnsteel.client.renderer.tileentity.StructureTESR;
 import mod.steamnsteel.library.ModBlock;
 import mod.steamnsteel.library.ModItem;
 import mod.steamnsteel.texturing.wall.RemnantRuinFloorSideTexture;
 import mod.steamnsteel.texturing.wall.RemnantRuinWallTexture;
-import mod.steamnsteel.tileentity.LargeFanTE;
 import mod.steamnsteel.tileentity.structure.BallMillTE;
 import mod.steamnsteel.tileentity.structure.BlastFurnaceTE;
 import mod.steamnsteel.tileentity.structure.BoilerTE;
@@ -197,7 +196,7 @@ public class ClientRenderProxy extends RenderProxy
 
         ClientRegistry.bindTileEntitySpecialRenderer(LargeFanTE.class, new LargeFanTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(BoilerTE.class, STESR);
-        ClientRegistry.bindTileEntitySpecialRenderer(BallMillTE.class, STESR);
+        ClientRegistry.bindTileEntitySpecialRenderer(BallMillTE.class, new OgexStructureTESR());
         ClientRegistry.bindTileEntitySpecialRenderer(BlastFurnaceTE.class, STESR);
     }
 
