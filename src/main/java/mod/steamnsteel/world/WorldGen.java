@@ -26,6 +26,7 @@ import mod.steamnsteel.world.ore.SulfurOreGenerator;
 import mod.steamnsteel.world.structure.RemnantRuinsGenerator;
 import mod.steamnsteel.world.structure.StructureChunkGenerator;
 import mod.steamnsteel.world.structure.StructureGenerator;
+import mod.steamnsteel.world.structure.listeners.VinesInterceptionEventListener;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.terraingen.OreGenEvent;
 import net.minecraftforge.event.terraingen.PopulateChunkEvent;
@@ -51,6 +52,8 @@ public enum WorldGen
         createOreGenerators();
         register();
         RetroGenHandler.register();
+
+        schematicLoader.addSetBlockEventListener(new VinesInterceptionEventListener());
     }
 
     private static void register() {

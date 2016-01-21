@@ -210,7 +210,7 @@ public class SchematicLoader
                             }
                         }
 
-                        if (event.blockState != null && c.setBlockState(worldCoord, event.blockState) != null)
+                        if (event.shouldSet() && event.blockState != null && c.setBlockState(worldCoord, event.blockState) != null)
                         {
                             world.markBlockForUpdate(new BlockPos(x, y, z));
                             final NBTTagCompound tileEntityData = schematic.getTileEntity(schematicCoord);
@@ -316,7 +316,10 @@ public class SchematicLoader
                                 }
                             }
 
-                            world.setBlockState(worldCoord, event.blockState, 2);
+                            if (event.shouldSet())
+                            {
+                                world.setBlockState(worldCoord, event.blockState, 2);
+                            }
                         }
                     }
                 }
@@ -573,6 +576,9 @@ public class SchematicLoader
             int metadata = this.metadata[index];
             final short blockId = this.blocks[index];
 
+            //return null for unmatched blocks.
+            if (blockId < 0) return null;
+
             Block block = BLOCK_REGISTRY.getObjectById(blockId);
             if (block == null)
             {
@@ -684,6 +690,7 @@ public class SchematicLoader
         public final BlockPos worldCoord;
         public final BlockPos schematicCoord;
         private IBlockState blockState;
+        private boolean allowSet = true;
 
         public PreSetBlockEvent(SchematicWorld schematic, World world, BlockPos worldCoord, BlockPos schematicCoord)
         {
@@ -692,6 +699,7 @@ public class SchematicLoader
             this.world = world;
             this.worldCoord = worldCoord;
             this.schematicCoord = schematicCoord;
+            this.allowSet = this.blockState != null;
         }
 
         public IBlockState getBlock()
@@ -702,6 +710,15 @@ public class SchematicLoader
         public void replaceBlock(IBlockState blockState)
         {
             this.blockState = blockState;
+        }
+
+        public void denySet()
+        {
+            allowSet = false;
+        }
+
+        public boolean shouldSet() {
+            return allowSet;
         }
     }
 
