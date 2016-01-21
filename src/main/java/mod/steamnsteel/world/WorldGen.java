@@ -18,6 +18,7 @@ import mod.steamnsteel.world.paintbrush.Line;
 import mod.steamnsteel.world.structure.RemnantRuinsGenerator;
 import mod.steamnsteel.world.structure.StructureChunkGenerator;
 import mod.steamnsteel.world.structure.StructureGenerator;
+import mod.steamnsteel.world.structure.listeners.VinesInterceptionEventListener;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
