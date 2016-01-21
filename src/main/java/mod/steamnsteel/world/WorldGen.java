@@ -53,6 +53,8 @@ public enum WorldGen
         createOreGenerators();
         register();
         RetroGenHandler.register();
+
+        schematicLoader.addSetBlockEventListener(new VinesInterceptionEventListener());
     }
 
     private static void register()
