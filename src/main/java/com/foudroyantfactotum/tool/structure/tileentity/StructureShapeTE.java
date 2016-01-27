@@ -47,7 +47,7 @@ import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.loc
 import static com.foudroyantfactotum.tool.structure.tileentity.StructureTE.*;
 import static net.minecraft.block.BlockDirectional.FACING;
 
-public final class StructureShapeTE extends TileEntity implements IStructureTE, ISidedInventory, IFluidHandler
+public class StructureShapeTE extends TileEntity implements IStructureTE, ISidedInventory, IFluidHandler
 {
     private BlockPos local = BlockPos.ORIGIN;
     private int definitionHash = -1;
