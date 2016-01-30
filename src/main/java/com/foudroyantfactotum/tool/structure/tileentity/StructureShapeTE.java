@@ -16,10 +16,10 @@
 package com.foudroyantfactotum.tool.structure.tileentity;
 
 import com.foudroyantfactotum.tool.structure.IStructure.IStructureTE;
+import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
 import com.foudroyantfactotum.tool.structure.block.StructureShapeBlock;
 import com.foudroyantfactotum.tool.structure.coordinates.BlockPosUtil;
-import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
@@ -42,7 +42,6 @@ import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fluids.IFluidHandler;
 
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.getMirror;
-import static com.foudroyantfactotum.tool.structure.block.StructureBlock.getOrientation;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobal;
 import static com.foudroyantfactotum.tool.structure.tileentity.StructureTE.*;
 import static net.minecraft.block.BlockDirectional.FACING;
@@ -143,7 +142,7 @@ public class StructureShapeTE extends TileEntity implements IStructureTE, ISided
                         Blocks.air.getDefaultState() :
                         localToGlobal(
                                 block,
-                                getOrientation(state),
+                                state.getValue(FACING),
                                 getMirror(state)
                         );
             }

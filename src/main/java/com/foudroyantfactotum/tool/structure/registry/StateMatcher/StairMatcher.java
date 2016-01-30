@@ -32,14 +32,14 @@ public class StairMatcher implements IStateMatcher
     @Override
     public boolean matchBlockState(IBlockState b1, IBlockState b2)
     {
-        final EnumFacing b1Facing = (EnumFacing) b1.getValue(BlockDirectional.FACING);
-        final EnumFacing b2Facing = (EnumFacing) b2.getValue(BlockDirectional.FACING);
+        final EnumFacing b1Facing = b1.getValue(BlockDirectional.FACING);
+        final EnumFacing b2Facing = b2.getValue(BlockDirectional.FACING);
 
-        final EnumHalf b1Half = (EnumHalf) b1.getValue(HALF);
-        final EnumHalf b2Half = (EnumHalf) b2.getValue(HALF);
+        final EnumHalf b1Half = b1.getValue(HALF);
+        final EnumHalf b2Half = b2.getValue(HALF);
 
-        final EnumShape b1Shape = (EnumShape) b1.getValue(SHAPE);
-        final EnumShape b2Shape = (EnumShape) b2.getValue(SHAPE);
+        final EnumShape b1Shape = b1.getValue(SHAPE);
+        final EnumShape b2Shape = b2.getValue(SHAPE);
 
         if (b1Half != b2Half)
         {

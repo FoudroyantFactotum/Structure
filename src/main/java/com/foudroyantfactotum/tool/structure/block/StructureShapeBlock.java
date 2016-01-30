@@ -15,13 +15,13 @@
  */
 package com.foudroyantfactotum.tool.structure.block;
 
+import com.foudroyantfactotum.tool.structure.IStructure.ICanMirror;
 import com.foudroyantfactotum.tool.structure.IStructure.IStructureTE;
 import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.tileentity.StructureShapeTE;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.Entity;
@@ -41,48 +41,63 @@ import static com.foudroyantfactotum.tool.structure.block.StructureBlock.*;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobalCollisionBoxes;
 import static net.minecraft.block.BlockDirectional.FACING;
 
-public class StructureShapeBlock extends Block implements ITileEntityProvider
+public abstract class StructureShapeBlock extends Block implements ITileEntityProvider, ICanMirror
 {
     public static boolean _DEBUG = false;
     public static final String NAME = "structureShape";
     public static final AxisAlignedBB EMPTY_BOUNDS = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
+    private final boolean canMirror;
 
-    public StructureShapeBlock()
+    public StructureShapeBlock(boolean canMirror)
     {
         super(Material.piston);
+        this.canMirror = canMirror;
         setStepSound(Block.soundTypePiston);
         setHardness(0.5f);
 
         setUnlocalizedName(NAME);
-        setDefaultState(this.blockState
-                .getBaseState()
-                .withProperty(FACING, EnumFacing.NORTH)
-                .withProperty(MIRROR, false)
-        );
-    }
 
-    @Override
-    protected BlockState createBlockState()
-    {
-        return new BlockState(this, FACING, MIRROR);
+        IBlockState state = this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH);
+
+        if (canMirror)
+        {
+            state = state.withProperty(MIRROR, false);
+        }
+
+        setDefaultState(state);
     }
 
     public IBlockState getStateFromMeta(int meta)
     {
         final EnumFacing facing = EnumFacing.getHorizontal(meta & 0x3);
-        final boolean mirror = (meta & 0x4) != 0;
 
-        return getDefaultState()
-                .withProperty(FACING, facing)
-                .withProperty(MIRROR, mirror);
+        IBlockState state = getDefaultState().withProperty(FACING, facing);
+
+        if (canMirror)
+        {
+            state = state.withProperty(MIRROR, (meta & 0x4) != 0);
+        }
+
+        return state;
     }
 
     public int getMetaFromState(IBlockState state)
     {
-        final EnumFacing facing = getOrientation(state);
+        final EnumFacing facing = state.getValue(FACING);
         final boolean mirror = getMirror(state);
 
-        return facing.getHorizontalIndex() | (mirror? 1<<2:0);
+        if (canMirror)
+        {
+            return facing.getHorizontalIndex() | (mirror ? 1 << 2 : 0);
+        } else {
+            return facing.getHorizontalIndex();
+        }
+    }
+
+    @Override
+    public boolean canMirror()
+    {
+        return canMirror;
     }
 
     @Override
@@ -159,7 +174,7 @@ public class StructureShapeBlock extends Block implements ITileEntityProvider
 
             localToGlobalCollisionBoxes(mloc.getX(), mloc.getY(), mloc.getZ(),
                     mask, list, sb.getPattern().getCollisionBoxes(),
-                    getOrientation(state), getMirror(state),
+                    state.getValue(FACING), getMirror(state),
                     sb.getPattern().getBlockBounds()
             );
         }
@@ -216,7 +231,7 @@ public class StructureShapeBlock extends Block implements ITileEntityProvider
         {
             sb.breakStructure(world,
                     te.getMasterBlockLocation(),
-                    getOrientation(state),
+                    state.getValue(FACING),
                     getMirror(state),
                     isPlayerCreative,
                     isPlayerSneaking
@@ -224,7 +239,7 @@ public class StructureShapeBlock extends Block implements ITileEntityProvider
             updateExternalNeighbours(world,
                     te.getMasterBlockLocation(),
                     sb.getPattern(),
-                    getOrientation(state),
+                    state.getValue(FACING),
                     getMirror(state),
                     false
             );

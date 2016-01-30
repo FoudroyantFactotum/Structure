@@ -27,7 +27,6 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.MathHelper;
 import net.minecraft.world.World;
 
-import static com.foudroyantfactotum.tool.structure.block.StructureBlock.MIRROR;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobal;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.mutLocalToGlobal;
 import static net.minecraft.block.BlockDirectional.FACING;
@@ -50,9 +49,14 @@ public class StructureBlockItem extends ItemBlock
         }
 
         final EnumFacing orientation = EnumFacing.getHorizontal(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5) & 3);
-        final boolean mirror = player.isSneaking();
+        final boolean mirror = block.canMirror() && player.isSneaking();
 
-        newState = newState.withProperty(FACING, orientation).withProperty(MIRROR, mirror);
+        newState = newState.withProperty(FACING, orientation);
+
+        if (block.canMirror())
+        {
+            newState = newState.withProperty(StructureBlock.MIRROR, mirror);
+        }
 
         //find master block location
         final BlockPos hSize = block.getPattern().getHalfBlockBounds();
@@ -85,6 +89,4 @@ public class StructureBlockItem extends ItemBlock
 
         return true;
     }
-
-
 }

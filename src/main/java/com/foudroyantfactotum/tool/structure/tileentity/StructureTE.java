@@ -18,11 +18,11 @@ package com.foudroyantfactotum.tool.structure.tileentity;
 import com.foudroyantfactotum.tool.structure.IStructure.IStructureFluidHandler;
 import com.foudroyantfactotum.tool.structure.IStructure.IStructureSidedInventory;
 import com.foudroyantfactotum.tool.structure.IStructure.IStructureTE;
+import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
 import com.foudroyantfactotum.tool.structure.coordinates.BlockPosUtil;
 import com.foudroyantfactotum.tool.structure.net.StructurePacket;
 import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
-import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
@@ -43,6 +43,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.*;
+import static net.minecraft.block.BlockDirectional.FACING;
 
 public abstract class StructureTE extends TileEntity implements IStructureTE, IStructureSidedInventory, IStructureFluidHandler
 {
@@ -115,7 +116,7 @@ public abstract class StructureTE extends TileEntity implements IStructureTE, IS
                         Blocks.air.getDefaultState() :
                         localToGlobal(
                                 block,
-                                StructureBlock.getOrientation(state),
+                                state.getValue(FACING),
                                 StructureBlock.getMirror(state)
                         );
             }
@@ -293,7 +294,7 @@ public abstract class StructureTE extends TileEntity implements IStructureTE, IS
             }
 
             final IBlockState state = getWorld().getBlockState(pos);
-            final EnumFacing orientation = StructureBlock.getOrientation(state);
+            final EnumFacing orientation = state.getValue(FACING);
             final boolean mirror = StructureBlock.getMirror(state);
 
             renderBounds = Optional.of(localToGlobalBoundingBox(pos, local, sb.getPattern(), orientation, mirror));

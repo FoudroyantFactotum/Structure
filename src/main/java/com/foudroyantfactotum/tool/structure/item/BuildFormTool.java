@@ -16,12 +16,12 @@
 package com.foudroyantfactotum.tool.structure.item;
 
 import com.foudroyantfactotum.tool.structure.IStructure.IPartBlockState;
+import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
 import com.foudroyantfactotum.tool.structure.net.ModNetwork;
 import com.foudroyantfactotum.tool.structure.net.StructurePacket;
 import com.foudroyantfactotum.tool.structure.net.StructurePacketOption;
 import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
-import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.utillity.Logger;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
@@ -108,9 +108,13 @@ public class BuildFormTool extends ItemAxe
 
         if (result != null)
         {
-            final IBlockState state = result.block.getDefaultState()
-                    .withProperty(BlockDirectional.FACING, result.orientation)
-                    .withProperty(MIRROR, result.mirror);
+            IBlockState state = result.block.getDefaultState()
+                    .withProperty(BlockDirectional.FACING, result.orientation);
+
+            if (result.block.canMirror())
+            {
+                state = state.withProperty(MIRROR, result.mirror);
+            }
 
 
             world.setBlockState(result.origin, state, 0x2);
@@ -145,7 +149,7 @@ public class BuildFormTool extends ItemAxe
             this.world = world;
             this.pos = pos;
             this.orientationOrder = orientationOrder;
-            this.mirrorOrder = mirrorOrder;
+            this.mirrorOrder = ssBlock.canMirror()? mirrorOrder : new boolean[]{false};
         }
 
         @Override
@@ -180,13 +184,18 @@ public class BuildFormTool extends ItemAxe
 
                         if (b != null && (b.getBlock() != wb.getBlock() || !doBlockStatesMatch(pb, localToGlobal(b, o, mirror), wb)))
                         {
-                            if (mirror == mirrorOrder[1]) //is last mirror
+                            if (mirrorOrder.length < 1) //is last mirror
                             {
                                 continue nextOrientation;
                             }
                             else
                             {
-                                continue nextMirror;
+                                if (mirror == mirrorOrder[1])
+                                {
+                                    continue nextOrientation;
+                                } else {
+                                    continue nextMirror;
+                                }
                             }
                         }
                     }
