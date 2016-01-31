@@ -148,7 +148,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     @Override
     public int getRenderType()
     {
-        return 3;
+        return 2;
     }
 
     @Override

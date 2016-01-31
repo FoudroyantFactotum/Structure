@@ -22,6 +22,7 @@ import com.foudroyantfactotum.tool.structure.tileentity.StructureShapeTE;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.state.BlockState;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.Entity;
@@ -65,6 +66,16 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
         }
 
         setDefaultState(state);
+    }
+
+    @Override
+    protected BlockState createBlockState()
+    {
+        if (canMirror)
+        {
+            return new BlockState(this, FACING, MIRROR);
+        }
+        return new BlockState(this, FACING);
     }
 
     public IBlockState getStateFromMeta(int meta)
