@@ -15,9 +15,9 @@
  */
 package com.foudroyantfactotum.tool.structure.net;
 
-import io.netty.buffer.ByteBuf;
-import com.foudroyantfactotum.tool.structure.block.StructureBlock;
 import com.foudroyantfactotum.tool.structure.StructureRegistry;
+import com.foudroyantfactotum.tool.structure.block.StructureBlock;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -105,9 +105,11 @@ public class StructurePacket implements IMessage
 
             if (msg.sc == StructurePacketOption.BUILD)
             {
-                final IBlockState state = block.getDefaultState()
-                        .withProperty(BlockDirectional.FACING, orientation)
-                        .withProperty(MIRROR, mirror);
+                 IBlockState state = block.getDefaultState()
+                        .withProperty(BlockDirectional.FACING, orientation);
+
+                if (block.canMirror())
+                    state = state.withProperty(StructureBlock.MIRROR, mirror);
 
                 world.setBlockState(msg.pos, state, 0x2);
                 block.formStructure(world, msg.pos, state, 0x2);

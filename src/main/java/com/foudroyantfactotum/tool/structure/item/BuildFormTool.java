@@ -22,11 +22,10 @@ import com.foudroyantfactotum.tool.structure.net.ModNetwork;
 import com.foudroyantfactotum.tool.structure.net.StructurePacket;
 import com.foudroyantfactotum.tool.structure.net.StructurePacketOption;
 import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
-import com.foudroyantfactotum.tool.structure.utillity.Logger;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemAxe;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.BlockPos.MutableBlockPos;
@@ -36,6 +35,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -43,25 +43,19 @@ import static com.foudroyantfactotum.tool.structure.block.StructureBlock.MIRROR;
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.updateExternalNeighbours;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.*;
 
-public class BuildFormTool extends ItemAxe
+public class BuildFormTool extends Item
 {
     private static final ExecutorService pool = Executors.newFixedThreadPool(5);
-    private static final EnumFacing[][] orientationPriority = {
+    protected static final EnumFacing[][] orientationPriority = {
             {EnumFacing.SOUTH, EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.WEST}, //south
             {EnumFacing.WEST, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.NORTH}, //west
             {EnumFacing.NORTH, EnumFacing.EAST, EnumFacing.SOUTH, EnumFacing.WEST}, //north
             {EnumFacing.EAST, EnumFacing.NORTH, EnumFacing.SOUTH, EnumFacing.WEST}, //east
     };
-    private static final boolean[][] mirrorPriority = {
+    protected static final boolean[][] mirrorPriority = {
             {false, true},
             {true, false},
     };
-
-    public BuildFormTool()
-    {
-        super(ToolMaterial.IRON);
-        setUnlocalizedName(getUnlocalizedName() + "_form");
-    }
 
     @Override
     public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
@@ -73,7 +67,15 @@ public class BuildFormTool extends ItemAxe
 
         final EnumFacing[] orientation = orientationPriority[MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5) & 3];
         final boolean[] mirror = mirrorPriority[player.isSneaking()?1:0];
-        final List<Future<SearchResult>> searchJobFuture = new ArrayList<Future<SearchResult>>(StructureRegistry.getStructureList().size());
+
+        doSearch(world, pos, orientation, mirror, StructureRegistry.getStructureList());
+
+        return true;
+    }
+
+    public void doSearch(World world, BlockPos pos, EnumFacing[] orientation, boolean[] mirror, Collection<StructureBlock> sd)
+    {
+        final List<Future<SearchResult>> searchJobFuture = new ArrayList<>(sd.size());
 
         //search currently ignores multiple matches and take the first match available.
         for (final StructureBlock sb : StructureRegistry.getStructureList())
@@ -94,13 +96,9 @@ public class BuildFormTool extends ItemAxe
                     res.cancel(true);
                 }
             }
-            catch (InterruptedException e)
+            catch (InterruptedException | ExecutionException e)
             {
-                Logger.info(e.getMessage());
-            }
-            catch (ExecutionException e)
-            {
-                Logger.info(e.getMessage());
+                e.printStackTrace();
             }
         }
 
@@ -127,8 +125,6 @@ public class BuildFormTool extends ItemAxe
                     new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), result.origin.getX(), result.origin.getY(), result.origin.getZ(), 30)
             );
         }
-
-        return true;
     }
 
     /**
@@ -184,7 +180,7 @@ public class BuildFormTool extends ItemAxe
 
                         if (b != null && (b.getBlock() != wb.getBlock() || !doBlockStatesMatch(pb, localToGlobal(b, o, mirror), wb)))
                         {
-                            if (mirrorOrder.length < 1) //is last mirror
+                            if (mirrorOrder.length <= 1) //is last mirror
                             {
                                 continue nextOrientation;
                             }
