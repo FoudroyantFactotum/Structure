@@ -18,7 +18,7 @@ package com.foudroyantfactotum.tool.structure.item;
 import com.foudroyantfactotum.tool.structure.IStructure.IPartBlockState;
 import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
-import com.foudroyantfactotum.tool.structure.net.ModNetwork;
+import com.foudroyantfactotum.tool.structure.net.StructureNetwork;
 import com.foudroyantfactotum.tool.structure.net.StructurePacket;
 import com.foudroyantfactotum.tool.structure.net.StructurePacketOption;
 import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
@@ -73,7 +73,7 @@ public class BuildFormTool extends Item
         return true;
     }
 
-    public void doSearch(World world, BlockPos pos, EnumFacing[] orientation, boolean[] mirror, Collection<StructureBlock> sd)
+    protected void doSearch(World world, BlockPos pos, EnumFacing[] orientation, boolean[] mirror, Collection<StructureBlock> sd)
     {
         final List<Future<SearchResult>> searchJobFuture = new ArrayList<>(sd.size());
 
@@ -120,7 +120,7 @@ public class BuildFormTool extends Item
 
             updateExternalNeighbours(world, result.origin, result.block.getPattern(), result.orientation, result.mirror, true);
 
-            ModNetwork.network.sendToAllAround(
+            StructureNetwork.network.sendToAllAround(
                     new StructurePacket(result.origin, result.block.getRegHash(), result.orientation, result.mirror, StructurePacketOption.BUILD),
                     new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), result.origin.getX(), result.origin.getY(), result.origin.getZ(), 30)
             );

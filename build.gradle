@@ -26,8 +26,8 @@ apply plugin: 'java'
 version = "${config.minecraft_version}-${config.api_version}"
 group = config.group_name
 archivesBaseName = config.api_id
-sourceCompatibility = JavaVersion.VERSION_1_7
-targetCompatibility = JavaVersion.VERSION_1_7
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 minecraft {
     version = config.minecraft_version + "-" + config.forge_version // grab latest forge

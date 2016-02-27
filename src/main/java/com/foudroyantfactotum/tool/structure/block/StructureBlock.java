@@ -16,12 +16,12 @@
 package com.foudroyantfactotum.tool.structure.block;
 
 import com.foudroyantfactotum.tool.structure.IStructure.ICanMirror;
-import com.foudroyantfactotum.tool.structure.IStructure.IPatternHolder;
-import com.foudroyantfactotum.tool.structure.IStructure.IStructureAspects;
 import com.foudroyantfactotum.tool.structure.IStructure.IStructureTE;
+import com.foudroyantfactotum.tool.structure.IStructure.structure.IPatternHolder;
+import com.foudroyantfactotum.tool.structure.IStructure.structure.IStructureAspects;
 import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.coordinates.BlockPosUtil;
-import com.foudroyantfactotum.tool.structure.net.ModNetwork;
+import com.foudroyantfactotum.tool.structure.net.StructureNetwork;
 import com.foudroyantfactotum.tool.structure.net.StructurePacket;
 import com.foudroyantfactotum.tool.structure.net.StructurePacketOption;
 import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
@@ -222,7 +222,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
-    public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB mask, List list, Entity collidingEntity)
+    public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity)
     {
         if (getPattern().getCollisionBoxes() != null)
         {
@@ -383,7 +383,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
 
             if (te.getLocal().equals(BlockPos.ORIGIN))
             {
-                ModNetwork.network.sendToAllAround(
+                StructureNetwork.network.sendToAllAround(
                         new StructurePacket(pos, hash, orientation, mirror, StructurePacketOption.BOOM_PARTICLE),
                         new NetworkRegistry.TargetPoint(ute.getWorld().provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(), 30)
                 );

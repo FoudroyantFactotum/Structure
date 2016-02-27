@@ -169,7 +169,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     }
 
     @Override
-    public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB mask, List list, Entity collidingEntity)
+    public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity)
     {
         final IStructureTE te = (IStructureTE) world.getTileEntity(pos);
 

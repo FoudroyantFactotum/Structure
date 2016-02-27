@@ -13,11 +13,16 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.foudroyantfactotum.tool.structure.IStructure;
+package com.foudroyantfactotum.tool.structure.IStructure.structure;
 
-import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
+import com.foudroyantfactotum.tool.structure.utility.StructureDefinitionBuilder;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.util.BlockPos;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
 
-public interface IPatternHolder
+public interface IStructureAspects
 {
-    StructureDefinition getPattern();
+    StructureDefinitionBuilder getStructureBuild();
+    boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, BlockPos local, float sx, float sy, float sz);
 }

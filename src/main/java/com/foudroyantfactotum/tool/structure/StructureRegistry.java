@@ -17,8 +17,9 @@ package com.foudroyantfactotum.tool.structure;
 
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
 import com.foudroyantfactotum.tool.structure.block.StructureShapeBlock;
-import com.foudroyantfactotum.tool.structure.utillity.Logger;
-import com.foudroyantfactotum.tool.structure.utillity.StructureDefinitionBuilder.StructureDefinitionError;
+import com.foudroyantfactotum.tool.structure.net.StructureNetwork;
+import com.foudroyantfactotum.tool.structure.utility.StructureLogger;
+import com.foudroyantfactotum.tool.structure.utility.StructureDefinitionBuilder.StructureDefinitionError;
 import com.google.common.collect.Lists;
 import com.mojang.realmsclient.util.Pair;
 import net.minecraft.command.ICommand;
@@ -49,6 +50,7 @@ public final class StructureRegistry
         if (MOD_ID == null)
         {
             MOD_ID = modId;
+            StructureNetwork.init();
         }
     }
 
@@ -59,6 +61,7 @@ public final class StructureRegistry
      */
     public static void registerStructureForLoad(StructureBlock structure, StructureShapeBlock shape)
     {
+        //todo add test for correct TE configuration
         registeredStructures.add(Pair.of(structure, shape));
     }
 
@@ -94,7 +97,7 @@ public final class StructureRegistry
         ProgressManager.pop(blockBar);
         blockBar = null;
 
-        Logger.info("Analytical Engine constructed " + structures.size() + " noteworthy contraptions");
+        StructureLogger.info("Analytical Engine constructed " + structures.size() + " noteworthy contraptions");
     }
 
     private StructureRegistry()

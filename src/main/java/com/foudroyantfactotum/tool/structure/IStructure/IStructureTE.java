@@ -15,18 +15,47 @@
  */
 package com.foudroyantfactotum.tool.structure.IStructure;
 
+import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
+import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.init.Blocks;
 import net.minecraft.util.BlockPos;
 
-public interface IStructureTE
+import static com.foudroyantfactotum.tool.structure.block.StructureBlock.getMirror;
+import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobal;
+
+public interface IStructureTE extends ITileEntity
 {
-    IBlockState getTransmutedBlock();
+    default IBlockState getTransmutedBlock()
+    {
+        final StructureBlock sb = StructureRegistry.getStructureBlock(getRegHash());
+
+        if (sb != null)
+        {
+            final IBlockState state = getWorld().getBlockState(getPos());
+
+            if (state != null && state.getBlock() instanceof IStructureTE)
+            {
+                final IBlockState block = sb.getPattern().getBlock(getLocal()).getBlockState();
+
+                return block == null ?
+                        Blocks.air.getDefaultState() :
+                        localToGlobal(
+                                block,
+                                state.getValue(BlockDirectional.FACING),
+                                getMirror(state)
+                        );
+            }
+        }
+
+        return Blocks.air.getDefaultState();
+    }
 
     int getRegHash();
     StructureBlock getMasterBlockInstance();
     BlockPos getMasterBlockLocation();
 
-    void configureBlock(BlockPos local, int patternHash);
+    void configureBlock(BlockPos local, int registerHash);
     BlockPos getLocal();
 }

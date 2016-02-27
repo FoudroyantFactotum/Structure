@@ -18,35 +18,25 @@ package com.foudroyantfactotum.tool.structure.tileentity;
 import com.foudroyantfactotum.tool.structure.IStructure.IStructureTE;
 import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
-import com.foudroyantfactotum.tool.structure.block.StructureShapeBlock;
 import com.foudroyantfactotum.tool.structure.coordinates.BlockPosUtil;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Blocks;
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.S35PacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.IChatComponent;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
-import net.minecraftforge.fluids.IFluidHandler;
 
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.getMirror;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobal;
-import static com.foudroyantfactotum.tool.structure.tileentity.StructureTE.*;
+import static com.foudroyantfactotum.tool.structure.tileentity.StructureTE.BLOCK_INFO;
+import static com.foudroyantfactotum.tool.structure.tileentity.StructureTE.BLOCK_PATTERN_NAME;
 import static net.minecraft.block.BlockDirectional.FACING;
 
-public class StructureShapeTE extends TileEntity implements IStructureTE, ISidedInventory, IFluidHandler
+public class StructureShapeTE extends TileEntity implements IStructureTE
 {
     private BlockPos local = BlockPos.ORIGIN;
     private int definitionHash = -1;
@@ -55,12 +45,12 @@ public class StructureShapeTE extends TileEntity implements IStructureTE, ISided
     private Optional<StructureTE> originTE = Optional.absent();
     private boolean hasNotAttemptedAcquisitionOfOriginTE = true;
 
-    private StructureTE getOriginTE()
+    public StructureTE getOriginTE()
     {
         return originTE.get();
     }
 
-    private boolean hasOriginTE()
+    public boolean hasOriginTE()
     {
         if (originTE.isPresent())
         {
@@ -126,32 +116,6 @@ public class StructureShapeTE extends TileEntity implements IStructureTE, ISided
     }
 
     @Override
-    public IBlockState getTransmutedBlock()
-    {
-        StructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
-
-        if (sb != null)
-        {
-            final IBlockState state = worldObj.getBlockState(pos);
-
-            if (state != null && state.getBlock() instanceof StructureShapeBlock)
-            {
-                final IBlockState block = sb.getPattern().getBlock(local).getBlockState();
-
-                return block == null ?
-                        Blocks.air.getDefaultState() :
-                        localToGlobal(
-                                block,
-                                state.getValue(FACING),
-                                getMirror(state)
-                        );
-            }
-        }
-
-        return Blocks.air.getDefaultState();
-    }
-
-    @Override
     public void configureBlock(BlockPos local, int definitionHash)
     {
         this.local = local;
@@ -164,233 +128,6 @@ public class StructureShapeTE extends TileEntity implements IStructureTE, ISided
         return local;
     }
 
-
-    //================================================================
-    //                     I T E M   I N P U T
-    //================================================================
-
-    @Override
-    public int[] getSlotsForFace(EnumFacing side)
-    {
-        return hasOriginTE() ?
-                getOriginTE().getSlotsForStructureFace(side, local) :
-                new int[0];
-    }
-
-    @Override
-    public boolean canInsertItem(int slotIndex, ItemStack itemStack, EnumFacing side)
-    {
-        return hasOriginTE() && getOriginTE()
-                .canStructureInsertItem(slotIndex, itemStack, side, local);
-    }
-
-    @Override
-    public boolean canExtractItem(int slotIndex, ItemStack itemStack, EnumFacing side)
-    {
-        return hasOriginTE() && getOriginTE()
-                .canStructureExtractItem(slotIndex, itemStack, side, local);
-    }
-
-    @Override
-    public int getSizeInventory()
-    {
-        if (hasOriginTE())
-        {
-            return getOriginTE().getSizeInventory();
-        }
-
-        return 0;
-    }
-
-    @Override
-    public ItemStack getStackInSlot(int slotIndex)
-    {
-        if (hasOriginTE())
-        {
-            return getOriginTE().getStackInSlot(slotIndex);
-        }
-
-        return null;
-    }
-
-    @Override
-    public ItemStack decrStackSize(int slotIndex, int decrAmount)
-    {
-        if (hasOriginTE())
-        {
-            return getOriginTE().decrStackSize(slotIndex, decrAmount);
-        }
-
-        return null;
-    }
-
-    @Override
-    public ItemStack removeStackFromSlot(int slotIndex)
-    {
-        if (hasOriginTE())
-        {
-            return getOriginTE().removeStackFromSlot(slotIndex);
-        }
-
-        return null;
-    }
-
-    @Override
-    public void setInventorySlotContents(int slotIndex, ItemStack itemStack)
-    {
-        if (hasOriginTE())
-        {
-            getOriginTE().setInventorySlotContents(slotIndex, itemStack);
-        }
-    }
-
-    @Override
-    public IChatComponent getDisplayName()
-    {
-        if (hasOriginTE())
-        {
-            return getOriginTE().getDisplayName();
-        }
-
-        return new ChatComponentText("");
-    }
-
-    @Override
-    public String getName()
-    {
-        return null;
-    }
-
-    @Override
-    public boolean hasCustomName()
-    {
-        return hasOriginTE() && getOriginTE().hasCustomName();
-    }
-
-    @Override
-    public int getInventoryStackLimit()
-    {
-        if (hasOriginTE())
-        {
-            return getOriginTE().getInventoryStackLimit();
-        }
-
-        return 0;
-    }
-
-    @Override
-    public boolean isUseableByPlayer(EntityPlayer player)
-    {
-        return hasOriginTE() && getOriginTE().isUseableByPlayer(player);
-    }
-
-    @Override
-    public void openInventory(EntityPlayer player)
-    {
-        if (hasOriginTE())
-        {
-            getOriginTE().openInventory(player);
-        }
-    }
-
-    @Override
-    public void closeInventory(EntityPlayer player)
-    {
-        if (hasOriginTE())
-        {
-            getOriginTE().closeInventory(player);
-        }
-    }
-
-    @Override
-    public boolean isItemValidForSlot(int slotIndex, ItemStack itemStack)
-    {
-        return hasOriginTE() && getOriginTE().isItemValidForSlot(slotIndex, itemStack);
-    }
-
-    @Override
-    public int getField(int id)
-    {
-        return 0;
-    }
-
-    @Override
-    public void setField(int id, int value)
-    {
-
-    }
-
-    @Override
-    public int getFieldCount()
-    {
-        return 0;
-    }
-
-    @Override
-    public void clear()
-    {
-
-    }
-
-    //================================================================
-    //                  F L U I D   H A N D L E R
-    //================================================================
-
-    @Override
-    public int fill(EnumFacing from, FluidStack resource, boolean doFill)
-    {
-        if (hasOriginTE())
-        {
-            return getOriginTE().structureFill(from, resource, doFill, local);
-        }
-
-        return 0;
-    }
-
-    @Override
-    public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain)
-    {
-        if (hasOriginTE())
-        {
-            return getOriginTE().structureDrain(from, resource, doDrain, local);
-        }
-
-        return null;
-    }
-
-    @Override
-    public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain)
-    {
-        if (hasOriginTE())
-        {
-            return getOriginTE().structureDrain(from, maxDrain, doDrain, local);
-        }
-
-        return null;
-    }
-
-    @Override
-    public boolean canFill(EnumFacing from, Fluid fluid)
-    {
-        return hasOriginTE() && getOriginTE().canStructureFill(from, fluid, local);
-    }
-
-    @Override
-    public boolean canDrain(EnumFacing from, Fluid fluid)
-    {
-        return hasOriginTE() && getOriginTE().canStructureDrain(from, fluid, local);
-    }
-
-    @Override
-    public FluidTankInfo[] getTankInfo(EnumFacing from)
-    {
-        if (hasOriginTE())
-        {
-            return getOriginTE().getStructureTankInfo(from, local);
-        }
-
-        return emptyFluidTankInfo;
-    }
 
     //================================================================
     //                            N B T

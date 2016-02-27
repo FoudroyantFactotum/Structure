@@ -13,13 +13,13 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <http://www.gnu.org/licenses>.
  */
-package com.foudroyantfactotum.tool.structure.utillity;
+package com.foudroyantfactotum.tool.structure.utility;
 
 import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 
-public class Logger
+public class StructureLogger
 {
     private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(StructureRegistry.getMOD_ID());
 

@@ -15,15 +15,11 @@
  */
 package com.foudroyantfactotum.tool.structure.IStructure;
 
-import net.minecraft.inventory.ISidedInventory;
-import net.minecraft.item.ItemStack;
 import net.minecraft.util.BlockPos;
-import net.minecraft.util.EnumFacing;
+import net.minecraft.world.World;
 
-public interface IStructureSidedInventory extends ISidedInventory
+public interface ITileEntity
 {
-    boolean canStructureInsertItem(int slot, ItemStack item, EnumFacing side, BlockPos local);
-    boolean canStructureExtractItem(int slot, ItemStack item, EnumFacing side, BlockPos local);
-
-    int[] getSlotsForStructureFace(EnumFacing side, BlockPos local);
+    World getWorld();
+    BlockPos getPos();
 }

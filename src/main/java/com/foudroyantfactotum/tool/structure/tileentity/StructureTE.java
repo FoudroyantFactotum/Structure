@@ -15,8 +15,6 @@
  */
 package com.foudroyantfactotum.tool.structure.tileentity;
 
-import com.foudroyantfactotum.tool.structure.IStructure.IStructureFluidHandler;
-import com.foudroyantfactotum.tool.structure.IStructure.IStructureSidedInventory;
 import com.foudroyantfactotum.tool.structure.IStructure.IStructureTE;
 import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
@@ -26,8 +24,6 @@ import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.init.Blocks;
-import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.Packet;
@@ -36,16 +32,14 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraftforge.fluids.Fluid;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidTankInfo;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.*;
+import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.flagEnumFacing;
+import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
 import static net.minecraft.block.BlockDirectional.FACING;
 
-public abstract class StructureTE extends TileEntity implements IStructureTE, IStructureSidedInventory, IStructureFluidHandler
+public abstract class StructureTE extends TileEntity implements IStructureTE
 {
     static final String BLOCK_INFO = "blockINFO";
     static final String BLOCK_PATTERN_NAME = "blockPatternHash";
@@ -94,36 +88,9 @@ public abstract class StructureTE extends TileEntity implements IStructureTE, IS
     }
 
     @Override
-    public void configureBlock(BlockPos local, int definitionHash)
+    public void configureBlock(BlockPos local, int registerHash)
     {
-        this.definitionHash = definitionHash;
-    }
-
-    @Override
-    public IBlockState getTransmutedBlock()
-    {
-        StructureBlock sb = StructureRegistry.getStructureBlock(definitionHash);
-
-        if (sb != null)
-        {
-            final IBlockState state = worldObj.getBlockState(pos);
-
-            if (state != null && state.getBlock() instanceof StructureBlock)
-            {
-                final IBlockState block = sb.getPattern().getBlock(local).getBlockState();
-
-                return block == null ?
-                        Blocks.air.getDefaultState() :
-                        localToGlobal(
-                                block,
-                                state.getValue(FACING),
-                                StructureBlock.getMirror(state)
-                        );
-            }
-        }
-
-
-        return Blocks.air.getDefaultState();
+        this.definitionHash = registerHash;
     }
 
     @Override
@@ -140,94 +107,6 @@ public abstract class StructureTE extends TileEntity implements IStructureTE, IS
     public boolean getMirror()
     {
         return mirror;
-    }
-
-    //================================================================
-    //                     I T E M   I N P U T
-    //================================================================
-
-    @Override
-    public int[] getSlotsForFace(EnumFacing side)
-    {
-        return new int[0];
-    }
-
-    @Override
-    public boolean canInsertItem(int slotIndex, ItemStack itemStack, EnumFacing side)
-    {
-        return canStructureInsertItem(slotIndex, itemStack, side, local);
-    }
-
-    @Override
-    public boolean canExtractItem(int slotIndex, ItemStack itemStack, EnumFacing side)
-    {
-        return canStructureExtractItem(slotIndex, itemStack, side, local);
-    }
-
-    @Override
-    public int getField(int id)
-    {
-        return 0;
-    }
-
-    @Override
-    public void setField(int id, int value)
-    {
-
-    }
-
-    @Override
-    public int getFieldCount()
-    {
-        return 0;
-    }
-
-    @Override
-    public void clear()
-    {
-
-    }
-
-    //================================================================
-    //                  F L U I D   H A N D L E R
-    //================================================================
-
-    public static final FluidTankInfo[] emptyFluidTankInfo = {};
-
-    @Override
-    public int fill(EnumFacing from, FluidStack resource, boolean doFill)
-    {
-        return structureFill(from, resource, doFill, local);
-    }
-
-    @Override
-    public FluidStack drain(EnumFacing from, FluidStack resource, boolean doDrain)
-    {
-        return structureDrain(from, resource, doDrain, local);
-    }
-
-    @Override
-    public FluidStack drain(EnumFacing from, int maxDrain, boolean doDrain)
-    {
-        return structureDrain(from, maxDrain, doDrain, local);
-    }
-
-    @Override
-    public boolean canFill(EnumFacing from, Fluid fluid)
-    {
-        return canStructureFill(from, fluid, local);
-    }
-
-    @Override
-    public boolean canDrain(EnumFacing from, Fluid fluid)
-    {
-        return canStructureDrain(from, fluid, local);
-    }
-
-    @Override
-    public FluidTankInfo[] getTankInfo(EnumFacing from)
-    {
-        return getStructureTankInfo(from, local);
     }
 
     //================================================================

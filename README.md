@@ -1,8 +1,37 @@
 ##Structure
-**CURRENTLY UNDER HEAVY DEVELOPMENT**
 
-A tool for creating structure in minecraft for mods.
+A tool for creating structures in minecraft for mods.
 check [here](https://github.com/SteamNSteel/McGUI/blob/master/README.md) on how to shade this tool
+
+###Base Requirements
+The Structure Block is the block that you are rendering from and contains the main data.
+On the other hand the rest of the blocks that make up the collision, item and fluid handling are the shape blocks.
+There job is to handle the request and delegate them to the main block.
+
+Blocks must extend from the StructureBlock class due to default implementations to keep the structure sound in game. This
+includes Structure Shape Blocks.
+TE have no requirement to be extended from the StructureTE, but currently holds a default implemeatation that can be used.
+
+Structure Lib must be passed the modId for login purposes. Should be done before the first interaction with the library.
+```java
+StructureRegistry.setMOD_ID(String modId);
+TransformLAG.initStatic();
+```
+
+Structures must be register with...
+```java
+StructureRegistry.registerStructureForLoad(StructureBlock, StructureShapeBlock);
+```
+where *StructureBlock* is the instance of your structure and *StructureShapeBlock* is the shape block that defines this structure.
+This must be done in the preInit stage.
+
+```java
+StructureRegistry.loadRegisteredPatterns();
+```
+Must then be called in the Init block.
+
+When adding support for Fluid and Item input the Structure TE must extend Implement the associated interface else things will fail.
+eg for fluid support *TEStructure implements IStructureFluidHandler* **and** *TEShape implements IStructureShapeFluidHandler*
 
 ### Licensing
 
