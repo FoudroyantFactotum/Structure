@@ -180,7 +180,7 @@ public final class TransformLAG
 
         for (EnumFacing d : EnumFacing.VALUES)
         {
-            if (StructureTE.isSide(ld, o))
+            if (StructureTE.isSide(ld, d))
             {
                 fdNew |= flagEnumFacing(localToGlobal(d, o, mirror));
             }
