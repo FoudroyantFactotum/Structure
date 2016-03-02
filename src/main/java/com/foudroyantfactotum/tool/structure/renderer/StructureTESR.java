@@ -45,7 +45,7 @@ public class StructureTESR<E extends StructureTE> extends TileEntitySpecialRende
         GlStateManager.blendFunc(770, 771);
         GlStateManager.enableBlend();
         GlStateManager.disableCull();
-        GlStateManager.shadeModel(Minecraft.isAmbientOcclusionEnabled()? 7425 : 7424);
+        GlStateManager.shadeModel(Minecraft.isAmbientOcclusionEnabled()? GL11.GL_SMOOTH : GL11.GL_FLAT);
 
         worldRenderer.begin(GL11.GL_QUADS, DefaultVertexFormats.BLOCK);
 

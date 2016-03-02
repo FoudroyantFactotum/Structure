@@ -17,13 +17,12 @@ package com.foudroyantfactotum.tool.structure;
 
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
 import com.foudroyantfactotum.tool.structure.block.StructureShapeBlock;
-import com.foudroyantfactotum.tool.structure.net.StructureNetwork;
-import com.foudroyantfactotum.tool.structure.utility.StructureLogger;
 import com.foudroyantfactotum.tool.structure.utility.StructureDefinitionBuilder.StructureDefinitionError;
 import com.google.common.collect.Lists;
 import com.mojang.realmsclient.util.Pair;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.util.BlockPos;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.fml.common.ProgressManager;
@@ -34,7 +33,6 @@ import static net.minecraftforge.fml.common.ProgressManager.ProgressBar;
 
 public final class StructureRegistry
 {
-    private static ProgressBar blockBar = null;
     private static Map<Integer, StructureBlock> structures = new HashMap<>();
     private static List<Pair<StructureBlock, StructureShapeBlock>> registeredStructures = new LinkedList<>();
 
@@ -50,7 +48,6 @@ public final class StructureRegistry
         if (MOD_ID == null)
         {
             MOD_ID = modId;
-            StructureNetwork.init();
         }
     }
 
@@ -66,12 +63,12 @@ public final class StructureRegistry
     }
 
     /***
-     * loadRegisteredPatterns() is called on onFMLInitialization after all blocks have been loaded required so that
-     * blocks of other mod can be used within the structure.
+     * loadRegisteredPatterns() is called on onFMLInitialization after all blocks have been loaded. This allows for
+     * cross-mod blocks to be used within the structure.
      */
     public static void loadRegisteredPatterns()
     {
-        blockBar = ProgressManager.push("Structure", registeredStructures.size());
+        final ProgressBar blockBar = ProgressManager.push("Structure", registeredStructures.size());
 
         for (final Pair<StructureBlock, StructureShapeBlock> strucPair : registeredStructures)
         {
@@ -95,9 +92,8 @@ public final class StructureRegistry
         }
 
         ProgressManager.pop(blockBar);
-        blockBar = null;
 
-        StructureLogger.info("Analytical Engine constructed " + structures.size() + " noteworthy contraptions");
+        //StructureLogger.info("Analytical Engine constructed " + structures.size() + " noteworthy contraptions");
     }
 
     private StructureRegistry()
@@ -117,42 +113,54 @@ public final class StructureRegistry
 
     /***
      * Command (class) for reloading the structures in-game after jvm hot swap
+     * Should only be enabled for development purposes.
      */
     public static class CommandReloadStructures implements ICommand
     {
+        private static final String COMMAND = "RELOAD_STRUCTURES";
+        private static final List<String> aliases = Lists.newArrayList(COMMAND);
+
         @Override
         public String getCommandName()
         {
-            return "RELOAD_STRUCTURES";
+            return COMMAND;
         }
 
         @Override
         public String getCommandUsage(ICommandSender player)
         {
-            return "RELOAD_STRUCTURES (That's all there is, there isn't any more.)";
+            return COMMAND;
         }
 
         @Override
-        public List getCommandAliases()
+        public List<String> getCommandAliases()
         {
-            return Lists.newArrayList("RELOAD_STRUCTURES");
+            return aliases;
         }
 
         @Override
         public void processCommand(ICommandSender player, String[] args)
         {
             loadRegisteredPatterns();
-            player.addChatMessage(new ChatComponentText("Analytical Engine reconstructed " + structures.size() + " noteworthy contraptions"));
+            player.addChatMessage(new ChatComponentText("Reconstructed " + structures.size() + " structures"));
         }
 
+        //restrict usage of development function
         @Override
         public boolean canCommandSenderUseCommand(ICommandSender player)
         {
-            return true;
+            if (player instanceof EntityPlayer)
+            {
+                final EntityPlayer ep = (EntityPlayer) player;
+
+                return ep.capabilities.isCreativeMode;
+            }
+
+            return false;
         }
 
         @Override
-        public List addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos)
+        public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos)
         {
             return null;
         }

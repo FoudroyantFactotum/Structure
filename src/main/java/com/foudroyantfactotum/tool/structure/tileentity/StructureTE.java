@@ -154,7 +154,6 @@ public abstract class StructureTE extends TileEntity implements IStructureTE
 
     protected void transformDirectionsOnLoad(StructureDefinition sd) { }
 
-
     //================================================================
     //                    C L I E N T   S I D E
     //================================================================

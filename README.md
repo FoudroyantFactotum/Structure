@@ -33,6 +33,21 @@ Must then be called in the Init block.
 When adding support for Fluid and Item input the Structure TE must extend Implement the associated interface else things will fail.
 eg for fluid support *TEStructure implements IStructureFluidHandler* **and** *TEShape implements IStructureShapeFluidHandler*
 
+Client side must also init network.
+```java
+StructureNetwork.init();
+```
+
+To reload a Structure after a hot swap, register the following command
+```java
+StructureRegistry.CommandReloadStructures());
+```
+Please remember that this is a development command only. Do not leave it available in any release version.
+
+
+//TODO
+rewrite *this* messy explanation.
+
 ### Licensing
 
 - Source code Copyright &copy; 2016 Foudroyant Factotum

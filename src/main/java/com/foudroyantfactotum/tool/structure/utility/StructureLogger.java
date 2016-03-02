@@ -21,7 +21,7 @@ import org.apache.logging.log4j.LogManager;
 
 public class StructureLogger
 {
-    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(StructureRegistry.getMOD_ID());
+    private static final org.apache.logging.log4j.Logger logger = LogManager.getLogger(StructureRegistry.getMOD_ID() + ".Structure");
 
     public static void info(final String format, final Object... args)
     {
