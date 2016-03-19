@@ -15,7 +15,7 @@
  */
 package com.foudroyantfactotum.tool.structure.IStructure;
 
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public interface ITileEntity

@@ -15,8 +15,8 @@
  */
 package com.foudroyantfactotum.tool.structure.coordinates;
 
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.BlockPos.MutableBlockPos;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;

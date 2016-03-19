@@ -28,9 +28,9 @@ import net.minecraft.block.Block;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.AxisAlignedBB;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.BlockPos.MutableBlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.oredict.OreDictionary;
 
@@ -360,7 +360,7 @@ public final class TransformLAG
         final int tx = matrix[0][0] * ntx + matrix[0][1] * ntz;
         final int tz = matrix[1][0] * ntx + matrix[1][1] * ntz;
 
-        return AxisAlignedBB.fromBounds(
+        return new AxisAlignedBB(
                 lb.getX() + tx, lb.getY(), lb.getZ() + tz,
                 ub.getX() + tx, ub.getY(), ub.getZ() + tz
         );

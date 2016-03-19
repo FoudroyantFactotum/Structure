@@ -18,7 +18,7 @@ package com.foudroyantfactotum.tool.structure.IStructure.structure;
 import com.foudroyantfactotum.tool.structure.IStructure.IStructureTE;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
 
 public interface IStructureSidedInventory extends ISidedInventory, IStructureTE

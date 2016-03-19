@@ -27,10 +27,12 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.BlockPos.MutableBlockPos;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.MathHelper;
+import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 
@@ -58,11 +60,11 @@ public class BuildFormTool extends Item
     };
 
     @Override
-    public boolean onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ)
+    public EnumActionResult onItemUse(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ)
     {
         if (world.isRemote || player == null)
         {
-            return true;
+            return EnumActionResult.SUCCESS;
         }
 
         final EnumFacing[] orientation = orientationPriority[MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5) & 3];
@@ -70,7 +72,7 @@ public class BuildFormTool extends Item
 
         doSearch(world, pos, orientation, mirror, StructureRegistry.getStructureList());
 
-        return true;
+        return EnumActionResult.SUCCESS;
     }
 
     protected void doSearch(World world, BlockPos pos, EnumFacing[] orientation, boolean[] mirror, Collection<StructureBlock> sd)
@@ -122,7 +124,7 @@ public class BuildFormTool extends Item
 
             StructureNetwork.network.sendToAllAround(
                     new StructurePacket(result.origin, result.block.getRegHash(), result.orientation, result.mirror, StructurePacketOption.BUILD),
-                    new NetworkRegistry.TargetPoint(world.provider.getDimensionId(), result.origin.getX(), result.origin.getY(), result.origin.getZ(), 30)
+                    new NetworkRegistry.TargetPoint(world.provider.getDimension(), result.origin.getX(), result.origin.getY(), result.origin.getZ(), 30)
             );
         }
     }

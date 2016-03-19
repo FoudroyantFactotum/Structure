@@ -21,8 +21,10 @@ import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.tileentity.StructureShapeTE;
 import net.minecraft.block.Block;
 import net.minecraft.block.ITileEntityProvider;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.Entity;
@@ -30,6 +32,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
@@ -46,14 +51,14 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 {
     public static boolean _DEBUG = false;
     public static final String NAME = "structureShape";
-    public static final AxisAlignedBB EMPTY_BOUNDS = AxisAlignedBB.fromBounds(0, 0, 0, 0, 0, 0);
+    public static final AxisAlignedBB EMPTY_BOUNDS = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
     private final boolean canMirror;
 
     public StructureShapeBlock(boolean canMirror)
     {
         super(Material.piston);
         this.canMirror = canMirror;
-        setStepSound(Block.soundTypePiston);
+        setSoundType(SoundType.STONE);
         setHardness(0.5f);
 
         setUnlocalizedName(NAME);
@@ -69,13 +74,13 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     }
 
     @Override
-    protected BlockState createBlockState()
+    protected BlockStateContainer createBlockState()
     {
         if (canMirror)
         {
-            return new BlockState(this, FACING, MIRROR);
+            return new BlockStateContainer(this, FACING, MIRROR);
         }
-        return new BlockState(this, FACING);
+        return new BlockStateContainer(this, FACING);
     }
 
     public IBlockState getStateFromMeta(int meta)
@@ -126,38 +131,38 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     }
 
     @Override
-    public ItemStack getPickBlock(MovingObjectPosition target, World world, BlockPos pos, EntityPlayer player)
+    public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player)
     {
         final StructureShapeTE te = (StructureShapeTE) world.getTileEntity(pos);
 
         if (te != null && te.getMasterBlockInstance() != null)
         {
-            return te.getMasterBlockInstance().getPickBlock(target, world, pos, player);
+            return te.getMasterBlockInstance().getPickBlock(state, target, world, pos, player);
         }
 
         return null;
     }
 
     @Override
-    public boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos)
+    public boolean canPlaceTorchOnTop(IBlockState state, IBlockAccess world, BlockPos pos)
     {
         return false;
     }
 
     @Override
-    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side)
+    public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side)
     {
         return false;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getSelectedBoundingBox(World world, BlockPos pos)
+    public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
     {
-        final StructureShapeTE te = (StructureShapeTE) world.getTileEntity(pos);
+        final StructureShapeTE te = (StructureShapeTE) worldIn.getTileEntity(pos);
         if (te != null)
         {
-            final TileEntity te2 = world.getTileEntity(te.getMasterBlockLocation());
+            final TileEntity te2 = worldIn.getTileEntity(te.getMasterBlockLocation());
 
             if (te2 != null)
             {
@@ -169,7 +174,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     }
 
     @Override
-    public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity)
+    public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity)
     {
         final IStructureTE te = (IStructureTE) world.getTileEntity(pos);
 
@@ -197,10 +202,9 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     }
 
     @Override
-    public int getMobilityFlag()
+    public EnumPushReaction getMobilityFlag(IBlockState state)
     {
-        // total immobility and stop pistons
-        return 2;
+        return EnumPushReaction.BLOCK;
     }
 
     @Override
@@ -229,9 +233,8 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     }
 
     @Override
-    public boolean removedByPlayer(World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
+    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
     {
-        final IBlockState state = world.getBlockState(pos);
         final IStructureTE te = (IStructureTE) world.getTileEntity(pos);
         final boolean isPlayerCreative = player != null && player.capabilities.isCreativeMode;
         final boolean isPlayerSneaking = player != null && player.isSneaking();
@@ -264,7 +267,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     }
 
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float sx, float sy, float sz)
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         final StructureShapeTE te = (StructureShapeTE) world.getTileEntity(pos);
 
@@ -274,7 +277,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
             if (block != null)
             {
-                return block.onStructureBlockActivated(world, te.getMasterBlockLocation(), player, pos, side, te.getLocal(), sx, sy, sz);
+                return block.onStructureBlockActivated(world, te.getMasterBlockLocation(), player, pos, side, te.getLocal(), hitX, hitY, hitZ);
             }
         }
 
@@ -297,22 +300,23 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     //      V i s u a l   D e b u g
     //======================================
 
+
     @Override
-    public int getRenderType()
+    public EnumBlockRenderType getRenderType(IBlockState state)
     {
-        return _DEBUG?3: -1;
+        return _DEBUG ? EnumBlockRenderType.MODEL : EnumBlockRenderType.INVISIBLE;
     }
 
     @Override
-    public boolean isOpaqueCube()
+    public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public EnumWorldBlockLayer getBlockLayer()
+    public BlockRenderLayer getBlockLayer()
     {
-        return EnumWorldBlockLayer.TRANSLUCENT;
+        return BlockRenderLayer.TRANSLUCENT;
     }
 }

@@ -20,7 +20,7 @@ import com.foudroyantfactotum.tool.structure.block.StructureBlock;
 import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.getMirror;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobal;

@@ -29,9 +29,11 @@ import com.foudroyantfactotum.tool.structure.tileentity.StructureTE;
 import com.foudroyantfactotum.tool.structure.waila.WailaProvider;
 import com.google.common.base.Objects;
 import net.minecraft.block.Block;
+import net.minecraft.block.SoundType;
+import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
-import net.minecraft.block.state.BlockState;
+import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.EffectRenderer;
 import net.minecraft.entity.Entity;
@@ -41,7 +43,10 @@ import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
-import net.minecraft.util.BlockPos.MutableBlockPos;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.Optional;
@@ -67,7 +72,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     {
         super(Material.piston);
         this.canMirror = canMirror;
-        setStepSound(Block.soundTypePiston);
+        setSoundType(SoundType.STONE);
         setHardness(0.5f);
 
         IBlockState defaultState = this.blockState
@@ -90,13 +95,13 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
-    protected BlockState createBlockState()
+    protected BlockStateContainer createBlockState()
     {
         if (canMirror){
-            return new BlockState(this, FACING, MIRROR);
+            return new BlockStateContainer(this, FACING, MIRROR);
         }
 
-        return new BlockState(this, FACING);
+        return new BlockStateContainer(this, FACING);
     }
 
     public IBlockState getStateFromMeta(int meta)
@@ -127,35 +132,35 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
-    public boolean isFullCube()
+    public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
     @Override
-    public boolean isOpaqueCube()
+    public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
     @Override
-    public int getMobilityFlag()
+    public EnumPushReaction getMobilityFlag(IBlockState state)
     {
         // total immobility and stop pistons
-        return 2;
+        return EnumPushReaction.BLOCK;
     }
 
     @Override
-    public int getRenderType()
+    public EnumBlockRenderType getRenderType(IBlockState state)
     {
-        return 2;
+        return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public EnumWorldBlockLayer getBlockLayer()
+    public BlockRenderLayer getBlockLayer()
     {
-        return EnumWorldBlockLayer.TRANSLUCENT;
+        return BlockRenderLayer.TRANSLUCENT;
     }
 
     @Override
@@ -165,13 +170,13 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
-    public boolean canPlaceTorchOnTop(IBlockAccess world, BlockPos pos)
+    public boolean canPlaceTorchOnTop(IBlockState state, IBlockAccess world, BlockPos pos)
     {
         return false;
     }
 
     @Override
-    public boolean isSideSolid(IBlockAccess world, BlockPos pos, EnumFacing side)
+    public boolean isSideSolid(IBlockState base_state, IBlockAccess world, BlockPos pos, EnumFacing side)
     {
         return false;
     }
@@ -203,7 +208,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
-    public boolean removedByPlayer(World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
+    public boolean removedByPlayer(IBlockState state, World world, BlockPos pos, EntityPlayer player, boolean willHarvest)
     {
         final StructureTE te = (StructureTE) world.getTileEntity(pos);
         final boolean isPlayerCreative = player != null && player.capabilities.isCreativeMode;
@@ -222,7 +227,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
-    public void addCollisionBoxesToList(World world, BlockPos pos, IBlockState state, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity)
+    public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity entityIn)
     {
         if (getPattern().getCollisionBoxes() != null)
         {
@@ -235,9 +240,8 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
         }
     }
 
-
     @Override
-    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumFacing side, float hitX, float hitY, float hitZ)
+    public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
         return onStructureBlockActivated(world, pos, player, pos, side, BlockPos.ORIGIN, hitX, hitY, hitZ);
     }
@@ -286,14 +290,14 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addHitEffects(World worldObj, MovingObjectPosition target, EffectRenderer effectRenderer)
+    public boolean addHitEffects(IBlockState state, World worldObj, RayTraceResult target, EffectRenderer effectRenderer)
     {
-        return true; //No Digging Effects
+        return super.addHitEffects(state, worldObj, target, effectRenderer);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
-    public AxisAlignedBB getSelectedBoundingBox(World world, BlockPos pos)
+    public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World world, BlockPos pos)
     {
         //return EMPTY_BOUNDS;
         return world.getTileEntity(pos).getRenderBoundingBox();
@@ -385,7 +389,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
             {
                 StructureNetwork.network.sendToAllAround(
                         new StructurePacket(pos, hash, orientation, mirror, StructurePacketOption.BOOM_PARTICLE),
-                        new NetworkRegistry.TargetPoint(ute.getWorld().provider.getDimensionId(), pos.getX(), pos.getY(), pos.getZ(), 30)
+                        new NetworkRegistry.TargetPoint(ute.getWorld().provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 30)
                 );
             }
 

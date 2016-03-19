@@ -19,9 +19,9 @@ import com.foudroyantfactotum.tool.structure.IStructure.structure.IStructureSide
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumFacing;
-import net.minecraft.util.IChatComponent;
+import net.minecraft.util.text.ITextComponent;
+import net.minecraft.util.text.TextComponentString;
 
 public interface IStructureShapeSidedInventory<E extends IStructureSidedInventory> extends ISidedInventory, IStructureShapeTE<E>
 {
@@ -101,14 +101,14 @@ public interface IStructureShapeSidedInventory<E extends IStructureSidedInventor
     }
 
     @Override
-    default IChatComponent getDisplayName()
+    default ITextComponent getDisplayName()
     {
         if (hasOriginTE())
         {
             return getOriginTE().getDisplayName();
         }
 
-        return new ChatComponentText("");
+        return new TextComponentString("");
     }
 
     @Override

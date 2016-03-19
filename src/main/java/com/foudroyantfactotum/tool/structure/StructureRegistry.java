@@ -20,11 +20,13 @@ import com.foudroyantfactotum.tool.structure.block.StructureShapeBlock;
 import com.foudroyantfactotum.tool.structure.utility.StructureDefinitionBuilder.StructureDefinitionError;
 import com.google.common.collect.Lists;
 import com.mojang.realmsclient.util.Pair;
+import net.minecraft.command.CommandException;
 import net.minecraft.command.ICommand;
 import net.minecraft.command.ICommandSender;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.BlockPos;
-import net.minecraft.util.ChatComponentText;
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.fml.common.ProgressManager;
 
 import java.util.*;
@@ -139,19 +141,19 @@ public final class StructureRegistry
         }
 
         @Override
-        public void processCommand(ICommandSender player, String[] args)
+        public void execute(MinecraftServer server, ICommandSender sender, String[] args) throws CommandException
         {
             loadRegisteredPatterns();
-            player.addChatMessage(new ChatComponentText("Reconstructed " + structures.size() + " structures"));
+            sender.addChatMessage(new TextComponentString("Reconstructed " + structures.size() + " structures"));
         }
 
         //restrict usage of development function
         @Override
-        public boolean canCommandSenderUseCommand(ICommandSender player)
+        public boolean checkPermission(MinecraftServer server, ICommandSender sender)
         {
-            if (player instanceof EntityPlayer)
+            if (sender instanceof EntityPlayer)
             {
-                final EntityPlayer ep = (EntityPlayer) player;
+                final EntityPlayer ep = (EntityPlayer) sender;
 
                 return ep.capabilities.isCreativeMode;
             }
@@ -160,7 +162,7 @@ public final class StructureRegistry
         }
 
         @Override
-        public List<String> addTabCompletionOptions(ICommandSender sender, String[] args, BlockPos pos)
+        public List<String> getTabCompletionOptions(MinecraftServer server, ICommandSender sender, String[] args, BlockPos pos)
         {
             return null;
         }

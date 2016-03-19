@@ -44,7 +44,7 @@ public class PartBlockState implements IPartBlockState
 
     public static PartBlockState of(IBlockState b, String s)
     {
-        final Collection<IProperty> defaultProp = b.getPropertyNames();
+        final Collection<IProperty<?>> defaultProp = b.getPropertyNames();
         final ImmutableMap.Builder<IProperty, Comparable> builderDef = ImmutableMap.builder();
         final Set<IProperty> properties = new HashSet<>(defaultProp);
 

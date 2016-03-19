@@ -15,7 +15,7 @@
  */
 package com.foudroyantfactotum.tool.structure.coordinates;
 
-import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.math.AxisAlignedBB;
 
 public class MutableAxisAlignedBB
 {
@@ -46,7 +46,7 @@ public class MutableAxisAlignedBB
 
     public AxisAlignedBB getAxisAlignedBB()
     {
-        return AxisAlignedBB.fromBounds(minX, minY, minZ, maxX, maxY, maxZ);
+        return new AxisAlignedBB(minX, minY, minZ, maxX, maxY, maxZ);
     }
 
     @Override

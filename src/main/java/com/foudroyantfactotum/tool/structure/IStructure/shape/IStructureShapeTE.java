@@ -15,7 +15,7 @@
  */
 package com.foudroyantfactotum.tool.structure.IStructure.shape;
 
-import net.minecraft.util.BlockPos;
+import net.minecraft.util.math.BlockPos;
 
 public interface IStructureShapeTE<E>
 {
