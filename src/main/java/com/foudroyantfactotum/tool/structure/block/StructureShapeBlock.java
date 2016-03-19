@@ -24,6 +24,7 @@ import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
+import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.EffectRenderer;
@@ -40,32 +41,31 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.*;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobalCollisionBoxes;
-import static net.minecraft.block.BlockDirectional.FACING;
 
 public abstract class StructureShapeBlock extends Block implements ITileEntityProvider, ICanMirror
 {
     public static boolean _DEBUG = false;
     public static final String NAME = "structureShape";
     public static final AxisAlignedBB EMPTY_BOUNDS = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
-    private final boolean canMirror;
+    public static final PropertyDirection DIRECTION = PropertyDirection.create("facing", Arrays.asList(EnumFacing.HORIZONTALS));
 
-    public StructureShapeBlock(boolean canMirror)
+    public StructureShapeBlock()
     {
         super(Material.piston);
-        this.canMirror = canMirror;
         setSoundType(SoundType.STONE);
         setHardness(0.5f);
 
         setUnlocalizedName(NAME);
 
-        IBlockState state = this.blockState.getBaseState().withProperty(FACING, EnumFacing.NORTH);
+        IBlockState state = this.blockState.getBaseState().withProperty(DIRECTION, EnumFacing.NORTH);
 
-        if (canMirror)
+        if (canMirror())
         {
             state = state.withProperty(MIRROR, false);
         }
@@ -76,20 +76,20 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     @Override
     protected BlockStateContainer createBlockState()
     {
-        if (canMirror)
+        if (canMirror())
         {
-            return new BlockStateContainer(this, FACING, MIRROR);
+            return new BlockStateContainer(this, DIRECTION, MIRROR);
         }
-        return new BlockStateContainer(this, FACING);
+        return new BlockStateContainer(this, DIRECTION);
     }
 
     public IBlockState getStateFromMeta(int meta)
     {
         final EnumFacing facing = EnumFacing.getHorizontal(meta & 0x3);
 
-        IBlockState state = getDefaultState().withProperty(FACING, facing);
+        IBlockState state = getDefaultState().withProperty(DIRECTION, facing);
 
-        if (canMirror)
+        if (canMirror())
         {
             state = state.withProperty(MIRROR, (meta & 0x4) != 0);
         }
@@ -99,10 +99,10 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
     public int getMetaFromState(IBlockState state)
     {
-        final EnumFacing facing = state.getValue(FACING);
+        final EnumFacing facing = state.getValue(DIRECTION);
         final boolean mirror = getMirror(state);
 
-        if (canMirror)
+        if (canMirror())
         {
             return facing.getHorizontalIndex() | (mirror ? 1 << 2 : 0);
         } else {
@@ -113,7 +113,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     @Override
     public boolean canMirror()
     {
-        return canMirror;
+        return true;
     }
 
     @Override
@@ -190,7 +190,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
             localToGlobalCollisionBoxes(mloc.getX(), mloc.getY(), mloc.getZ(),
                     mask, list, sb.getPattern().getCollisionBoxes(),
-                    state.getValue(FACING), getMirror(state),
+                    state.getValue(DIRECTION), getMirror(state),
                     sb.getPattern().getBlockBounds()
             );
         }
@@ -245,7 +245,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
         {
             sb.breakStructure(world,
                     te.getMasterBlockLocation(),
-                    state.getValue(FACING),
+                    state.getValue(DIRECTION),
                     getMirror(state),
                     isPlayerCreative,
                     isPlayerSneaking
@@ -253,7 +253,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
             updateExternalNeighbours(world,
                     te.getMasterBlockLocation(),
                     sb.getPattern(),
-                    state.getValue(FACING),
+                    state.getValue(DIRECTION),
                     getMirror(state),
                     false
             );

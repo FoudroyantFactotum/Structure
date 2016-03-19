@@ -31,10 +31,10 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
 
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.getMirror;
+import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobal;
 import static com.foudroyantfactotum.tool.structure.tileentity.StructureTE.BLOCK_INFO;
 import static com.foudroyantfactotum.tool.structure.tileentity.StructureTE.BLOCK_PATTERN_NAME;
-import static net.minecraft.block.BlockDirectional.FACING;
 
 public class StructureShapeTE extends TileEntity implements IStructureTE
 {
@@ -108,7 +108,7 @@ public class StructureShapeTE extends TileEntity implements IStructureTE
             masterLocation = Optional.of(localToGlobal(
                     -local.getX(), -local.getY(), -local.getZ(),
                     pos.getX(), pos.getY(), pos.getZ(),
-                    (EnumFacing) state.getValue(FACING), getMirror(state),
+                    (EnumFacing) state.getValue(DIRECTION), getMirror(state),
                     sb.getPattern().getBlockBounds()));
         }
 

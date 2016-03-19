@@ -35,9 +35,9 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.flagEnumFacing;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
-import static net.minecraft.block.BlockDirectional.FACING;
 
 public abstract class StructureTE extends TileEntity implements IStructureTE
 {
@@ -172,7 +172,7 @@ public abstract class StructureTE extends TileEntity implements IStructureTE
             }
 
             final IBlockState state = getWorld().getBlockState(pos);
-            final EnumFacing orientation = state.getValue(FACING);
+            final EnumFacing orientation = state.getValue(DIRECTION);
             final boolean mirror = StructureBlock.getMirror(state);
 
             renderBounds = Optional.of(localToGlobalBoundingBox(pos, local, sb.getPattern(), orientation, mirror));

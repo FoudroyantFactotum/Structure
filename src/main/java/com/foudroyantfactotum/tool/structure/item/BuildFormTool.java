@@ -43,6 +43,7 @@ import java.util.concurrent.*;
 
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.MIRROR;
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.updateExternalNeighbours;
+import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.*;
 
 public class BuildFormTool extends Item
@@ -109,7 +110,7 @@ public class BuildFormTool extends Item
         if (result != null)
         {
             IBlockState state = result.block.getDefaultState()
-                    .withProperty(BlockDirectional.FACING, result.orientation);
+                    .withProperty(DIRECTION, result.orientation);
 
             if (result.block.canMirror())
             {
