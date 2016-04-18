@@ -57,7 +57,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
     public StructureShapeBlock()
     {
-        super(Material.piston);
+        super(Material.PISTON);
         setSoundType(SoundType.STONE);
         setHardness(0.5f);
 

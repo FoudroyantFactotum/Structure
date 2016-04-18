@@ -70,7 +70,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
 
     public StructureBlock(boolean canMirror)
     {
-        super(Material.piston);
+        super(Material.PISTON);
         this.canMirror = canMirror;
         setSoundType(SoundType.STONE);
         setHardness(0.5f);
@@ -457,7 +457,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
                     world.removeTileEntity(local);
 
                     world.setBlockState(new BlockPos(local), (isCreative && !isSneaking) ?
-                            Blocks.air.getDefaultState() :
+                            Blocks.AIR.getDefaultState() :
                             localToGlobal(block, orientation, mirror)
                             , 0x2);
                 }

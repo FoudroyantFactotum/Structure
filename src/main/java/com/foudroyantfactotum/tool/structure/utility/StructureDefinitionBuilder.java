@@ -173,7 +173,7 @@ public final class StructureDefinitionBuilder
         }
 
         //default
-        builder.put(' ', Blocks.air.getDefaultState());
+        builder.put(' ', Blocks.AIR.getDefaultState());
 
         conDef = builder.build();
     }

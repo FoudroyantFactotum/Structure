@@ -39,7 +39,7 @@ public class StructureTESR<E extends StructureTE> extends TileEntitySpecialRende
         final IBlockState state = te.getWorld().getBlockState(pos);
         final IBakedModel model = blockRenderer.getBlockModelShapes().getModelForState(state);
 
-        bindTexture(TextureMap.locationBlocksTexture);
+        bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 
         RenderHelper.disableStandardItemLighting();
         GlStateManager.blendFunc(770, 771);

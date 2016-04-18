@@ -40,7 +40,7 @@ public interface IStructureTE extends ITileEntity
                 final IBlockState block = sb.getPattern().getBlock(getLocal()).getBlockState();
 
                 return block == null ?
-                        Blocks.air.getDefaultState() :
+                        Blocks.AIR.getDefaultState() :
                         localToGlobal(
                                 block,
                                 state.getValue(BlockDirectional.FACING),
@@ -49,7 +49,7 @@ public interface IStructureTE extends ITileEntity
             }
         }
 
-        return Blocks.air.getDefaultState();
+        return Blocks.AIR.getDefaultState();
     }
 
     int getRegHash();
