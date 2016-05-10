@@ -23,16 +23,16 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'java'
 
-version = "${config.minecraft_version}-${config.api_version}"
+version = (hasProperty("CIRevision") ? CIRevision : config.api_version)
 group = config.group_name
-archivesBaseName = config.api_id
+archivesBaseName = "${config.api_id}-${config.minecraft_version}"
 sourceCompatibility = JavaVersion.VERSION_1_8
 targetCompatibility = JavaVersion.VERSION_1_8
 
 minecraft {
     version = config.minecraft_version + "-" + config.forge_version // grab latest forge
     runDir = "run"
-    
+
     // the mappings can be changed at any time, and must be in the following format.
     // snapshot_YYYYMMDD   snapshot are built nightly.
     // stable_#            stables are built at the discretion of the MCP team.
