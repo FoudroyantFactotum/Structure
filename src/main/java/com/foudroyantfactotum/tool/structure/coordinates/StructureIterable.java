@@ -109,7 +109,7 @@ public class StructureIterable implements Iterator<MutableBlockPos>
             throw new NoSuchElementException();
         }
 
-        pos.set(rowNo, layerNo, depthNo);
+        pos.setPos(rowNo, layerNo, depthNo);
 
         shiftReadHead();
 

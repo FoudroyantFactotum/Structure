@@ -179,7 +179,8 @@ public class BuildFormTool extends Item
                         mutLocalToGlobal(local, origin, o, mirror, sd.getBlockBounds());
 
                         final IBlockState ncwb = world.getBlockState(local);
-                        final IBlockState wb = ncwb.getBlock().getActualState(ncwb, world, local);
+
+                        final IBlockState wb = ncwb.getActualState(world, local);
 
                         if (b != null && (b.getBlock() != wb.getBlock() || !doBlockStatesMatch(pb, localToGlobal(b, o, mirror), wb)))
                         {

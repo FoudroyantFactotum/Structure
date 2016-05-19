@@ -167,7 +167,7 @@ public final class TransformLAG
         final int rx = rotationMatrix[rotIndex][0][0] * local.getX() + rotationMatrix[rotIndex][0][1] * local.getZ();
         final int rz = rotationMatrix[rotIndex][1][0] * local.getX() + rotationMatrix[rotIndex][1][1] * local.getZ();
 
-        local.set(
+        local.setPos(
                 global.getX() + rx,
                 global.getY() + local.getY(),
                 global.getZ() + rz

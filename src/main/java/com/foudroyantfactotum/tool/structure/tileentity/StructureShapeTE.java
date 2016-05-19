@@ -30,6 +30,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
 
+import javax.annotation.Nullable;
+
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.getMirror;
 import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobal;
@@ -133,8 +135,10 @@ public class StructureShapeTE extends TileEntity implements IStructureTE
     //                            N B T
     //================================================================
 
+
+    @Nullable
     @Override
-    public Packet getDescriptionPacket()
+    public SPacketUpdateTileEntity getUpdatePacket()
     {
         final NBTTagCompound nbt = new NBTTagCompound();
         writeToNBT(nbt);
@@ -160,12 +164,14 @@ public class StructureShapeTE extends TileEntity implements IStructureTE
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
 
         nbt.setInteger(BLOCK_INFO, BlockPosUtil.toInt(local));
         nbt.setInteger(BLOCK_PATTERN_NAME, definitionHash);
+
+        return nbt;
     }
 
     //================================================================

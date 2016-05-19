@@ -35,7 +35,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyBool;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -104,6 +104,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
         return new BlockStateContainer(this, DIRECTION);
     }
 
+    @Deprecated
     public IBlockState getStateFromMeta(int meta)
     {
         final EnumFacing facing = EnumFacing.getHorizontal(meta & 0x3);
@@ -132,18 +133,21 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
+    @Deprecated
     public boolean isFullCube(IBlockState state)
     {
         return false;
     }
 
     @Override
+    @Deprecated
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
     }
 
     @Override
+    @Deprecated
     public EnumPushReaction getMobilityFlag(IBlockState state)
     {
         // total immobility and stop pistons
@@ -151,6 +155,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
+    @Deprecated
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
         return EnumBlockRenderType.ENTITYBLOCK_ANIMATED;
@@ -194,17 +199,9 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
-    public boolean onBlockEventReceived(World world, BlockPos pos, IBlockState blockState, int eventId, int eventParameter)
+    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
-        super.onBlockEventReceived(world, pos, blockState, eventId, eventParameter);
-        final TileEntity te = world.getTileEntity(pos);
-        return te != null && te.receiveClientEvent(eventId, eventParameter);
-    }
-
-    @Override
-    public void onNeighborBlockChange(World worldIn, BlockPos pos, IBlockState state, Block neighborBlock)
-    {
-        onSharedNeighbourBlockChange(worldIn, pos, regHash, neighborBlock, state);
+        onSharedNeighbourBlockChange(world, pos, regHash, world.getBlockState(neighbor).getBlock(), world.getBlockState(pos));
     }
 
     @Override
@@ -227,6 +224,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
+    @Deprecated
     public void addCollisionBoxToList(IBlockState state, World worldIn, BlockPos pos, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity entityIn)
     {
         if (getPattern().getCollisionBoxes() != null)
@@ -248,7 +246,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addDestroyEffects(World world, BlockPos pos, EffectRenderer effectRenderer)
+    public boolean addDestroyEffects(World world, BlockPos pos, ParticleManager particleManager)
     {
         final float scaleVec = 0.05f;
         final TileEntity ute = world.getTileEntity(pos);
@@ -290,13 +288,14 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addHitEffects(IBlockState state, World worldObj, RayTraceResult target, EffectRenderer effectRenderer)
+    public boolean addHitEffects(IBlockState state, World worldObj, RayTraceResult target, ParticleManager manager)
     {
-        return super.addHitEffects(state, worldObj, target, effectRenderer);
+        return super.addHitEffects(state, worldObj, target, manager);
     }
 
     @Override
     @SideOnly(Side.CLIENT)
+    @Deprecated
     public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World world, BlockPos pos)
     {
         //return EMPTY_BOUNDS;

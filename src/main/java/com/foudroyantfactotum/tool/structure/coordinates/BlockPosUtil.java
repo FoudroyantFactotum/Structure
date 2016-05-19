@@ -49,27 +49,27 @@ public final class BlockPosUtil
 
     public static void mutSetX(MutableBlockPos pos, int x)
     {
-        pos.set(x, pos.getY(), pos.getZ());
+        pos.setPos(x, pos.getY(), pos.getZ());
     }
 
     public static void mutSetY(MutableBlockPos pos, int y)
     {
-        pos.set(pos.getX(), y, pos.getZ());
+        pos.setPos(pos.getX(), y, pos.getZ());
     }
 
     public static void mutSetZ(MutableBlockPos pos, int z)
     {
-        pos.set(pos.getX(), pos.getY(), z);
+        pos.setPos(pos.getX(), pos.getY(), z);
     }
 
     public static MutableBlockPos newMutBlockPos(BlockPos pos)
     {
-        return new MutableBlockPos().set(pos.getX(), pos.getY(), pos.getZ());
+        return new MutableBlockPos().setPos(pos.getX(), pos.getY(), pos.getZ());
     }
 
     public static MutableBlockPos mutOffset(MutableBlockPos pos, EnumFacing facing)
     {
-        return pos.set(
+        return pos.setPos(
                 facing.getFrontOffsetX() + pos.getX(),
                 facing.getFrontOffsetY() + pos.getY(),
                 facing.getFrontOffsetZ() + pos.getZ()

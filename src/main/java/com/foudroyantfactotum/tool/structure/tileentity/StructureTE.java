@@ -35,6 +35,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
+import javax.annotation.Nullable;
+
 import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.flagEnumFacing;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
@@ -113,8 +115,10 @@ public abstract class StructureTE extends TileEntity implements IStructureTE
     //                            N B T
     //================================================================
 
+
+    @Nullable
     @Override
-    public Packet getDescriptionPacket()
+    public SPacketUpdateTileEntity getUpdatePacket()
     {
         final NBTTagCompound nbt = new NBTTagCompound();
         writeToNBT(nbt);
@@ -144,12 +148,14 @@ public abstract class StructureTE extends TileEntity implements IStructureTE
     }
 
     @Override
-    public void writeToNBT(NBTTagCompound nbt)
+    public NBTTagCompound writeToNBT(NBTTagCompound nbt)
     {
         super.writeToNBT(nbt);
 
         nbt.setInteger(BLOCK_INFO, local.hashCode() | (orientation.ordinal() | (mirror ? StructurePacket.flagMirrored:0)) << BlockPosUtil.BLOCKPOS_BITLEN);
         nbt.setInteger(BLOCK_PATTERN_NAME, definitionHash);
+
+        return nbt;
     }
 
     protected void transformDirectionsOnLoad(StructureDefinition sd) { }

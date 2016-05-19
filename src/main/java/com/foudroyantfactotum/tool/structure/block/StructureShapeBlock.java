@@ -27,7 +27,7 @@ import net.minecraft.block.material.Material;
 import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.particle.EffectRenderer;
+import net.minecraft.client.particle.ParticleManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -83,6 +83,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
         return new BlockStateContainer(this, DIRECTION);
     }
 
+    @Deprecated
     public IBlockState getStateFromMeta(int meta)
     {
         final EnumFacing facing = EnumFacing.getHorizontal(meta & 0x3);
@@ -114,14 +115,6 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     public boolean canMirror()
     {
         return true;
-    }
-
-    @Override
-    public boolean onBlockEventReceived(World world, BlockPos pos, IBlockState blockState, int eventId, int eventParameter)
-    {
-        super.onBlockEventReceived(world, pos, blockState, eventId, eventParameter);
-        final TileEntity te = world.getTileEntity(pos);
-        return te != null && te.receiveClientEvent(eventId, eventParameter);
     }
 
     @Override
@@ -157,6 +150,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
     @Override
     @SideOnly(Side.CLIENT)
+    @Deprecated
     public AxisAlignedBB getSelectedBoundingBox(IBlockState state, World worldIn, BlockPos pos)
     {
         final StructureShapeTE te = (StructureShapeTE) worldIn.getTileEntity(pos);
@@ -174,6 +168,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     }
 
     @Override
+    @Deprecated
     public void addCollisionBoxToList(IBlockState state, World world, BlockPos pos, AxisAlignedBB mask, List<AxisAlignedBB> list, Entity collidingEntity)
     {
         final IStructureTE te = (IStructureTE) world.getTileEntity(pos);
@@ -202,6 +197,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     }
 
     @Override
+    @Deprecated
     public EnumPushReaction getMobilityFlag(IBlockState state)
     {
         return EnumPushReaction.BLOCK;
@@ -215,7 +211,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
     @Override
     @SideOnly(Side.CLIENT)
-    public boolean addDestroyEffects(World world, BlockPos pos, EffectRenderer effectRenderer)
+    public boolean addDestroyEffects(World world, BlockPos pos, ParticleManager particleManager)
     {
         final IStructureTE te = (IStructureTE) world.getTileEntity(pos);
 
@@ -225,7 +221,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
             if (block != null)
             {
-                return block.addDestroyEffects(world, te.getMasterBlockLocation(), effectRenderer);
+                return block.addDestroyEffects(world, te.getMasterBlockLocation(), particleManager);
             }
         }
 
@@ -287,12 +283,12 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     }
 
     @Override
-    public void onNeighborBlockChange(World world, BlockPos pos, IBlockState state, Block neighborBlock)
+    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
     {
         onSharedNeighbourBlockChange(world, pos,
                 ((StructureShapeTE) world.getTileEntity(pos)).getRegHash(),
-                neighborBlock,
-                state
+                world.getBlockState(neighbor).getBlock(),
+                world.getBlockState(pos)
         );
     }
 
@@ -302,12 +298,14 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
 
     @Override
+    @Deprecated
     public EnumBlockRenderType getRenderType(IBlockState state)
     {
         return _DEBUG ? EnumBlockRenderType.MODEL : EnumBlockRenderType.INVISIBLE;
     }
 
     @Override
+    @Deprecated
     public boolean isOpaqueCube(IBlockState state)
     {
         return false;
