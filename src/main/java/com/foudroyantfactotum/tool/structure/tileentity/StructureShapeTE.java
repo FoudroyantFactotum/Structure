@@ -24,13 +24,10 @@ import com.google.common.base.Optional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.Packet;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
-
-import javax.annotation.Nullable;
+import net.minecraft.util.math.BlockPos;
 
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.getMirror;
 import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
@@ -135,21 +132,22 @@ public class StructureShapeTE extends TileEntity implements IStructureTE
     //                            N B T
     //================================================================
 
-
-    @Nullable
     @Override
     public SPacketUpdateTileEntity getUpdatePacket()
     {
-        final NBTTagCompound nbt = new NBTTagCompound();
-        writeToNBT(nbt);
-
-        return new SPacketUpdateTileEntity(pos, 1, nbt);
+        return new SPacketUpdateTileEntity(pos, 1, getUpdateTag());
     }
 
     @Override
     public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity packet)
     {
         readFromNBT(packet.getNbtCompound());
+    }
+
+    @Override
+    public NBTTagCompound getUpdateTag()
+    {
+        return writeToNBT(super.getUpdateTag());
     }
 
     @Override

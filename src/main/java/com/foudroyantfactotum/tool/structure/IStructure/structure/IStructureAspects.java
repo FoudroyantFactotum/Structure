@@ -17,12 +17,13 @@ package com.foudroyantfactotum.tool.structure.IStructure.structure;
 
 import com.foudroyantfactotum.tool.structure.utility.StructureDefinitionBuilder;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public interface IStructureAspects
 {
     StructureDefinitionBuilder getStructureBuild();
-    boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, BlockPos local, float sx, float sy, float sz);
+    boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, EnumHand hand, BlockPos callPos, EnumFacing side, BlockPos local, float sx, float sy, float sz);
 }

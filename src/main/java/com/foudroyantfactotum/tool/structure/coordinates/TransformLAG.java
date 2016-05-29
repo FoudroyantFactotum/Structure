@@ -114,11 +114,9 @@ public final class TransformLAG
         builder.put(block, stateMatcher);
     }
 
-
     //===============================================================================
     //                              T R A N S F O R M S
     //===============================================================================
-
 
     private static final int[][][] rotationMatrix = {
             {{1, 0}, {0, 1}}, // north
@@ -157,6 +155,8 @@ public final class TransformLAG
                                             BlockPos strucSize)
     {
         final int rotIndex = orientation.ordinal()-2;
+
+        if (rotIndex < 0 || rotIndex > 3) return; //should not happen. who screwed up
 
         if (ismirrored)
         {

@@ -17,21 +17,22 @@ package com.foudroyantfactotum.tool.structure.net;
 
 import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
+import com.foudroyantfactotum.tool.structure.block.StructureShapeBlock;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumParticleTypes;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 
-import static com.foudroyantfactotum.tool.structure.block.StructureBlock.*;
+import static com.foudroyantfactotum.tool.structure.block.StructureBlock.bindLocalToGlobal;
+import static com.foudroyantfactotum.tool.structure.block.StructureBlock.updateExternalNeighbours;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobal;
 
 //todo fix and clean up this packet code
@@ -106,7 +107,7 @@ public class StructurePacket implements IMessage
             if (msg.sc == StructurePacketOption.BUILD)
             {
                  IBlockState state = block.getDefaultState()
-                        .withProperty(BlockDirectional.FACING, orientation);
+                        .withProperty(StructureShapeBlock.DIRECTION, orientation);
 
                 if (block.canMirror())
                     state = state.withProperty(StructureBlock.MIRROR, mirror);

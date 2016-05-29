@@ -32,7 +32,10 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.*;
+import net.minecraft.util.BlockRenderLayer;
+import net.minecraft.util.EnumBlockRenderType;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
@@ -80,6 +83,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
         {
             return new BlockStateContainer(this, DIRECTION, MIRROR);
         }
+
         return new BlockStateContainer(this, DIRECTION);
     }
 
@@ -106,7 +110,8 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
         if (canMirror())
         {
             return facing.getHorizontalIndex() | (mirror ? 1 << 2 : 0);
-        } else {
+        } else
+        {
             return facing.getHorizontalIndex();
         }
     }
@@ -191,7 +196,9 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
         }
     }
 
-    public boolean isFullCube()
+    @Override
+    @Deprecated
+    public boolean isFullCube(IBlockState state)
     {
         return false;
     }
@@ -273,7 +280,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
             if (block != null)
             {
-                return block.onStructureBlockActivated(world, te.getMasterBlockLocation(), player, pos, side, te.getLocal(), hitX, hitY, hitZ);
+                return block.onStructureBlockActivated(world, te.getMasterBlockLocation(), player, hand, pos, side, te.getLocal(), hitX, hitY, hitZ);
             }
         }
 
@@ -283,12 +290,13 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     }
 
     @Override
-    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
+    @Deprecated
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn)
     {
         onSharedNeighbourBlockChange(world, pos,
                 ((StructureShapeTE) world.getTileEntity(pos)).getRegHash(),
-                world.getBlockState(neighbor).getBlock(),
-                world.getBlockState(pos)
+                blockIn,
+                state
         );
     }
 

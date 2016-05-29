@@ -26,7 +26,6 @@ import com.foudroyantfactotum.tool.structure.net.StructurePacket;
 import com.foudroyantfactotum.tool.structure.net.StructurePacketOption;
 import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
 import com.foudroyantfactotum.tool.structure.tileentity.StructureTE;
-import com.foudroyantfactotum.tool.structure.waila.WailaProvider;
 import com.google.common.base.Objects;
 import net.minecraft.block.Block;
 import net.minecraft.block.SoundType;
@@ -44,12 +43,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.*;
 import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.Optional;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -60,7 +58,7 @@ import java.util.Random;
 import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.*;
 
-@Optional.Interface(modid = WailaProvider.WAILA, iface = "mcp.mobius.waila.api.IWailaDataProvider", striprefs = true)
+//@Optional.Interface(modid = WailaProvider.WAILA, iface = "mcp.mobius.waila.api.IWailaDataProvider", striprefs = true)
 public abstract class StructureBlock extends Block implements IPatternHolder, IStructureAspects, ICanMirror//, IWailaDataProvider
 {
     private int regHash = 0;
@@ -97,13 +95,15 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     @Override
     protected BlockStateContainer createBlockState()
     {
-        if (canMirror){
+        if (canMirror)
+        {
             return new BlockStateContainer(this, DIRECTION, MIRROR);
         }
 
         return new BlockStateContainer(this, DIRECTION);
     }
 
+    @Override
     @Deprecated
     public IBlockState getStateFromMeta(int meta)
     {
@@ -127,7 +127,8 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
         if (canMirror)
         {
             return facing.getHorizontalIndex() | (mirror ? 1 << 2 : 0);
-        } else {
+        } else
+        {
             return facing.getHorizontalIndex();
         }
     }
@@ -199,9 +200,10 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
-    public void onNeighborChange(IBlockAccess world, BlockPos pos, BlockPos neighbor)
+    @Deprecated
+    public void neighborChanged(IBlockState state, World world, BlockPos pos, Block blockIn)
     {
-        onSharedNeighbourBlockChange(world, pos, regHash, world.getBlockState(neighbor).getBlock(), world.getBlockState(pos));
+        onSharedNeighbourBlockChange(world, pos, regHash, blockIn, state);
     }
 
     @Override
@@ -241,7 +243,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     @Override
     public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, ItemStack heldItem, EnumFacing side, float hitX, float hitY, float hitZ)
     {
-        return onStructureBlockActivated(world, pos, player, pos, side, BlockPos.ORIGIN, hitX, hitY, hitZ);
+        return onStructureBlockActivated(world, pos, player, hand, pos, side, BlockPos.ORIGIN, hitX, hitY, hitZ);
     }
 
     @Override
@@ -332,7 +334,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     }
 
     @Override
-    public boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, BlockPos callPos, EnumFacing side, BlockPos local, float sx, float sy, float sz)
+    public boolean onStructureBlockActivated(World world, BlockPos pos, EntityPlayer player, EnumHand hand, BlockPos callPos, EnumFacing side, BlockPos local, float sx, float sy, float sz)
     {
         return false;
     }

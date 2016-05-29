@@ -22,16 +22,15 @@ import com.foudroyantfactotum.tool.structure.net.StructureNetwork;
 import com.foudroyantfactotum.tool.structure.net.StructurePacket;
 import com.foudroyantfactotum.tool.structure.net.StructurePacketOption;
 import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
-import net.minecraft.block.BlockDirectional;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.BlockPos.MutableBlockPos;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -46,7 +45,7 @@ import static com.foudroyantfactotum.tool.structure.block.StructureBlock.updateE
 import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.*;
 
-public class BuildFormTool extends Item
+public class StructureFormTool extends Item
 {
     private static final ExecutorService pool = Executors.newFixedThreadPool(5);
     protected static final EnumFacing[][] orientationPriority = {
@@ -116,7 +115,6 @@ public class BuildFormTool extends Item
             {
                 state = state.withProperty(MIRROR, result.mirror);
             }
-
 
             world.setBlockState(result.origin, state, 0x2);
             result.block.formStructure(world, result.origin, state, 0x2);
