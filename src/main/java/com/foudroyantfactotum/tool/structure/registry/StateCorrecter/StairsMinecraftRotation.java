@@ -15,14 +15,14 @@
  */
 package com.foudroyantfactotum.tool.structure.registry.StateCorrecter;
 
-import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.BlockStairs.EnumShape;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobal;
-import static net.minecraft.block.BlockStairs.*;
 import static net.minecraft.block.BlockStairs.EnumShape.*;
+import static net.minecraft.block.BlockStairs.SHAPE;
 
 public class StairsMinecraftRotation implements IStructurePatternStateCorrecter
 {
@@ -37,11 +37,11 @@ public class StairsMinecraftRotation implements IStructurePatternStateCorrecter
     @Override
     public IBlockState alterBlockState(IBlockState state, EnumFacing orientation, boolean mirror)
     {
-        final EnumFacing facing = state.getValue(BlockDirectional.FACING);
+        final EnumFacing facing = state.getValue(BlockHorizontal.FACING);
         final EnumShape shape = state.getValue(SHAPE);
 
         return state
-                .withProperty(BlockDirectional.FACING, localToGlobal(facing, orientation, mirror))
+                .withProperty(BlockHorizontal.FACING, localToGlobal(facing, orientation, mirror))
                 .withProperty(SHAPE, mirror ? opp[shape.ordinal()] : shape);
     }
 }

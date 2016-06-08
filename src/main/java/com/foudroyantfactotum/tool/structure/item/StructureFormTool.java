@@ -22,6 +22,7 @@ import com.foudroyantfactotum.tool.structure.net.StructureNetwork;
 import com.foudroyantfactotum.tool.structure.net.StructurePacket;
 import com.foudroyantfactotum.tool.structure.net.StructurePacketOption;
 import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -42,7 +43,6 @@ import java.util.concurrent.*;
 
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.MIRROR;
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.updateExternalNeighbours;
-import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.*;
 
 public class StructureFormTool extends Item
@@ -109,7 +109,7 @@ public class StructureFormTool extends Item
         if (result != null)
         {
             IBlockState state = result.block.getDefaultState()
-                    .withProperty(DIRECTION, result.orientation);
+                    .withProperty(BlockHorizontal.FACING, result.orientation);
 
             if (result.block.canMirror())
             {

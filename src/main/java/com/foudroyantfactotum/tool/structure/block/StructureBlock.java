@@ -28,6 +28,7 @@ import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
 import com.foudroyantfactotum.tool.structure.tileentity.StructureTE;
 import com.google.common.base.Objects;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
@@ -55,7 +56,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import java.util.List;
 import java.util.Random;
 
-import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.*;
 
 //@Optional.Interface(modid = WailaProvider.WAILA, iface = "mcp.mobius.waila.api.IWailaDataProvider", striprefs = true)
@@ -75,7 +75,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
 
         IBlockState defaultState = this.blockState
                 .getBaseState()
-                .withProperty(DIRECTION, EnumFacing.NORTH);
+                .withProperty(BlockHorizontal.FACING, EnumFacing.NORTH);
 
         if (canMirror)
         {
@@ -97,10 +97,10 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     {
         if (canMirror)
         {
-            return new BlockStateContainer(this, DIRECTION, MIRROR);
+            return new BlockStateContainer(this, BlockHorizontal.FACING, MIRROR);
         }
 
-        return new BlockStateContainer(this, DIRECTION);
+        return new BlockStateContainer(this, BlockHorizontal.FACING);
     }
 
     @Override
@@ -109,7 +109,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     {
         final EnumFacing facing = EnumFacing.getHorizontal(meta & 0x3);
 
-        IBlockState state = getDefaultState().withProperty(DIRECTION, facing);
+        IBlockState state = getDefaultState().withProperty(BlockHorizontal.FACING, facing);
 
         if (canMirror)
         {
@@ -121,7 +121,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
 
     public int getMetaFromState(IBlockState state)
     {
-        final EnumFacing facing = state.getValue(DIRECTION);
+        final EnumFacing facing = state.getValue(BlockHorizontal.FACING);
         final boolean mirror = getMirror(state);
 
         if (canMirror)
@@ -192,7 +192,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
     {
         super.onBlockPlacedBy(world, pos, state, placer, stack);
 
-        final EnumFacing orientation = state.getValue(DIRECTION);
+        final EnumFacing orientation = state.getValue(BlockHorizontal.FACING);
         final boolean mirror = getMirror(state);
 
         formStructure(world, pos, state, 0x2);
@@ -234,7 +234,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
             localToGlobalCollisionBoxes(
                     pos.getX(), pos.getY(), pos.getZ(),
                     mask, list, getPattern().getCollisionBoxes(),
-                    state.getValue(DIRECTION), getMirror(state),
+                    state.getValue(BlockHorizontal.FACING), getMirror(state),
                     getPattern().getBlockBounds()
             );
         }
@@ -365,7 +365,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
             }
 
             final boolean mirror = getMirror(state);
-            final EnumFacing orientation = state.getValue(DIRECTION);
+            final EnumFacing orientation = state.getValue(BlockHorizontal.FACING);
 
             final BlockPos nPos = BlockPosUtil.of(pos, localToGlobal(f, orientation, mirror));
             final IBlockState nState = world.getBlockState(nPos);
@@ -374,7 +374,7 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
                 (state.getBlock()  instanceof StructureBlock || state.getBlock()  instanceof StructureShapeBlock))
             {
                 final boolean nmirror = getMirror(nState);
-                final EnumFacing norientation = nState.getValue(DIRECTION);
+                final EnumFacing norientation = nState.getValue(BlockHorizontal.FACING);
 
                 if (mirror == nmirror && orientation == norientation)
                 {
@@ -400,11 +400,11 @@ public abstract class StructureBlock extends Block implements IPatternHolder, IS
 
     public void formStructure(World world, BlockPos origin, IBlockState state, int flag)
     {
-        final EnumFacing orientation = state.getValue(DIRECTION);
+        final EnumFacing orientation = state.getValue(BlockHorizontal.FACING);
         final boolean mirror = getMirror(state);
         IBlockState shapeState = shapeBlock
                 .getDefaultState()
-                .withProperty(DIRECTION, orientation);
+                .withProperty(BlockHorizontal.FACING, orientation);
 
         if (canMirror)
         {

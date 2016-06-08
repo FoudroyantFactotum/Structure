@@ -21,16 +21,15 @@ import com.foudroyantfactotum.tool.structure.block.StructureBlock;
 import com.foudroyantfactotum.tool.structure.coordinates.BlockPosUtil;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 
 import static com.foudroyantfactotum.tool.structure.block.StructureBlock.getMirror;
-import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobal;
 import static com.foudroyantfactotum.tool.structure.tileentity.StructureTE.BLOCK_INFO;
 import static com.foudroyantfactotum.tool.structure.tileentity.StructureTE.BLOCK_PATTERN_NAME;
@@ -107,7 +106,7 @@ public class StructureShapeTE extends TileEntity implements IStructureTE
             masterLocation = Optional.of(localToGlobal(
                     -local.getX(), -local.getY(), -local.getZ(),
                     pos.getX(), pos.getY(), pos.getZ(),
-                    (EnumFacing) state.getValue(DIRECTION), getMirror(state),
+                    state.getValue(BlockHorizontal.FACING), getMirror(state),
                     sb.getPattern().getBlockBounds()));
         }
 

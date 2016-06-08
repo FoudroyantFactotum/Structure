@@ -23,6 +23,7 @@ import com.foudroyantfactotum.tool.structure.net.StructurePacket;
 import com.foudroyantfactotum.tool.structure.registry.StructureDefinition;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.network.NetworkManager;
@@ -36,7 +37,6 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 
 import javax.annotation.Nullable;
 
-import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.flagEnumFacing;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobalBoundingBox;
 
@@ -179,7 +179,7 @@ public abstract class StructureTE extends TileEntity implements IStructureTE
             }
 
             final IBlockState state = getWorld().getBlockState(pos);
-            final EnumFacing orientation = state.getValue(DIRECTION);
+            final EnumFacing orientation = state.getValue(BlockHorizontal.FACING);
             final boolean mirror = StructureBlock.getMirror(state);
 
             renderBounds = Optional.of(localToGlobalBoundingBox(pos, local, sb.getPattern(), orientation, mirror));

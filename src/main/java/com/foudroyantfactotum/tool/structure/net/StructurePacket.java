@@ -17,8 +17,8 @@ package com.foudroyantfactotum.tool.structure.net;
 
 import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
-import com.foudroyantfactotum.tool.structure.block.StructureShapeBlock;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumFacing;
@@ -107,7 +107,7 @@ public class StructurePacket implements IMessage
             if (msg.sc == StructurePacketOption.BUILD)
             {
                  IBlockState state = block.getDefaultState()
-                        .withProperty(StructureShapeBlock.DIRECTION, orientation);
+                        .withProperty(BlockHorizontal.FACING, orientation);
 
                 if (block.canMirror())
                     state = state.withProperty(StructureBlock.MIRROR, mirror);

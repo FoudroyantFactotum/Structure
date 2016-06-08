@@ -17,6 +17,7 @@ package com.foudroyantfactotum.tool.structure.item;
 
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemBlock;
@@ -27,7 +28,6 @@ import net.minecraft.util.math.BlockPos.MutableBlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.world.World;
 
-import static com.foudroyantfactotum.tool.structure.block.StructureShapeBlock.DIRECTION;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.localToGlobal;
 import static com.foudroyantfactotum.tool.structure.coordinates.TransformLAG.mutLocalToGlobal;
 
@@ -51,7 +51,7 @@ public class StructureBlockItem extends ItemBlock
         final EnumFacing orientation = EnumFacing.getHorizontal(MathHelper.floor_double(player.rotationYaw * 4.0f / 360.0f + 0.5) & 3);
         final boolean mirror = block.canMirror() && player.isSneaking();
 
-        newState = newState.withProperty(DIRECTION, orientation);
+        newState = newState.withProperty(BlockHorizontal.FACING, orientation);
 
         if (block.canMirror())
         {

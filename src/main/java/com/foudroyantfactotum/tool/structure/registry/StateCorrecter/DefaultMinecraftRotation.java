@@ -15,7 +15,7 @@
  */
 package com.foudroyantfactotum.tool.structure.registry.StateCorrecter;
 
-import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.EnumFacing;
 
@@ -26,8 +26,8 @@ public class DefaultMinecraftRotation implements IStructurePatternStateCorrecter
     @Override
     public IBlockState alterBlockState(IBlockState state, EnumFacing orientation, boolean mirror)
     {
-        final EnumFacing facing = state.getValue(BlockDirectional.FACING);
+        final EnumFacing facing = state.getValue(BlockHorizontal.FACING);
 
-        return state.withProperty(BlockDirectional.FACING, localToGlobal(facing, orientation, mirror));
+        return state.withProperty(BlockHorizontal.FACING, localToGlobal(facing, orientation, mirror));
     }
 }

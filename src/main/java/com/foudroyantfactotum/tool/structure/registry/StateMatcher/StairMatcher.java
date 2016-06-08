@@ -15,7 +15,7 @@
  */
 package com.foudroyantfactotum.tool.structure.registry.StateMatcher;
 
-import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.BlockStairs.EnumHalf;
 import net.minecraft.block.BlockStairs.EnumShape;
 import net.minecraft.block.state.IBlockState;
@@ -32,8 +32,8 @@ public class StairMatcher implements IStateMatcher
     @Override
     public boolean matchBlockState(IBlockState b1, IBlockState b2)
     {
-        final EnumFacing b1Facing = b1.getValue(BlockDirectional.FACING);
-        final EnumFacing b2Facing = b2.getValue(BlockDirectional.FACING);
+        final EnumFacing b1Facing = b1.getValue(BlockHorizontal.FACING);
+        final EnumFacing b2Facing = b2.getValue(BlockHorizontal.FACING);
 
         final EnumHalf b1Half = b1.getValue(HALF);
         final EnumHalf b2Half = b2.getValue(HALF);

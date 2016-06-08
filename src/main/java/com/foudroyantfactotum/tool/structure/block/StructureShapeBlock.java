@@ -20,11 +20,11 @@ import com.foudroyantfactotum.tool.structure.IStructure.IStructureTE;
 import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.tileentity.StructureShapeTE;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.ITileEntityProvider;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.material.EnumPushReaction;
 import net.minecraft.block.material.Material;
-import net.minecraft.block.properties.PropertyDirection;
 import net.minecraft.block.state.BlockStateContainer;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.particle.ParticleManager;
@@ -44,7 +44,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
@@ -56,7 +55,6 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     public static boolean _DEBUG = false;
     public static final String NAME = "structureShape";
     public static final AxisAlignedBB EMPTY_BOUNDS = new AxisAlignedBB(0, 0, 0, 0, 0, 0);
-    public static final PropertyDirection DIRECTION = PropertyDirection.create("facing", Arrays.asList(EnumFacing.HORIZONTALS));
 
     public StructureShapeBlock()
     {
@@ -66,7 +64,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
         setUnlocalizedName(NAME);
 
-        IBlockState state = this.blockState.getBaseState().withProperty(DIRECTION, EnumFacing.NORTH);
+        IBlockState state = this.blockState.getBaseState().withProperty(BlockHorizontal.FACING, EnumFacing.NORTH);
 
         if (canMirror())
         {
@@ -81,10 +79,10 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     {
         if (canMirror())
         {
-            return new BlockStateContainer(this, DIRECTION, MIRROR);
+            return new BlockStateContainer(this, BlockHorizontal.FACING, MIRROR);
         }
 
-        return new BlockStateContainer(this, DIRECTION);
+        return new BlockStateContainer(this, BlockHorizontal.FACING);
     }
 
     @Deprecated
@@ -92,7 +90,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
     {
         final EnumFacing facing = EnumFacing.getHorizontal(meta & 0x3);
 
-        IBlockState state = getDefaultState().withProperty(DIRECTION, facing);
+        IBlockState state = getDefaultState().withProperty(BlockHorizontal.FACING, facing);
 
         if (canMirror())
         {
@@ -104,7 +102,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
     public int getMetaFromState(IBlockState state)
     {
-        final EnumFacing facing = state.getValue(DIRECTION);
+        final EnumFacing facing = state.getValue(BlockHorizontal.FACING);
         final boolean mirror = getMirror(state);
 
         if (canMirror())
@@ -190,7 +188,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
 
             localToGlobalCollisionBoxes(mloc.getX(), mloc.getY(), mloc.getZ(),
                     mask, list, sb.getPattern().getCollisionBoxes(),
-                    state.getValue(DIRECTION), getMirror(state),
+                    state.getValue(BlockHorizontal.FACING), getMirror(state),
                     sb.getPattern().getBlockBounds()
             );
         }
@@ -248,7 +246,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
         {
             sb.breakStructure(world,
                     te.getMasterBlockLocation(),
-                    state.getValue(DIRECTION),
+                    state.getValue(BlockHorizontal.FACING),
                     getMirror(state),
                     isPlayerCreative,
                     isPlayerSneaking
@@ -256,7 +254,7 @@ public abstract class StructureShapeBlock extends Block implements ITileEntityPr
             updateExternalNeighbours(world,
                     te.getMasterBlockLocation(),
                     sb.getPattern(),
-                    state.getValue(DIRECTION),
+                    state.getValue(BlockHorizontal.FACING),
                     getMirror(state),
                     false
             );

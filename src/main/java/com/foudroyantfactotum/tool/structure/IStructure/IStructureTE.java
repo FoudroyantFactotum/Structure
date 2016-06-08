@@ -17,7 +17,7 @@ package com.foudroyantfactotum.tool.structure.IStructure;
 
 import com.foudroyantfactotum.tool.structure.StructureRegistry;
 import com.foudroyantfactotum.tool.structure.block.StructureBlock;
-import net.minecraft.block.BlockDirectional;
+import net.minecraft.block.BlockHorizontal;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.math.BlockPos;
@@ -43,7 +43,7 @@ public interface IStructureTE extends ITileEntity
                         Blocks.AIR.getDefaultState() :
                         localToGlobal(
                                 block,
-                                state.getValue(BlockDirectional.FACING),
+                                state.getValue(BlockHorizontal.FACING),
                                 getMirror(state)
                         );
             }
