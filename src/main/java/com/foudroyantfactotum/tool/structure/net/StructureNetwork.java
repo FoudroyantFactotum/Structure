@@ -26,7 +26,7 @@ public final class StructureNetwork
 
     public static void init()
     {
-        network = NetworkRegistry.INSTANCE.newSimpleChannel(StructureRegistry.getMOD_ID() + ".structure");
+        network = NetworkRegistry.INSTANCE.newSimpleChannel(StructureRegistry.getMOD_ID() + ".struct");
 
         network.registerMessage(StructurePacket.Handler.class, StructurePacket.class, 1, Side.CLIENT);
     }
