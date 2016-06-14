@@ -15,19 +15,19 @@
  */
 package com.foudroyantfactotum.tool.structure.net;
 
-import com.foudroyantfactotum.tool.structure.StructureRegistry;
-import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
+
+import javax.annotation.Nonnull;
 
 public final class StructureNetwork
 {
     public static SimpleNetworkWrapper network;
 
-    public static void init()
+    public static void init(@Nonnull final SimpleNetworkWrapper network)
     {
-        network = NetworkRegistry.INSTANCE.newSimpleChannel(StructureRegistry.getMOD_ID() + ".struct");
-
         network.registerMessage(StructurePacket.Handler.class, StructurePacket.class, 1, Side.CLIENT);
+
+        StructureNetwork.network = network;
     }
 }
